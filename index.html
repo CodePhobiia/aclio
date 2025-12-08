@@ -2308,26 +2308,31 @@
     .welcome-screen {
       min-height: 100vh; min-height: 100dvh;
       display: flex; flex-direction: column;
-      padding: 60px 24px calc(var(--safe-bottom) + 40px);
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
       background: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 50%, #c5e3f3 100%);
       position: relative;
       overflow: hidden;
     }
-    .welcome-sparkle {
-      position: absolute;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 24px;
+    .welcome-content { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center;
+      margin-bottom: 20px;
     }
-    .welcome-sparkle-1 { top: 15%; right: 10%; }
-    .welcome-sparkle-2 { bottom: 20%; left: 8%; }
-    .welcome-sparkle-3 { bottom: 10%; right: 5%; font-size: 18px; }
-    .welcome-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
     .welcome-mascot {
-      width: 220px;
-      height: 220px;
-      margin-bottom: 24px;
+      width: 280px;
+      height: 280px;
+      margin-bottom: 20px;
       position: relative;
       filter: drop-shadow(0 20px 40px rgba(255, 140, 66, 0.3));
+      animation: float 3s ease-in-out infinite;
     }
     .welcome-mascot img {
       width: 100%;
@@ -2335,7 +2340,7 @@
       object-fit: contain;
     }
     .welcome-title { 
-      font-size: 42px; 
+      font-size: 48px; 
       font-weight: 800; 
       margin-bottom: 8px; 
       color: #1a2b4a;
@@ -2345,7 +2350,7 @@
       font-size: 20px; 
       color: #4a5568;
       font-weight: 400;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
     }
     .welcome-bottom { 
       text-align: center; 
@@ -3872,11 +3877,6 @@
         return (
           <div className="app">
             <div className="welcome-screen fade-in">
-              {/* Sparkle decorations */}
-              <div className="welcome-sparkle welcome-sparkle-1">✦</div>
-              <div className="welcome-sparkle welcome-sparkle-2">✦</div>
-              <div className="welcome-sparkle welcome-sparkle-3">✦</div>
-              
               <div className="welcome-content">
                 {/* Flame Bunny Mascot */}
                 <div className="welcome-mascot">
