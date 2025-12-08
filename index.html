@@ -14,68 +14,69 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     :root {
-      /* ============ GEMINI DESIGN TOKENS ============ */
+      /* ============ REFINED DESIGN TOKENS ============ */
       
-      /* Colors */
+      /* Colors - Lighter page bg for better contrast */
       --header-bg: #0B172A;
-      --page-bg: #F5F9FF;
+      --page-bg: #F8FAFC;
       --card-bg: #FFFFFF;
       --primary-orange: #FF9F3A;
       --primary-orange-dark: #F27C1F;
-      --premium-gradient-start: #FFB347;
-      --premium-gradient-end: #FF8A3D;
+      --premium-gradient-start: #FFBA5C;
+      --premium-gradient-end: #FF9632;
       --text-primary: #111827;
       --text-secondary: #6B7280;
-      --pill-bg: #F3F4F6;
+      --pill-bg: #F1F5F9;
       --dashed-border: #FBBF77;
-      --progress-bar-bg: #E5EAF2;
+      --progress-bar-bg: #E2E8F0;
       --step-teal: #14B8A6;
       --step-green: #22C55E;
-      --border-light: #E5E7EB;
+      --border-light: #E2E8F0;
       
-      /* Legacy aliases for compatibility */
+      /* Legacy aliases */
       --bg: var(--page-bg);
       --bg-card: var(--card-bg);
       --bg-top: var(--page-bg);
-      --bg-bottom: #E8F4FC;
+      --bg-bottom: #EEF4FA;
       --bg-section: var(--pill-bg);
-      --bg-input: #EDF2F7;
+      --bg-input: #F1F5F9;
       --hero-bg: var(--header-bg);
       --hero-text: #ffffff;
-      --hero-text-dim: rgba(255, 255, 255, 0.7);
+      --hero-text-dim: rgba(255, 255, 255, 0.6);
       --text: var(--text-primary);
       --text-dim: var(--text-secondary);
       --text-dimmer: #9CA3AF;
       --text-muted: #9CA3AF;
       --accent: var(--primary-orange);
       --accent-light: var(--premium-gradient-start);
-      --accent-soft: rgba(255, 159, 58, 0.12);
-      --accent-softer: rgba(255, 159, 58, 0.06);
+      --accent-soft: rgba(255, 159, 58, 0.1);
+      --accent-softer: rgba(255, 159, 58, 0.05);
       --teal: var(--step-teal);
-      --teal-soft: rgba(20, 184, 166, 0.12);
+      --teal-soft: rgba(20, 184, 166, 0.1);
       --teal-bg: #E6F7F3;
       --success: var(--step-green);
-      --success-soft: rgba(34, 197, 94, 0.12);
+      --success-soft: rgba(34, 197, 94, 0.1);
       --gold: #FFB347;
-      --gold-soft: rgba(255, 179, 71, 0.12);
+      --gold-soft: rgba(255, 179, 71, 0.1);
       --purple: #8B7ED8;
       --purple-bg: #EDE9F8;
-      --purple-soft: rgba(139, 126, 216, 0.15);
+      --purple-soft: rgba(139, 126, 216, 0.12);
       --mint: #4ECDC4;
       --mint-bg: #E5F9F7;
       --orange: var(--primary-orange);
-      --orange-soft: rgba(255, 159, 58, 0.12);
+      --orange-soft: rgba(255, 159, 58, 0.1);
       --pink: #ec4899;
       --red: #ef4444;
-      --red-soft: rgba(239, 68, 68, 0.1);
+      --red-soft: rgba(239, 68, 68, 0.08);
       --border: var(--border-light);
-      --dot-inactive: rgba(255, 159, 58, 0.3);
+      --dot-inactive: rgba(100, 116, 139, 0.25);
       
-      /* Radii - Gemini spec */
-      --radius-large: 28px;
-      --radius-card: 20px;
-      --radius-button: 18px;
-      --radius-pill: 16px;
+      /* Radii - Unified at 16px for consistency */
+      --radius: 16px;
+      --radius-large: 20px;
+      --radius-card: 16px;
+      --radius-button: 14px;
+      --radius-pill: 12px;
       --radius-sm: 8px;
       --radius-md: 12px;
       --radius-lg: 16px;
@@ -83,15 +84,15 @@
       --radius-2xl: 24px;
       --radius-full: 100px;
       
-      /* Shadows - Gemini spec */
-      --shadow-card: 0 6px 18px rgba(15, 23, 42, 0.08);
+      /* Shadows - Unified subtle shadow */
+      --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.06);
       --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
       --shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-      --shadow-md: 0 6px 18px rgba(15, 23, 42, 0.08);
-      --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.12);
-      --shadow-btn: 0 4px 12px rgba(255, 159, 58, 0.3);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 6px 16px rgba(15, 23, 42, 0.1);
+      --shadow-btn: 0 2px 8px rgba(255, 159, 58, 0.2);
       
-      /* Spacing - 8pt Grid */
+      /* Spacing - Tighter 8pt Grid */
       --space-1: 4px;
       --space-2: 8px;
       --space-3: 12px;
@@ -100,17 +101,18 @@
       --space-6: 24px;
       --space-8: 32px;
       --space-10: 40px;
-      --section-gap: 24px;
-      --card-padding: 18px;
-      --card-gap: 16px;
+      --section-gap: 16px;
+      --card-padding: 16px;
+      --card-gap: 12px;
       --header-overlap: -32px;
       
-      /* Typography */
-      --font-greeting: 600 30px/1.2 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
-      --font-section-title: 600 20px/1.3 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
-      --font-card-title: 600 17px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
-      --font-body: 400 15px/1.5 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
-      --font-pill: 500 13px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+      /* Typography - Tighter */
+      --font-greeting: 600 28px/1.2 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+      --font-section-title: 600 17px/1.3 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+      --font-card-title: 600 15px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+      --font-body: 400 14px/1.5 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+      --font-pill: 500 12px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+      --font-small: 400 12px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
       
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -235,22 +237,22 @@
     .header-icon:active { background: var(--border); }
     .header-icon svg { width: 20px; height: 20px; }
     
-    /* ============ DASHBOARD - GEMINI DESIGN ============ */
+    /* ============ DASHBOARD - REFINED ============ */
     .dashboard { 
-      padding-bottom: calc(var(--safe-bottom) + 100px); 
+      padding-bottom: calc(var(--safe-bottom) + 90px); 
       background: var(--page-bg);
       min-height: 100vh;
     }
     
-    /* Dark Hero Section - 220px height with rounded bottom */
+    /* Dark Hero Section - Refined with less curve */
     .dashboard-hero {
       background: var(--header-bg);
-      padding: calc(var(--safe-top) + var(--space-5)) var(--space-5) 80px;
-      border-radius: 0 0 var(--radius-large) var(--radius-large);
+      padding: calc(var(--safe-top) + var(--space-6)) var(--space-4) 70px;
+      border-radius: 0 0 var(--radius-card) var(--radius-card);
       position: relative;
-      min-height: 220px;
+      min-height: 200px;
     }
-    .greeting-section { margin-bottom: var(--space-3); }
+    .greeting-section { margin-bottom: var(--space-2); }
     .greeting-text { 
       font: var(--font-greeting); 
       color: var(--hero-text); 
@@ -264,89 +266,97 @@
     .greeting-subtitle { 
       font: var(--font-body); 
       color: var(--hero-text-dim); 
-      margin-top: var(--space-2); 
+      margin-top: var(--space-1);
+      opacity: 0.85;
     }
     
     .hero-cta {
       width: 100%;
-      padding: var(--space-4);
+      padding: 14px var(--space-4);
       background: var(--primary-orange);
       border: none;
       border-radius: var(--radius-button);
       color: #fff;
       font: var(--font-card-title);
       cursor: pointer;
-      box-shadow: var(--shadow-btn);
-      margin-top: var(--space-4);
+      box-shadow: 0 2px 6px rgba(255, 159, 58, 0.15);
+      margin-top: var(--space-3);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: var(--space-2);
     }
-    .hero-cta svg { flex-shrink: 0; }
+    .hero-cta svg { flex-shrink: 0; width: 18px; height: 18px; }
     
-    /* Progress Hub */
+    /* Progress Hub - Refined */
     .progress-hub {
       background: var(--card-bg);
       border-radius: var(--radius-card);
-      padding: var(--card-padding);
+      padding: var(--space-3) var(--card-padding);
       margin-bottom: var(--card-gap);
       box-shadow: var(--shadow-card);
     }
     .progress-hub-title { 
       font: var(--font-card-title); 
       color: var(--text-primary);
-      margin-bottom: var(--space-3); 
+      margin-bottom: var(--space-2); 
     }
-    .progress-hub-badges { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+    .progress-hub-badges { display: flex; gap: var(--space-3); flex-wrap: wrap; }
     .progress-badge {
       display: inline-flex; 
       align-items: center; 
-      gap: var(--space-2);
-      padding: 10px 14px;
+      gap: 6px;
+      padding: 8px 12px;
       background: var(--pill-bg);
       border-radius: var(--radius-pill);
       font: var(--font-pill);
       color: var(--text-primary);
     }
-    .progress-badge svg { width: 16px; height: 16px; }
+    .progress-badge span:first-child { font-size: 14px; }
     .progress-badge.streak { color: var(--primary-orange); }
     .progress-badge.level { color: var(--step-teal); }
     
-    .dashboard-content { padding: 0 var(--space-5); }
+    .dashboard-content { padding: 0 var(--space-4); }
     
-    /* Achievement Cards */
+    /* Achievement Cards - Refined */
     .achievements-row { display: flex; gap: var(--card-gap); margin-bottom: var(--section-gap); }
     .achievement-card {
       flex: 1; 
-      padding: var(--card-padding); 
+      padding: var(--space-4); 
       border-radius: var(--radius-card);
       display: flex; 
       flex-direction: column; 
       align-items: center; 
       justify-content: center;
-      gap: var(--space-2);
-      min-height: 110px;
+      gap: 6px;
+      min-height: 95px;
     }
-    .achievement-card.purple { background: var(--purple); }
-    .achievement-card.teal { background: var(--step-teal); }
-    .achievement-card-icon { font-size: 36px; }
+    .achievement-card.purple { background: linear-gradient(145deg, #9B8FE0 0%, #7B6DC8 100%); }
+    .achievement-card.teal { background: linear-gradient(145deg, #2DD4BF 0%, #14B8A6 100%); }
+    .achievement-card-icon { font-size: 28px; }
     .achievement-card-label { color: #fff; font: var(--font-pill); font-weight: 600; }
     
-    /* Section - Gemini Design */
+    /* Section - Refined */
     .section { margin-bottom: var(--section-gap); }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
     .section-title { font: var(--font-section-title); color: var(--text-primary); }
     .section-link { color: var(--primary-orange); font: var(--font-pill); background: none; border: none; cursor: pointer; }
     
-    /* Today's Focus Card */
+    /* Today's Focus Card - Refined */
     .focus-card {
-      background: var(--bg-card);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4);
-      box-shadow: var(--shadow);
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: var(--space-3) var(--card-padding);
+      box-shadow: var(--shadow-card);
     }
-    .focus-header { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+    .focus-header { 
+      display: flex; 
+      align-items: center; 
+      gap: var(--space-2); 
+      margin-bottom: var(--space-2); 
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid var(--border-light);
+    }
     .focus-icon { 
       width: 28px; height: 28px;
       background: var(--accent-softer);
@@ -358,36 +368,34 @@
     .focus-title { font-size: 15px; font-weight: 700; color: var(--text); }
     
     .focus-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px;
-      margin: 0 -12px;
-      border-radius: 10px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: opacity 0.2s;
     }
-    .focus-item:hover { background: var(--bg); }
-    .focus-item:last-child { margin-bottom: -4px; }
-    .focus-item:first-of-type { margin-top: -4px; }
+    .focus-item:hover { opacity: 0.8; }
+    .focus-item:last-child { padding-bottom: 0; }
+    .focus-item:first-of-type { padding-top: 0; }
     
     .focus-check {
-      width: 22px; height: 22px;
+      width: 20px; height: 20px;
       border: 2px solid var(--border);
-      border-radius: 6px;
+      border-radius: 5px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
       color: #fff;
-      font-size: 11px;
-      transition: all 0.2s;
+      font-size: 10px;
+      transition: all 0.15s;
     }
     .focus-check:hover { border-color: var(--success); }
     .focus-check.checked { background: var(--success); border-color: var(--success); }
     
     .focus-content { flex: 1; min-width: 0; }
-    .focus-task { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .focus-task.done { text-decoration: line-through; color: var(--text-dim); }
-    .focus-goal { font-size: 12px; color: var(--text-dim); }
+    .focus-task { font: var(--font-card-title); color: var(--text-primary); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .focus-task.done { text-decoration: line-through; color: var(--text-secondary); }
+    .focus-goal { font: var(--font-small); color: var(--text-secondary); }
     
-    /* Goal Card - Gemini Design */
+    /* Goal Card - Refined */
     .goal-card-wrapper {
       position: relative;
       margin-bottom: var(--card-gap);
@@ -399,7 +407,7 @@
       right: 0;
       top: 0;
       bottom: 0;
-      width: 80px;
+      width: 75px;
       background: var(--red);
       display: flex;
       align-items: center;
@@ -407,7 +415,7 @@
       color: #fff;
       border-radius: 0 var(--radius-card) var(--radius-card) 0;
     }
-    .goal-card-delete svg { width: 22px; height: 22px; }
+    .goal-card-delete svg { width: 20px; height: 20px; }
     .goal-card {
       background: var(--card-bg);
       border-radius: var(--radius-card);
@@ -418,7 +426,7 @@
       z-index: 1;
       box-shadow: var(--shadow-card);
     }
-    .goal-card:hover { box-shadow: var(--shadow-lg); }
+    .goal-card:hover { box-shadow: var(--shadow-md); }
     .goal-card.swiping { transition: none; }
     .goal-card:active { transform: scale(0.99); }
     
@@ -444,30 +452,30 @@
     }
     .pull-refresh-icon { width: 18px; height: 18px; }
     
-    /* Goal Card Content - Gemini Design */
+    /* Goal Card Content - Refined */
     .goal-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
     .goal-icon-wrap {
-      width: 52px; height: 52px;
+      width: 44px; height: 44px;
       border-radius: var(--radius-md);
       display: flex; align-items: center; justify-content: center;
       background: var(--pill-bg);
     }
-    .goal-icon-wrap svg { width: 28px; height: 28px; }
+    .goal-icon-wrap svg { width: 22px; height: 22px; }
     .goal-info { flex: 1; min-width: 0; }
-    .goal-name { font: var(--font-card-title); color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .goal-category { font: var(--font-pill); color: var(--text-secondary); }
+    .goal-name { font: var(--font-card-title); color: var(--text-primary); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .goal-category { font: var(--font-small); color: var(--text-secondary); }
     
-    .goal-progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2); }
-    .goal-progress-label { font: var(--font-body); color: var(--text-secondary); }
+    .goal-progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .goal-progress-label { font: var(--font-small); color: var(--text-secondary); }
     .goal-progress-value { font: var(--font-card-title); color: var(--text-primary); }
     
-    .goal-progress-bar { height: 8px; background: var(--progress-bar-bg); border-radius: var(--radius-full); overflow: hidden; }
+    .goal-progress-bar { height: 5px; background: var(--progress-bar-bg); border-radius: var(--radius-full); overflow: hidden; }
     .goal-progress-fill { height: 100%; background: var(--primary-orange); border-radius: var(--radius-full); transition: width 0.4s ease; }
     
-    .goal-next { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3); background: var(--pill-bg); border-radius: var(--radius-sm); margin-top: var(--space-3); }
+    .goal-next { display: flex; align-items: center; gap: var(--space-2); padding: 10px var(--space-3); background: var(--pill-bg); border-radius: var(--radius-sm); margin-top: var(--space-3); }
     .goal-next-arrow { color: var(--step-teal); display: flex; flex-shrink: 0; }
-    .goal-next-arrow svg { width: 16px; height: 16px; }
-    .goal-next-text { font: var(--font-pill); color: var(--text-secondary); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .goal-next-arrow svg { width: 14px; height: 14px; }
+    .goal-next-text { font: var(--font-small); color: var(--text-secondary); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
     /* Goal Detail Summary Card - Gemini Design */
     .goal-summary-card {
@@ -756,11 +764,11 @@
     .premium-badge svg { width: 12px; height: 12px; }
     
     /* Premium Banner on Dashboard */
-    /* Premium Banner - Compact Design */
+    /* Premium Banner - Refined Compact */
     .premium-banner {
       background: linear-gradient(135deg, var(--premium-gradient-start) 0%, var(--premium-gradient-end) 100%);
       border-radius: var(--radius-card);
-      padding: 14px var(--card-padding);
+      padding: 12px var(--space-3);
       margin-bottom: var(--card-gap);
       position: relative;
       overflow: hidden;
@@ -771,11 +779,11 @@
     .premium-banner::before {
       content: '';
       position: absolute;
-      top: -80%;
-      right: -15%;
-      width: 120px;
-      height: 120px;
-      background: rgba(255,255,255,0.15);
+      top: -100%;
+      right: -10%;
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.12);
       border-radius: 50%;
     }
     .premium-banner-content { 
@@ -784,17 +792,17 @@
       flex: 1;
       display: flex;
       align-items: center;
-      gap: var(--space-3);
+      gap: var(--space-2);
     }
     .premium-banner-header {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex: 1;
     }
     .premium-banner-icon {
-      width: 36px; height: 36px;
-      background: rgba(255, 255, 255, 0.3);
+      width: 32px; height: 32px;
+      background: rgba(255, 255, 255, 0.25);
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
@@ -802,28 +810,25 @@
       color: var(--text-primary);
       flex-shrink: 0;
     }
-    .premium-banner-icon svg { width: 18px; height: 18px; }
+    .premium-banner-icon svg { width: 16px; height: 16px; }
     .premium-banner-title {
       color: var(--text-primary);
       font: var(--font-card-title);
-      font-size: 15px;
     }
-    .premium-banner-desc {
-      display: none;
-    }
+    .premium-banner-desc { display: none; }
     .premium-banner-btn {
-      padding: 10px 16px;
+      padding: 8px 14px;
       background: var(--header-bg);
       border: none;
       border-radius: var(--radius-pill);
       color: #fff;
       font: var(--font-pill);
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.15s;
       white-space: nowrap;
       flex-shrink: 0;
     }
-    .premium-banner-btn:active { transform: scale(0.98); }
+    .premium-banner-btn:active { transform: scale(0.97); }
     
     .premium-lock {
       position: absolute;
@@ -854,27 +859,27 @@
     .empty-title { font: var(--font-card-title); color: var(--text-primary); margin-bottom: var(--space-2); }
     .empty-text { font: var(--font-body); color: var(--text-secondary); }
     
-    /* FAB - Gemini Design */
+    /* FAB - Refined */
     .fab {
       position: fixed;
-      bottom: calc(var(--safe-bottom) + var(--space-5));
+      bottom: calc(var(--safe-bottom) + var(--space-4));
       left: 50%;
       transform: translateX(-50%);
-      display: flex; align-items: center; gap: var(--space-2);
-      padding: 16px 28px;
+      display: flex; align-items: center; gap: 6px;
+      padding: 12px 24px;
       background: var(--primary-orange);
       border: none;
       border-radius: var(--radius-button);
       color: #fff;
       font: var(--font-card-title);
       cursor: pointer;
-      box-shadow: var(--shadow-btn);
+      box-shadow: 0 2px 8px rgba(255, 159, 58, 0.2);
       transition: all 0.15s ease;
     }
     .fab:hover { background: var(--primary-orange-dark); }
     .fab:active { transform: translateX(-50%) scale(0.97); }
     .fab-icon { display: flex; align-items: center; }
-    .fab-icon svg { width: 20px; height: 20px; }
+    .fab-icon svg { width: 18px; height: 18px; }
     
     /* ============ NEW GOAL VIEW - GEMINI DESIGN ============ */
     .new-goal-view { 
@@ -1363,19 +1368,19 @@
     .delete-btn:hover { background: rgba(239, 68, 68, 0.08); border-color: var(--red); }
     
     /* Search Bar */
-    /* Search Bar - Gemini Design */
+    /* Search Bar - Refined */
     .search-bar {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
+      gap: 10px;
+      padding: 10px 16px;
       background: var(--pill-bg);
       border: none;
-      border-radius: var(--radius-pill);
+      border-radius: var(--radius-card);
       margin-bottom: var(--section-gap);
     }
     .search-bar:focus-within { box-shadow: 0 0 0 2px var(--primary-orange); }
-    .search-bar svg { width: 20px; height: 20px; color: var(--text-secondary); flex-shrink: 0; }
+    .search-bar svg { width: 16px; height: 16px; color: var(--text-secondary); flex-shrink: 0; opacity: 0.7; }
     .search-input {
       flex: 1;
       border: none;
@@ -1384,7 +1389,7 @@
       color: var(--text-primary);
       outline: none;
     }
-    .search-input::placeholder { color: var(--text-secondary); }
+    .search-input::placeholder { color: var(--text-dimmer); }
     .search-clear {
       width: 22px; height: 22px;
       display: flex; align-items: center; justify-content: center;
@@ -2151,11 +2156,11 @@
     
     /* Gamification */
     .level-card {
-      background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
-      border-radius: 20px;
-      padding: 20px;
+      background: linear-gradient(145deg, #FF9F3A 0%, #A78BFA 100%);
+      border-radius: var(--radius-card);
+      padding: var(--card-padding);
       color: #fff;
-      margin-bottom: 20px;
+      margin-bottom: var(--card-gap);
       position: relative;
       overflow: hidden;
     }
@@ -2209,25 +2214,26 @@
     }
     .level-progress {
       position: relative;
+      margin-top: var(--space-3);
     }
     .level-progress-bar {
-      height: 8px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 4px;
+      height: 5px;
+      background: rgba(255,255,255,0.25);
+      border-radius: var(--radius-full);
       overflow: hidden;
     }
     .level-progress-fill {
       height: 100%;
       background: #fff;
-      border-radius: 4px;
+      border-radius: var(--radius-full);
       transition: width 0.5s ease;
     }
     .level-progress-text {
       display: flex;
       justify-content: space-between;
-      margin-top: 8px;
-      font-size: 12px;
-      opacity: 0.8;
+      margin-top: 6px;
+      font: var(--font-small);
+      opacity: 0.75;
     }
     
     /* Points Animation */
@@ -2256,39 +2262,37 @@
     
     /* Streak Card */
     .streak-card {
-      background: var(--bg-card);
-      border-radius: 18px;
-      padding: 18px;
-      border: 1px solid var(--border);
-      margin-bottom: 20px;
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: var(--card-padding);
+      box-shadow: var(--shadow-card);
+      margin-bottom: var(--card-gap);
     }
     .streak-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
     }
     .streak-info {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .streak-icon {
-      width: 44px; height: 44px;
+      width: 40px; height: 40px;
       background: var(--orange-soft);
-      border-radius: 12px;
+      border-radius: var(--radius-md);
       display: flex; align-items: center; justify-content: center;
-      color: var(--orange);
+      color: var(--primary-orange);
     }
-    .streak-icon svg { width: 22px; height: 22px; }
+    .streak-icon svg { width: 24px; height: 24px; }
     .streak-label {
-      font-size: 13px;
-      color: var(--text-dim);
+      font: var(--font-small);
+      color: var(--text-secondary);
       margin-bottom: 2px;
     }
     .streak-value {
-      font-size: 20px;
-      font-weight: 700;
+      font: var(--font-section-title);
     }
     .streak-best {
       text-align: right;
@@ -2304,19 +2308,20 @@
     }
     .streak-days {
       display: flex;
-      gap: 6px;
+      gap: 5px;
+      margin-top: var(--space-3);
     }
     .streak-day {
       flex: 1;
-      height: 8px;
-      background: var(--border);
-      border-radius: 4px;
+      height: 6px;
+      background: var(--progress-bar-bg);
+      border-radius: var(--radius-full);
     }
     .streak-day.active {
-      background: var(--orange);
+      background: var(--primary-orange);
     }
     .streak-day.today {
-      background: var(--accent);
+      background: var(--primary-orange);
     }
     
     /* Level Up Modal */
