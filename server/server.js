@@ -346,14 +346,15 @@ Be thorough and practical. The user should be able to use your output immediatel
   }
 });
 
-// Start server
-app.listen(PORT, () => {
+// Start server - listen on all interfaces for network access
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`
   ╔═══════════════════════════════════════════════╗
   ║                                               ║
   ║   🎯 Achieve AI Server                        ║
   ║                                               ║
-  ║   Server running on http://localhost:${PORT}    ║
+  ║   Server running on http://0.0.0.0:${PORT}      ║
+  ║   Network: http://10.11.101.4:${PORT}          ║
   ║   API Key: ${GROQ_API_KEY ? '✅ Configured' : '❌ Missing'}                     ║
   ║                                               ║
   ╚═══════════════════════════════════════════════╝
