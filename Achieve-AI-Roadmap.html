@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Achieve AI - Product Roadmap</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #1e293b;
+      background: #fff;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 30px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .logo {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #2563FF;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      font-size: 16px;
+      color: #64748b;
+    }
+    
+    .date {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-top: 10px;
+    }
+    
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 40px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #334155;
+      margin: 25px 0 15px;
+    }
+    
+    .section {
+      margin-bottom: 30px;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    
+    .completed { background: #dcfce7; color: #166534; }
+    .in-progress { background: #fef3c7; color: #92400e; }
+    .planned { background: #e0e7ff; color: #3730a3; }
+    .future { background: #f1f5f9; color: #475569; }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    
+    th, td {
+      text-align: left;
+      padding: 12px 15px;
+      border: 1px solid #e2e8f0;
+    }
+    
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #475569;
+    }
+    
+    tr:hover td {
+      background: #f8fafc;
+    }
+    
+    .priority-high { color: #dc2626; font-weight: 600; }
+    .priority-medium { color: #d97706; font-weight: 600; }
+    .priority-low { color: #16a34a; font-weight: 600; }
+    
+    ul {
+      margin: 10px 0;
+      padding-left: 25px;
+    }
+    
+    li {
+      margin: 8px 0;
+    }
+    
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    
+    .tech-tag {
+      padding: 6px 14px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #475569;
+    }
+    
+    .note {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 15px 20px;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .note-title {
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 5px;
+    }
+    
+    .footer {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    
+    @media print {
+      body { padding: 20px; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">🎯</div>
+    <h1>Achieve AI</h1>
+    <p class="subtitle">Product Roadmap & Feature Documentation</p>
+    <p class="date">Last Updated: December 7, 2025</p>
+  </div>
+
+  <div class="section">
+    <h2>📋 Project Overview</h2>
+    <p>Achieve AI is a mobile-first goal achievement app that uses AI to create personalized, step-by-step action plans. Users set goals, and the AI generates detailed instructions to help them achieve those goals.</p>
+    
+    <h3>Tech Stack</h3>
+    <div class="tech-stack">
+      <span class="tech-tag">React 18</span>
+      <span class="tech-tag">Vanilla CSS</span>
+      <span class="tech-tag">Groq API</span>
+      <span class="tech-tag">Llama 3.3 70B</span>
+      <span class="tech-tag">LocalStorage</span>
+    </div>
+    
+    <h3>Project Location</h3>
+    <code style="background: #f1f5f9; padding: 10px 15px; border-radius: 6px; display: block;">
+      C:\Users\talme\achieve-ai\simple.html
+    </code>
+  </div>
+
+  <div class="section">
+    <h2>✅ Completed Features</h2>
+    
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Description</th>
+        <th>Status</th>
+      </tr>
+      <tr>
+        <td>Welcome Screen</td>
+        <td>App logo, tagline, get started button</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Onboarding Flow</td>
+        <td>3 intro slides with illustrations, skip option</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Profile Setup</td>
+        <td>Single page: name, age, gender collection</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Dashboard</td>
+        <td>Greeting, stats, goals list, achievements</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Today's Focus</td>
+        <td>Shows next tasks from each goal</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Create Goal</td>
+        <td>Input goal, AI generates 6-21 steps</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Goal Detail View</td>
+        <td>Progress ring, all steps, delete option</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Step Completion</td>
+        <td>Tap to mark steps complete/incomplete</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Progress Tracking</td>
+        <td>Percentage, progress bars, visual indicators</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Celebration Modal</td>
+        <td>Shows when all steps completed</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Dark Mode</td>
+        <td>Toggle in header, persisted preference</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>Local Storage</td>
+        <td>Goals, profile, theme saved locally</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>SVG Icons</td>
+        <td>Clean icon system throughout app</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+      <tr>
+        <td>AI Personalization</td>
+        <td>Uses user profile to tailor advice</td>
+        <td><span class="status-badge completed">Completed</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>🔴 High Priority Features (Next Up)</h2>
+    
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Description</th>
+        <th>Priority</th>
+      </tr>
+      <tr>
+        <td>Edit Goals</td>
+        <td>Modify goal name after creation</td>
+        <td><span class="priority-high">High</span></td>
+      </tr>
+      <tr>
+        <td>Edit Steps</td>
+        <td>Modify step title, description, duration</td>
+        <td><span class="priority-high">High</span></td>
+      </tr>
+      <tr>
+        <td>Due Dates</td>
+        <td>Set target completion dates for goals</td>
+        <td><span class="priority-high">High</span></td>
+      </tr>
+      <tr>
+        <td>Settings Page</td>
+        <td>Edit profile, clear data, app preferences</td>
+        <td><span class="priority-high">High</span></td>
+      </tr>
+      <tr>
+        <td>Notifications</td>
+        <td>Reminders for daily tasks</td>
+        <td><span class="priority-high">High</span></td>
+      </tr>
+      <tr>
+        <td>Search</td>
+        <td>Find goals and steps quickly</td>
+        <td><span class="priority-high">High</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>🟡 Medium Priority Features</h2>
+    
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Description</th>
+        <th>Priority</th>
+      </tr>
+      <tr>
+        <td>Goal Categories</td>
+        <td>Organize goals by type (Fitness, Career, etc.)</td>
+        <td><span class="priority-medium">Medium</span></td>
+      </tr>
+      <tr>
+        <td>Regenerate Steps</td>
+        <td>Get new AI suggestions for a goal</td>
+        <td><span class="priority-medium">Medium</span></td>
+      </tr>
+      <tr>
+        <td>Step Notes</td>
+        <td>Add personal notes/comments to steps</td>
+        <td><span class="priority-medium">Medium</span></td>
+      </tr>
+      <tr>
+        <td>Calendar View</td>
+        <td>See goals and deadlines on calendar</td>
+        <td><span class="priority-medium">Medium</span></td>
+      </tr>
+      <tr>
+        <td>Reorder Steps</td>
+        <td>Drag and drop to rearrange steps</td>
+        <td><span class="priority-medium">Medium</span></td>
+      </tr>
+      <tr>
+        <td>Filter Goals</td>
+        <td>Filter by status, category, progress</td>
+        <td><span class="priority-medium">Medium</span></td>
+      </tr>
+      <tr>
+        <td>Step Details View</td>
+        <td>Expanded view with resources, links</td>
+        <td><span class="priority-medium">Medium</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>🟢 Nice to Have Features</h2>
+    
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Description</th>
+        <th>Priority</th>
+      </tr>
+      <tr>
+        <td>Real Achievements</td>
+        <td>Dynamic badges based on actual progress</td>
+        <td><span class="priority-low">Low</span></td>
+      </tr>
+      <tr>
+        <td>Analytics Dashboard</td>
+        <td>Charts showing progress over time</td>
+        <td><span class="priority-low">Low</span></td>
+      </tr>
+      <tr>
+        <td>Goal Templates</td>
+        <td>Pre-made plans for common goals</td>
+        <td><span class="priority-low">Low</span></td>
+      </tr>
+      <tr>
+        <td>Share Progress</td>
+        <td>Share achievements on social media</td>
+        <td><span class="priority-low">Low</span></td>
+      </tr>
+      <tr>
+        <td>PWA Support</td>
+        <td>Installable app, works offline</td>
+        <td><span class="priority-low">Low</span></td>
+      </tr>
+      <tr>
+        <td>Export/Backup</td>
+        <td>Download goals as JSON/PDF</td>
+        <td><span class="priority-low">Low</span></td>
+      </tr>
+      <tr>
+        <td>Gamification</td>
+        <td>Points, levels, streaks system</td>
+        <td><span class="priority-low">Low</span></td>
+      </tr>
+      <tr>
+        <td>Habit Tracking</td>
+        <td>Track recurring daily habits</td>
+        <td><span class="priority-low">Low</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>🔒 Production Requirements</h2>
+    
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Description</th>
+        <th>Why Needed</th>
+      </tr>
+      <tr>
+        <td>User Authentication</td>
+        <td>Sign up, login, password reset</td>
+        <td>Data is currently device-only</td>
+      </tr>
+      <tr>
+        <td>Cloud Database</td>
+        <td>Store goals in proper database</td>
+        <td>Replace localStorage</td>
+      </tr>
+      <tr>
+        <td>Backend API</td>
+        <td>Server to handle AI requests</td>
+        <td>Hide API key from client</td>
+      </tr>
+      <tr>
+        <td>Cloud Sync</td>
+        <td>Sync data across devices</td>
+        <td>Access goals anywhere</td>
+      </tr>
+      <tr>
+        <td>Rate Limiting</td>
+        <td>Prevent API abuse</td>
+        <td>Control costs</td>
+      </tr>
+      <tr>
+        <td>Error Tracking</td>
+        <td>Monitor errors in production</td>
+        <td>Fix issues quickly</td>
+      </tr>
+    </table>
+    
+    <div class="note">
+      <div class="note-title">⚠️ Important Note</div>
+      <p>The Groq API key is currently exposed in the client-side code. Before launching publicly, you must move API calls to a backend server to keep the key secure.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🎨 Design System</h2>
+    
+    <h3>Colors</h3>
+    <table>
+      <tr>
+        <th>Token</th>
+        <th>Value</th>
+        <th>Usage</th>
+      </tr>
+      <tr>
+        <td>Primary (Accent)</td>
+        <td><span style="color: #2563FF; font-weight: 600;">#2563FF</span></td>
+        <td>Buttons, links, active states</td>
+      </tr>
+      <tr>
+        <td>Success</td>
+        <td><span style="color: #22C55E; font-weight: 600;">#22C55E</span></td>
+        <td>Checkmarks, completed states</td>
+      </tr>
+      <tr>
+        <td>Gold</td>
+        <td><span style="color: #FACC15; font-weight: 600;">#FACC15</span></td>
+        <td>Achievements, trophies</td>
+      </tr>
+      <tr>
+        <td>Text Primary</td>
+        <td><span style="color: #1B1F3B; font-weight: 600;">#1B1F3B</span></td>
+        <td>Headings, main text</td>
+      </tr>
+      <tr>
+        <td>Text Muted</td>
+        <td><span style="color: #6B7280; font-weight: 600;">#6B7280</span></td>
+        <td>Secondary text, labels</td>
+      </tr>
+    </table>
+    
+    <h3>Typography</h3>
+    <ul>
+      <li><strong>Font Family:</strong> Inter, -apple-system, sans-serif</li>
+      <li><strong>Headings:</strong> 700 weight, #1B1F3B</li>
+      <li><strong>Body:</strong> 400 weight, 15-16px, 150% line height</li>
+    </ul>
+    
+    <h3>Components</h3>
+    <ul>
+      <li><strong>Border Radius:</strong> 14-18px for cards, 100px for pills</li>
+      <li><strong>Shadows:</strong> Soft shadows (0 8px 24px rgba(15,23,42,0.06))</li>
+      <li><strong>Buttons:</strong> 18px radius, full width, 52-56px height</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>📱 How to Run</h2>
+    
+    <h3>Development</h3>
+    <ol>
+      <li>Open terminal/command prompt</li>
+      <li>Navigate to project: <code>cd C:\Users\talme\achieve-ai</code></li>
+      <li>Start server: <code>python -m http.server 8080</code></li>
+      <li>Open browser: <code>http://localhost:8080/simple.html</code></li>
+    </ol>
+    
+    <h3>Testing on Mobile</h3>
+    <ol>
+      <li>Find your computer's IP address</li>
+      <li>Make sure phone is on same WiFi</li>
+      <li>Open: <code>http://YOUR_IP:8080/simple.html</code></li>
+    </ol>
+  </div>
+
+  <div class="footer">
+    <p>Achieve AI - Product Roadmap Document</p>
+    <p>Created by Theyab • December 2025</p>
+  </div>
+</body>
+</html>
+

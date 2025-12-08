@@ -1,0 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #000;
+  --card: #1c1c1e;
+  --card-hover: #2c2c2e;
+  --text: #fff;
+  --text-dim: #8e8e93;
+  --accent: #0a84ff;
+  --success: #30d158;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
