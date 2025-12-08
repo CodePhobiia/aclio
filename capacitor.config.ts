@@ -13,9 +13,13 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     preferredContentMode: 'mobile',
     scheme: 'Aclio',
+    backgroundColor: '#e8f4fc',
   },
   plugins: {
-    // RevenueCat plugin config (if using Capacitor plugin)
+    StatusBar: {
+      style: 'DARK',
+      backgroundColor: '#e8f4fc',
+    },
   },
 };
 

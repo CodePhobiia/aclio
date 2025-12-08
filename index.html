@@ -88,8 +88,11 @@
       --shadow-btn: 0 8px 30px rgba(255, 179, 71, 0.35);
     }
     
-    html { 
+    html, body { 
       height: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
       background: var(--bg-top);
     }
     
@@ -98,16 +101,12 @@
       background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
       background-attachment: fixed;
       color: var(--text); 
-      min-height: 100vh;
-      min-height: 100dvh;
       line-height: 1.5;
-      margin: 0;
-      padding: 0;
     }
     
     #root { 
-      min-height: 100vh; 
-      min-height: 100dvh;
+      min-height: 100%;
+      height: 100%;
     }
     
     /* Prevent scroll bounce on welcome/onboarding */
@@ -118,6 +117,7 @@
       right: 0;
       bottom: 0;
       overflow: hidden;
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     }
     
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -132,9 +132,10 @@
     .app {
       max-width: 480px;
       margin: 0 auto;
-      min-height: 100vh;
-      min-height: 100dvh;
+      min-height: 100%;
       background: var(--bg);
+      padding-top: env(safe-area-inset-top, 0);
+      padding-bottom: env(safe-area-inset-bottom, 0);
     }
     
     /* ============ HEADER ============ */
@@ -2386,7 +2387,7 @@
     }
     .welcome-bottom { 
       position: absolute;
-      bottom: 60px;
+      bottom: calc(env(safe-area-inset-bottom, 0) + 60px);
       left: 24px;
       right: 24px;
       text-align: center;
@@ -2448,13 +2449,15 @@
       height: 100%;
       min-height: 100vh; min-height: 100dvh;
       display: flex; flex-direction: column;
+      padding-top: env(safe-area-inset-top, 0);
+      padding-bottom: env(safe-area-inset-bottom, 0);
       background: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 50%, #c5e3f3 100%);
       box-sizing: border-box;
     }
     
     .onboarding-skip-top {
       position: absolute;
-      top: calc(var(--safe-top) + 20px);
+      top: 20px;
       right: 24px;
       background: none;
       border: none;
@@ -2645,7 +2648,7 @@
     
     /* Footer */
     .onboarding-footer { 
-      padding: 20px 24px calc(var(--safe-bottom) + 24px);
+      padding: 20px 24px 24px;
     }
     
     /* Progress Dots - Aclio Orange */
