@@ -110,41 +110,53 @@ app.post('/api/generate-steps', async (req, res) => {
         messages: [
           { 
             role: 'system', 
-            content: `You are a supportive personal coach who creates HIGHLY DETAILED, step-by-step action plans. Your job is to hold the user's hand and guide them through every small action needed to achieve their goal.
+            content: `You are a supportive personal coach who creates practical, step-by-step action plans. Guide users through achieving their goals with specific, actionable steps.
 
 ${userContext}${contextFromQuestions}
 ${locationContext}
 
 CRITICAL RULES:
-1. Break everything down into SMALL, IMMEDIATELY ACTIONABLE steps
-2. Each step should take 5-30 minutes to complete (rarely longer)
-3. Be SPECIFIC - instead of "research options", say "Open Google and search for [specific query]"
-4. Include exact websites, apps, or tools to use
-5. Tell them exactly what to look for, what to write down, what to click
-6. Assume they know NOTHING - explain every detail
-7. Each step should have ONE clear action, not multiple tasks
-8. Generate 20-40 steps depending on goal complexity
-9. Make the user feel guided and supported, never overwhelmed
+1. SKIP OBVIOUS STEPS - Never include things like:
+   - "Turn on your computer/console/phone"
+   - "Open the app/game/browser"
+   - "Log in to your account"
+   - "Make sure you have internet"
+   - "Find a quiet place to sit"
+   - Any step a reasonable person would already know to do
+   
+2. START with the actual valuable action - jump straight to the meat of the task
+3. Be SPECIFIC about the challenging parts - what to search, what to look for, what decisions to make
+4. Include exact websites, apps, strategies, or techniques that actually help
+5. Each step should provide REAL VALUE - if removing a step wouldn't hurt the plan, remove it
+6. Generate 8-20 focused steps (quality over quantity)
+7. Assume basic competency - the user knows how to use their devices
 
 RESPONSE FORMAT (JSON object only):
 {
   "category": "One of: ${categoriesList}",
   "steps": [
-    {"id":1,"title":"Short action verb + specific task","description":"Exactly what to do, where to go, what to click/write/say. Be specific and encouraging.","duration":"X mins"${location ? ',"mapSearch":"Google Maps search query if relevant"' : ''}}
+    {"id":1,"title":"Short action verb + specific task","description":"The actual helpful guidance - strategies, techniques, specific advice.","duration":"X mins"${location ? ',"mapSearch":"Google Maps search query if relevant"' : ''}}
   ]
 }
 
-EXAMPLE of good granular steps for "Learn Guitar":
-- BAD: "Buy a guitar" (too broad)
-- GOOD: "Research beginner guitars online - Open guitarworld.com/best-beginner-guitars and read through the top 5 recommendations. Write down 2-3 options in your price range."
-- GOOD: "Watch a guitar size guide - Search YouTube for 'how to choose guitar size beginners' and watch one video to understand what size fits you."
-- GOOD: "Set your budget - Decide how much you can spend. For beginners, $100-200 is enough for a decent acoustic guitar."
+EXAMPLES:
+For "Beat Malenia in Elden Ring":
+- BAD: "Launch Elden Ring and load your save file" (obvious, skip it)
+- BAD: "Travel to Malenia's location" (they're already there if asking)
+- GOOD: "Level up to 125+ with 50+ Vigor - This boss deals massive damage, so survivability is key"
+- GOOD: "Equip Bloodhound's Step Ash of War - Her Waterfowl Dance is nearly impossible to dodge normally, this skill lets you i-frame through it"
+- GOOD: "Learn her attack patterns - Watch a 'Malenia moveset guide' on YouTube to recognize her wind-ups"
+
+For "Learn to cook":
+- BAD: "Go to your kitchen" (obvious)
+- GOOD: "Master 3 basic techniques first - Learn to sauté, roast, and boil. These cover 80% of home cooking."
+- GOOD: "Start with one-pan meals - Search 'sheet pan dinners for beginners' for recipes that minimize cleanup while you learn"
 
 Output ONLY the JSON object, nothing else.` 
           },
           { 
             role: 'user', 
-            content: `Goal: "${goal}" - Create a comprehensive, hand-holding action plan with many small, specific steps. Guide me like I'm a complete beginner. ONLY JSON object with "category" and "steps" fields.` 
+            content: `Goal: "${goal}" - Create a focused action plan with specific, valuable steps. Skip any obvious steps I'd already know. Give me the real strategies and techniques that will actually help. ONLY JSON object with "category" and "steps" fields.` 
           }
         ],
         temperature: 0.7,
