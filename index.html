@@ -2869,21 +2869,24 @@
     }
     .welcome-btn {
       width: 100%;
-      padding: 18px 32px;
-      background: linear-gradient(135deg, #FFB347 0%, #FF9F43 100%);
+      padding: 16px 28px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
       border: none;
-      border-radius: 50px;
+      border-radius: 14px;
       color: #1a2b4a;
       font-family: inherit;
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 8px 30px rgba(255, 159, 67, 0.4);
+      box-shadow: 0 6px 24px rgba(255, 159, 67, 0.4);
       transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .welcome-btn:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(255, 159, 67, 0.5);
     }
     .welcome-btn:active { 
       transform: scale(0.98); 
-      box-shadow: 0 4px 20px rgba(255, 159, 67, 0.3);
     }
     .welcome-signin { 
       margin-top: 20px; 
@@ -3162,16 +3165,16 @@
     /* CTA Button - Aclio Orange */
     .onboarding-cta { 
       width: 100%;
-      padding: 18px; 
-      background: linear-gradient(135deg, #FFB347 0%, #FF9F43 100%);
+      padding: 16px; 
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
       border: none; 
-      border-radius: 50px; 
+      border-radius: 14px; 
       color: #1a2b4a; 
       font-family: inherit; 
       font-size: 17px; 
       font-weight: 700; 
       cursor: pointer; 
-      box-shadow: 0 8px 30px rgba(255, 159, 67, 0.4);
+      box-shadow: 0 6px 24px rgba(255, 159, 67, 0.4);
       transition: transform 0.2s, box-shadow 0.2s;
       position: relative;
       z-index: 101;
