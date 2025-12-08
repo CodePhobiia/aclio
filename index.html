@@ -3459,11 +3459,15 @@
         if (Purchases) {
           try {
             // Get offerings first
-            const { offerings } = await Purchases.getOfferings();
-            console.log('Offerings:', JSON.stringify(offerings, null, 2));
+            const offeringsResult = await Purchases.getOfferings();
+            console.log('Offerings result:', JSON.stringify(offeringsResult, null, 2));
+            
+            // The offerings might be nested differently
+            const offerings = offeringsResult?.offerings || offeringsResult;
+            console.log('Parsed offerings:', JSON.stringify(offerings, null, 2));
             
             if (!offerings?.current) {
-              throw new Error('No offerings available');
+              throw new Error('No offerings available - check RevenueCat dashboard');
             }
             
             // Get the package directly from offerings.current
