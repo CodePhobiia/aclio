@@ -35,6 +35,30 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Content moderation - goals we won't help with
+const isInappropriateGoal = (goal) => {
+  const lowerGoal = goal.toLowerCase();
+  const inappropriatePatterns = [
+    /cheat\s+(on|with)/i,
+    /hurt\s+(someone|myself|others)/i,
+    /harm\s+(someone|myself|others)/i,
+    /kill/i,
+    /steal/i,
+    /illegal/i,
+    /scam/i,
+    /fraud/i,
+    /hack\s+(into|someone)/i,
+    /revenge/i,
+    /destroy/i,
+    /ruin\s+(someone|their)/i,
+    /blackmail/i,
+    /stalk/i,
+    /harass/i,
+  ];
+  
+  return inappropriatePatterns.some(pattern => pattern.test(lowerGoal));
+};
+
 // Generate steps for a goal
 app.post('/api/generate-steps', async (req, res) => {
   try {
@@ -42,6 +66,14 @@ app.post('/api/generate-steps', async (req, res) => {
     
     if (!goal) {
       return res.status(400).json({ error: 'Goal is required' });
+    }
+    
+    // Check for inappropriate content
+    if (isInappropriateGoal(goal)) {
+      return res.status(400).json({ 
+        error: 'inappropriate',
+        message: "I can't help with that goal. Aclio is designed to help you achieve positive, constructive goals that improve your life. Try something like learning a new skill, getting healthier, or building better habits!"
+      });
     }
     
     if (!GROQ_API_KEY) {
@@ -126,8 +158,26 @@ Output ONLY the JSON object, nothing else.`
       content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
     }
     
-    const result = JSON.parse(content);
-    res.json(result);
+    // Check if AI refused (non-JSON response)
+    if (!content.startsWith('{') && !content.startsWith('[')) {
+      // AI likely refused the request
+      console.log('AI refused request:', content.substring(0, 200));
+      return res.status(400).json({ 
+        error: 'inappropriate',
+        message: "I can't create a plan for that goal. Try something positive like learning a skill, improving health, or personal growth!"
+      });
+    }
+    
+    try {
+      const result = JSON.parse(content);
+      res.json(result);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError, 'Content:', content.substring(0, 500));
+      return res.status(400).json({ 
+        error: 'parse_error',
+        message: "Something went wrong creating your plan. Please try rephrasing your goal."
+      });
+    }
     
   } catch (error) {
     console.error('Generate steps error:', error);
@@ -142,6 +192,14 @@ app.post('/api/generate-questions', async (req, res) => {
     
     if (!goal) {
       return res.status(400).json({ error: 'Goal is required' });
+    }
+    
+    // Check for inappropriate content
+    if (isInappropriateGoal(goal)) {
+      return res.status(400).json({ 
+        error: 'inappropriate',
+        message: "I can't help with that goal. Try something positive and constructive!"
+      });
     }
     
     if (!GROQ_API_KEY) {
@@ -195,8 +253,24 @@ Rules:
       content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
     }
     
-    const questions = JSON.parse(content);
-    res.json({ questions });
+    // Check if AI refused (non-JSON response)
+    if (!content.startsWith('[') && !content.startsWith('{')) {
+      return res.status(400).json({ 
+        error: 'inappropriate',
+        message: "I can't help with that goal. Try something positive!"
+      });
+    }
+    
+    try {
+      const questions = JSON.parse(content);
+      res.json({ questions });
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      return res.status(400).json({ 
+        error: 'parse_error',
+        message: "Something went wrong. Please try rephrasing your goal."
+      });
+    }
     
   } catch (error) {
     console.error('Generate questions error:', error);

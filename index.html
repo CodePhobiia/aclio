@@ -3010,7 +3010,11 @@
         body: JSON.stringify({ goal, profile, location, additionalContext, categories: CATEGORIES.join(', ') })
       });
       if (!response.ok) { 
-        const err = await response.json(); 
+        const err = await response.json();
+        // Handle inappropriate goal or parse errors with user-friendly message
+        if (err.message) {
+          throw new Error(err.message);
+        }
         throw new Error(err.error || 'Backend server not running. Start it with: cd server && npm start'); 
       }
       return await response.json();
