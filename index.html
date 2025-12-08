@@ -660,12 +660,14 @@
     .fab-icon { font-size: 20px; }
     
     /* ============ NEW GOAL VIEW ============ */
-    .new-goal-view { padding: 20px; padding-bottom: calc(var(--safe-bottom) + 24px); min-height: calc(100vh - 65px); display: flex; flex-direction: column; }
+    .new-goal-view { padding: 20px; padding-bottom: calc(var(--safe-bottom) + 24px); min-height: calc(100vh - 65px); display: flex; flex-direction: column; overflow-x: hidden; }
     
     .input-group { margin-bottom: 24px; }
     .input-label { display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 10px; }
     .text-input {
       width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
       padding: 16px 18px;
       background: var(--bg-card);
       border: 2px solid var(--border);
@@ -675,9 +677,14 @@
       color: var(--text);
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
     }
     .text-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
     .text-input::placeholder { color: var(--text-dimmer); }
+    .text-input[type="date"] {
+      min-height: 54px;
+    }
     
     .suggestions { margin-top: 8px; }
     .suggestions-label { font-size: 12px; color: var(--text-dimmer); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
