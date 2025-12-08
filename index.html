@@ -278,17 +278,20 @@
       cursor: pointer;
       box-shadow: var(--shadow-btn);
       margin-top: var(--space-4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
     }
+    .hero-cta svg { flex-shrink: 0; }
     
-    /* Progress Hub - Overlaps header */
+    /* Progress Hub */
     .progress-hub {
       background: var(--card-bg);
       border-radius: var(--radius-card);
       padding: var(--card-padding);
-      margin: var(--header-overlap) var(--space-5) var(--card-gap);
+      margin-bottom: var(--card-gap);
       box-shadow: var(--shadow-card);
-      position: relative;
-      z-index: 10;
     }
     .progress-hub-title { 
       font: var(--font-card-title); 
@@ -753,62 +756,72 @@
     .premium-badge svg { width: 12px; height: 12px; }
     
     /* Premium Banner on Dashboard */
-    /* Premium Banner - Gemini Design */
+    /* Premium Banner - Compact Design */
     .premium-banner {
       background: linear-gradient(135deg, var(--premium-gradient-start) 0%, var(--premium-gradient-end) 100%);
       border-radius: var(--radius-card);
-      padding: var(--card-padding);
+      padding: 14px var(--card-padding);
       margin-bottom: var(--card-gap);
       position: relative;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
     }
     .premium-banner::before {
       content: '';
       position: absolute;
-      top: -50%;
-      right: -20%;
-      width: 200px;
-      height: 200px;
+      top: -80%;
+      right: -15%;
+      width: 120px;
+      height: 120px;
       background: rgba(255,255,255,0.15);
       border-radius: 50%;
     }
-    .premium-banner-content { position: relative; z-index: 1; }
+    .premium-banner-content { 
+      position: relative; 
+      z-index: 1; 
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
     .premium-banner-header {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 8px;
+      flex: 1;
     }
     .premium-banner-icon {
-      width: 40px; height: 40px;
+      width: 36px; height: 36px;
       background: rgba(255, 255, 255, 0.3);
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--text-primary);
+      flex-shrink: 0;
     }
-    .premium-banner-icon svg { width: 22px; height: 22px; }
+    .premium-banner-icon svg { width: 18px; height: 18px; }
     .premium-banner-title {
       color: var(--text-primary);
       font: var(--font-card-title);
+      font-size: 15px;
     }
     .premium-banner-desc {
-      color: var(--text-primary);
-      font: var(--font-body);
-      opacity: 0.85;
-      margin-bottom: var(--space-4);
+      display: none;
     }
     .premium-banner-btn {
-      width: 100%;
-      padding: 16px;
+      padding: 10px 16px;
       background: var(--header-bg);
       border: none;
-      border-radius: var(--radius-button);
+      border-radius: var(--radius-pill);
       color: #fff;
-      font: var(--font-card-title);
+      font: var(--font-pill);
       cursor: pointer;
       transition: transform 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .premium-banner-btn:active { transform: scale(0.98); }
     
@@ -1272,7 +1285,45 @@
     }
     .step-dur svg { width: 14px; height: 14px; }
     
-    /* Expand details button - Ghost style */
+    /* Step Actions Row */
+    .step-actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+    }
+    
+    .step-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--pill-bg);
+      border: none;
+      border-radius: var(--radius-pill);
+      font: var(--font-pill);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .step-action-btn svg { width: 14px; height: 14px; }
+    .step-action-btn:hover { background: #E8ECF0; color: var(--text-primary); }
+    
+    .step-action-btn.expand { color: var(--step-teal); }
+    .step-action-btn.expand:hover { background: var(--teal-soft); }
+    .step-action-btn.expand.done { background: var(--teal-soft); color: var(--step-teal); }
+    
+    .step-action-btn.doitforme { color: var(--primary-orange); }
+    .step-action-btn.doitforme:hover { background: rgba(255, 159, 58, 0.12); }
+    .step-action-btn.doitforme.done { background: rgba(255, 159, 58, 0.12); color: var(--primary-orange); }
+    
+    .step-action-count {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-left: 2px;
+    }
+    
+    /* Legacy expand btn */
     .step-expand-btn {
       padding: 8px 12px;
       background: transparent;
@@ -5064,31 +5115,14 @@
                   <p className="greeting-subtitle">Let's make progress on your goals today.</p>
                 </div>
                 
-                {activeGoal && (
-                  <button className="hero-cta" onClick={() => { setSelectedGoalId(activeGoal.id); setView('goal'); }}>
-                    Continue your goal
-                  </button>
-                )}
+                <button className="hero-cta" onClick={() => handlePremiumFeature('goal', () => setView('new'))}>
+                  <Icons.plus style={{width: '20px', height: '20px'}} /> Create New Goal
+                </button>
                 
                 {/* Header icons in hero */}
                 <div style={{position: 'absolute', top: 'calc(var(--safe-top) + 16px)', right: '16px', display: 'flex', gap: '8px'}}>
                   <button className="header-icon" style={{color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.1)'}} onClick={() => setView('analytics')}><Icons.barChart /></button>
                   <button className="header-icon" style={{color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.1)'}} onClick={() => setView('settings')}><Icons.settings /></button>
-                </div>
-              </div>
-              
-              {/* Progress Hub */}
-              <div className="progress-hub">
-                <h3 className="progress-hub-title">Progress Hub</h3>
-                <div className="progress-hub-badges">
-                  <div className="progress-badge streak">
-                    <span>🔥</span>
-                    <span>{streakData.current}-day streak</span>
-                  </div>
-                  <div className="progress-badge level">
-                    <span>⭐</span>
-                    <span>Level {getLevel(userPoints).level} Achiever</span>
-                  </div>
                 </div>
               </div>
               
@@ -5303,7 +5337,24 @@
                 </div>
               )}
 
-              {/* Achievement Cards - New Design */}
+              {/* Progress Hub - At bottom */}
+              {!searchQuery && (
+                <div className="progress-hub" style={{marginTop: 'var(--section-gap)'}}>
+                  <h3 className="progress-hub-title">Progress Hub</h3>
+                  <div className="progress-hub-badges">
+                    <div className="progress-badge streak">
+                      <span>🔥</span>
+                      <span>{streakData.current}-day streak</span>
+                    </div>
+                    <div className="progress-badge level">
+                      <span>⭐</span>
+                      <span>Level {getLevel(userPoints).level} Achiever</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Achievement Cards */}
               {!searchQuery && (
                 <div className="achievements-row">
                   <div className="achievement-card purple">
@@ -5634,17 +5685,21 @@
                   return (
                     <div key={step.id} className={`step-item slide-up ${isDone ? 'done' : ''}`} style={{animationDelay: `${i*0.05}s`}}>
                       <div className="step-check" onClick={() => toggleStep(goal.id, step.id)}>{isDone && <Icons.check />}</div>
-                      <div className="step-body" onClick={() => toggleStep(goal.id, step.id)}>
-                        <h4 className="step-title">
-                          <span className="step-title-prefix">STEP {step.id}: </span>
-                          {step.title}
-                        </h4>
-                        <p className="step-desc">{step.description}</p>
+                      <div className="step-body">
+                        <div onClick={() => toggleStep(goal.id, step.id)}>
+                          <h4 className="step-title">
+                            <span className="step-title-prefix">STEP {step.id}: </span>
+                            {step.title}
+                          </h4>
+                          <p className="step-desc">{step.description}</p>
+                        </div>
                         <div className="step-meta-row">
                           <span className="step-dur"><Icons.clock /> {step.duration}</span>
-                          {!isDone && (
+                        </div>
+                        {!isDone && (
+                          <div className="step-actions-row">
                             <button
-                              className="step-expand-btn"
+                              className={`step-action-btn expand ${expandedSteps[`${goal.id}-${step.id}`] ? 'done' : ''}`}
                               onClick={(e) => { 
                                 e.stopPropagation(); 
                                 if (expandedSteps[`${goal.id}-${step.id}`]) {
@@ -5657,10 +5712,36 @@
                                 }
                               }}
                             >
-                              Expand details
+                              <Icons.sparkles /> 
+                              {expandedSteps[`${goal.id}-${step.id}`] ? 'View details' : `Expand`}
+                              {!isPremium && !expandedSteps[`${goal.id}-${step.id}`] && (
+                                <span className="step-action-count">({PREMIUM_CONFIG.FREE_EXPAND_DAILY - expandUsesToday})</span>
+                              )}
                             </button>
-                          )}
-                        </div>
+                            {canDoItForMe(step.title, step.description) && (
+                              <button
+                                className={`step-action-btn doitforme ${savedDoItForMe[`${goal.id}-${step.id}`] ? 'done' : ''}`}
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  if (savedDoItForMe[`${goal.id}-${step.id}`]) {
+                                    doItForMe(goal.id, step, goal.name);
+                                  } else {
+                                    handlePremiumFeature('doitforme', () => {
+                                      trackDoItForMeUse();
+                                      doItForMe(goal.id, step, goal.name);
+                                    });
+                                  }
+                                }}
+                              >
+                                <Icons.wand /> 
+                                {savedDoItForMe[`${goal.id}-${step.id}`] ? 'View result' : 'Do it for me'}
+                                {!isPremium && !savedDoItForMe[`${goal.id}-${step.id}`] && (
+                                  <span className="step-action-count">({PREMIUM_CONFIG.FREE_DOITFORME_DAILY - doItForMeUsesToday})</span>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                       {isDone && (
                         <div className="step-done-icon">
