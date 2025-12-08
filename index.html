@@ -3458,8 +3458,41 @@
         const Purchases = window.Capacitor?.Plugins?.Purchases;
         if (Purchases) {
           try {
-            // RevenueCat purchase flow
-            const { customerInfo } = await Purchases.purchaseProduct({ productIdentifier: plan.id });
+            // Get offerings first
+            const { offerings } = await Purchases.getOfferings();
+            if (!offerings.current) {
+              throw new Error('No offerings available');
+            }
+            
+            // Find the right package based on selected plan
+            let packageToPurchase = null;
+            const packageType = selectedPlan === 'yearly' ? 'ANNUAL' : selectedPlan.toUpperCase();
+            
+            // Try to find package by identifier
+            for (const pkg of offerings.current.availablePackages || []) {
+              if (pkg.packageType === packageType || 
+                  pkg.identifier === `$rc_${selectedPlan}` ||
+                  pkg.identifier === selectedPlan) {
+                packageToPurchase = pkg;
+                break;
+              }
+            }
+            
+            if (!packageToPurchase && offerings.current.availablePackages?.length > 0) {
+              // Fallback: use the first available package or find by product ID
+              packageToPurchase = offerings.current.availablePackages.find(p => 
+                p.product?.identifier === plan.id
+              ) || offerings.current.availablePackages[0];
+            }
+            
+            if (!packageToPurchase) {
+              throw new Error('Package not found');
+            }
+            
+            console.log('Purchasing package:', packageToPurchase);
+            
+            // Purchase the package
+            const { customerInfo } = await Purchases.purchasePackage({ aPackage: packageToPurchase });
             
             // Check if premium entitlement is now active
             if (customerInfo.entitlements.active['Aclio Premium']) {
@@ -3469,11 +3502,11 @@
               alert('🎉 Welcome to Premium!');
             }
           } catch (error) {
-            if (error.code === 'PURCHASE_CANCELLED') {
+            if (error.code === 'PURCHASE_CANCELLED' || error.message?.includes('cancelled')) {
               console.log('User cancelled purchase');
             } else {
               console.error('Purchase error:', error);
-              alert('Purchase failed. Please try again.');
+              alert('Purchase failed: ' + (error.message || 'Please try again.'));
             }
           }
         } else {
