@@ -88,6 +88,10 @@
       --shadow-btn: 0 10px 25px rgba(37, 99, 255, 0.4);
     }
     
+    html { 
+      height: 100%;
+    }
+    
     body { 
       font-family: 'Inter', -apple-system, sans-serif;
       background: var(--bg); 
@@ -95,9 +99,24 @@
       min-height: 100vh;
       min-height: 100dvh;
       line-height: 1.5;
+      margin: 0;
+      padding: 0;
     }
     
-    #root { min-height: 100vh; min-height: 100dvh; }
+    #root { 
+      min-height: 100vh; 
+      min-height: 100dvh;
+    }
+    
+    /* Prevent scroll bounce on welcome/onboarding */
+    .app-no-scroll {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+    }
     
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -2306,23 +2325,25 @@
     
     /* Welcome Screen - Aclio Style */
     .welcome-screen {
-      height: 100vh; height: 100dvh;
+      width: 100%;
+      height: 100%;
+      min-height: 100vh; 
+      min-height: 100dvh;
       display: flex; 
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 0 24px;
       background: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 50%, #c5e3f3 100%);
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      overflow: hidden;
+      box-sizing: border-box;
     }
     .welcome-content { 
       display: flex; 
       flex-direction: column; 
       align-items: center; 
       justify-content: center;
-      margin-top: 40px;
+      margin-bottom: auto;
+      padding-top: 80px;
     }
     @keyframes float {
       0%, 100% { transform: translateY(0px); }
@@ -2331,7 +2352,7 @@
     .welcome-mascot {
       width: 260px;
       height: 260px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       position: relative;
       filter: drop-shadow(0 20px 40px rgba(255, 140, 66, 0.3));
       animation: float 3s ease-in-out infinite;
@@ -2344,7 +2365,7 @@
     .welcome-title { 
       font-size: 48px; 
       font-weight: 800; 
-      margin-bottom: 6px; 
+      margin-bottom: 4px; 
       color: #1a2b4a;
       letter-spacing: -1px;
     }
@@ -2354,11 +2375,9 @@
       font-weight: 400;
     }
     .welcome-bottom { 
-      position: absolute;
-      bottom: 60px;
-      left: 24px;
-      right: 24px;
+      width: 100%;
       text-align: center;
+      padding-bottom: 60px;
     }
     .welcome-btn {
       width: 100%;
@@ -2413,12 +2432,12 @@
 
     /* Onboarding - Aclio Style */
     .onboarding {
-      height: 100vh; height: 100dvh;
+      width: 100%;
+      height: 100%;
+      min-height: 100vh; min-height: 100dvh;
       display: flex; flex-direction: column;
       background: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 50%, #c5e3f3 100%);
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      overflow: hidden;
+      box-sizing: border-box;
     }
     
     .onboarding-skip-top {
@@ -2661,12 +2680,13 @@
 
     /* Profile Setup - Aclio Style */
     .profile-setup {
-      height: 100vh; height: 100dvh;
+      width: 100%;
+      height: 100%;
+      min-height: 100vh; min-height: 100dvh;
       display: flex; flex-direction: column;
       padding: calc(var(--safe-top) + 20px) 24px calc(var(--safe-bottom) + 24px);
       background: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 50%, #c5e3f3 100%);
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      box-sizing: border-box;
       overflow-y: auto;
     }
     .profile-header { margin-top: 40px; margin-bottom: 32px; text-align: center; }
@@ -3882,7 +3902,7 @@
       // WELCOME SCREEN - Aclio Style
       if (view === 'welcome') {
         return (
-          <div className="app">
+          <div className="app app-no-scroll">
             <div className="welcome-screen fade-in">
               <div className="welcome-content">
                 {/* Flame Bunny Mascot */}
@@ -3909,7 +3929,7 @@
         const slide = ONBOARDING_SLIDES[onboardStep];
         const SlideIcon = Icons[slide.icon];
         return (
-          <div className="app">
+          <div className="app app-no-scroll">
             <div className="onboarding fade-in" key={onboardStep}>
               <button className="onboarding-skip-top" onClick={() => setView('profile-setup')}>Skip</button>
               
@@ -3989,7 +4009,7 @@
         const canContinue = userProfile.name.trim();
 
         return (
-          <div className="app">
+          <div className="app app-no-scroll">
             <div className="profile-setup fade-in">
               <button className="onboarding-skip-top" onClick={finishOnboarding}>Skip</button>
               
