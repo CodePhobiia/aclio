@@ -3349,7 +3349,7 @@
           if (permission === 'granted') {
             setNotificationsEnabled(true);
             localStorage.setItem('achieve_notifications', 'true');
-            new Notification('Achieve AI', { body: 'Notifications enabled! We\'ll remind you of your goals.' });
+            new Notification('Aclio', { body: 'Notifications enabled! We\'ll remind you of your goals.' });
           }
         }
       };
@@ -3714,24 +3714,24 @@
       
       const shareToTwitter = () => {
         const text = shareModal.isCompleted 
-          ? `🎉 I just completed my goal: "${shareModal.goal.name}" with Achieve AI! ${shareModal.goal.steps.length} steps crushed! 💪`
-          : `🎯 Working on my goal: "${shareModal.goal.name}" with Achieve AI! ${getProgress(shareModal.goal)}% complete!`;
+          ? `🎉 I just completed my goal: "${shareModal.goal.name}" with Aclio! ${shareModal.goal.steps.length} steps crushed! 💪`
+          : `🎯 Working on my goal: "${shareModal.goal.name}" with Aclio! ${getProgress(shareModal.goal)}% complete!`;
         const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
       };
       
       const shareToWhatsApp = () => {
         const text = shareModal.isCompleted 
-          ? `🎉 I just completed my goal: "${shareModal.goal.name}" with Achieve AI! ${shareModal.goal.steps.length} steps crushed! 💪`
-          : `🎯 Working on my goal: "${shareModal.goal.name}" with Achieve AI! ${getProgress(shareModal.goal)}% complete!`;
+          ? `🎉 I just completed my goal: "${shareModal.goal.name}" with Aclio! ${shareModal.goal.steps.length} steps crushed! 💪`
+          : `🎯 Working on my goal: "${shareModal.goal.name}" with Aclio! ${getProgress(shareModal.goal)}% complete!`;
         const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
       };
       
       const copyShareLink = () => {
         const text = shareModal.isCompleted 
-          ? `🎉 I just completed my goal: "${shareModal.goal.name}" with Achieve AI! ${shareModal.goal.steps.length} steps crushed! 💪 #AchieveAI`
-          : `🎯 Working on my goal: "${shareModal.goal.name}" with Achieve AI! ${getProgress(shareModal.goal)}% complete! #AchieveAI`;
+          ? `🎉 I just completed my goal: "${shareModal.goal.name}" with Aclio! ${shareModal.goal.steps.length} steps crushed! 💪 #Aclio`
+          : `🎯 Working on my goal: "${shareModal.goal.name}" with Aclio! ${getProgress(shareModal.goal)}% complete! #Aclio`;
         navigator.clipboard.writeText(text);
         alert('Copied to clipboard!');
       };
@@ -5361,7 +5361,7 @@
                         )}
                       </div>
                       <div className="share-card-logo">
-                        <Icons.target /> Achieve AI
+                        <Icons.target /> Aclio
                       </div>
                     </div>
                   </div>
@@ -5601,7 +5601,7 @@
                       <Icons.info />
                     </div>
                     <div className="settings-item-content">
-                      <p className="settings-item-title">Achieve AI</p>
+                      <p className="settings-item-title">Aclio</p>
                       <p className="settings-item-desc">Version 1.0.0 • Made with ❤️</p>
                     </div>
                   </div>
