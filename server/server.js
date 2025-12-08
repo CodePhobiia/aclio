@@ -10,9 +10,9 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+// Middleware - allow all origins for development
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:3000', 'http://127.0.0.1:8080'],
+  origin: true, // Allow all origins (for iOS Capacitor app)
   methods: ['GET', 'POST'],
   credentials: true
 }));
