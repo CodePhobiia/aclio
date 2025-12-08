@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#f8fafc">
+  <meta name="theme-color" content="#e8f4fc">
   <title>Aclio</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -90,6 +90,7 @@
     
     html { 
       height: 100%;
+      background: var(--bg-top);
     }
     
     body { 
@@ -3136,7 +3137,7 @@
         document.documentElement.className = theme === 'dark' ? 'dark' : '';
         // Update meta theme color
         const metaTheme = document.querySelector('meta[name="theme-color"]');
-        if (metaTheme) metaTheme.setAttribute('content', theme === 'dark' ? '#0f172a' : '#f8fafc');
+        if (metaTheme) metaTheme.setAttribute('content', theme === 'dark' ? '#1a2b4a' : '#e8f4fc');
       }, [theme]);
 
       const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
