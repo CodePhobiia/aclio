@@ -3460,53 +3460,61 @@
           try {
             // Get offerings first
             const { offerings } = await Purchases.getOfferings();
-            if (!offerings.current) {
+            console.log('Offerings:', JSON.stringify(offerings, null, 2));
+            
+            if (!offerings?.current) {
               throw new Error('No offerings available');
             }
             
-            // Find the right package based on selected plan
-            let packageToPurchase = null;
-            const packageType = selectedPlan === 'yearly' ? 'ANNUAL' : selectedPlan.toUpperCase();
-            
-            // Try to find package by identifier
-            for (const pkg of offerings.current.availablePackages || []) {
-              if (pkg.packageType === packageType || 
-                  pkg.identifier === `$rc_${selectedPlan}` ||
-                  pkg.identifier === selectedPlan) {
-                packageToPurchase = pkg;
-                break;
-              }
+            // Get the package directly from offerings.current
+            let pkg = null;
+            if (selectedPlan === 'yearly' && offerings.current.annual) {
+              pkg = offerings.current.annual;
+            } else if (selectedPlan === 'monthly' && offerings.current.monthly) {
+              pkg = offerings.current.monthly;
+            } else if (selectedPlan === 'weekly' && offerings.current.weekly) {
+              pkg = offerings.current.weekly;
             }
             
-            if (!packageToPurchase && offerings.current.availablePackages?.length > 0) {
-              // Fallback: use the first available package or find by product ID
-              packageToPurchase = offerings.current.availablePackages.find(p => 
-                p.product?.identifier === plan.id
-              ) || offerings.current.availablePackages[0];
+            // Fallback: search in availablePackages
+            if (!pkg && offerings.current.availablePackages) {
+              pkg = offerings.current.availablePackages.find(p => 
+                p.product?.identifier === plan.id ||
+                p.identifier?.toLowerCase().includes(selectedPlan)
+              );
             }
             
-            if (!packageToPurchase) {
-              throw new Error('Package not found');
+            if (!pkg) {
+              console.error('Available packages:', offerings.current.availablePackages);
+              throw new Error('Package not found for: ' + selectedPlan);
             }
             
-            console.log('Purchasing package:', packageToPurchase);
+            console.log('Purchasing package:', JSON.stringify(pkg, null, 2));
             
-            // Purchase the package
-            const { customerInfo } = await Purchases.purchasePackage({ aPackage: packageToPurchase });
+            // Purchase the package - pass the package object directly
+            const result = await Purchases.purchasePackage({ 
+              aPackage: pkg 
+            });
+            
+            console.log('Purchase result:', JSON.stringify(result, null, 2));
             
             // Check if premium entitlement is now active
-            if (customerInfo.entitlements.active['Aclio Premium']) {
+            if (result?.customerInfo?.entitlements?.active?.['Aclio Premium']) {
               setIsPremium(true);
               localStorage.setItem('achieve_premium', 'true');
               setShowPaywall(false);
               alert('🎉 Welcome to Premium!');
             }
           } catch (error) {
-            if (error.code === 'PURCHASE_CANCELLED' || error.message?.includes('cancelled')) {
+            console.error('Full purchase error:', JSON.stringify(error, null, 2));
+            if (error.code === 'PURCHASE_CANCELLED' || 
+                error.code === 1 ||
+                error.message?.includes('cancelled') ||
+                error.message?.includes('canceled')) {
               console.log('User cancelled purchase');
             } else {
               console.error('Purchase error:', error);
-              alert('Purchase failed: ' + (error.message || 'Please try again.'));
+              alert('Purchase failed: ' + (error.message || error.code || 'Unknown error'));
             }
           }
         } else {
