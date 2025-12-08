@@ -5025,11 +5025,11 @@
                 <div className="progress-hub-badges">
                   <div className="progress-badge streak">
                     <span>🔥</span>
-                    <span>{currentStreak}-day streak</span>
+                    <span>{streakData.current}-day streak</span>
                   </div>
                   <div className="progress-badge level">
                     <span>⭐</span>
-                    <span>Level {userLevel} Achiever</span>
+                    <span>Level {getLevel(userPoints).level} Achiever</span>
                   </div>
                 </div>
               </div>
