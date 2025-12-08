@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#f8fafc">
-  <title>Aclio</title>
+  <title>Achieve AI</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -88,30 +88,16 @@
       --shadow-btn: 0 10px 25px rgba(37, 99, 255, 0.4);
     }
     
-    html, body { 
-      height: 100%;
-      margin: 0;
-      padding: 0;
+    body { 
       font-family: 'Inter', -apple-system, sans-serif;
-      background: #c5e3f3;
+      background: var(--bg); 
       color: var(--text); 
+      min-height: 100vh;
+      min-height: 100dvh;
       line-height: 1.5;
     }
     
-    #root { 
-      height: 100%;
-    }
-    
-    /* Prevent scroll bounce on welcome/onboarding */
-    .app-no-scroll {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      max-width: none !important;
-      background: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 50%, #c5e3f3 100%);
-    }
+    #root { min-height: 100vh; min-height: 100dvh; }
     
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -120,6 +106,17 @@
     .fade-in { animation: fadeIn 0.4s ease; }
     .slide-up { animation: slideUp 0.5s ease backwards; }
     .spin { animation: spin 1s linear infinite; display: inline-block; }
+    
+    /* Prevent scroll bounce on welcome/onboarding */
+    .app-no-scroll {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      background: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 50%, #c5e3f3 100%);
+    }
     
     /* ============ APP ============ */
     .app {
@@ -2318,142 +2315,66 @@
       cursor: pointer;
     }
     
-    /* Welcome Screen - Aclio Style */
+    /* Welcome Screen */
     .welcome-screen {
-      width: 100%;
-      height: 100%;
-      display: flex; 
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0);
-      padding-top: max(env(safe-area-inset-top, 0), 20px);
-      padding-bottom: max(env(safe-area-inset-bottom, 0), 20px);
-      background: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 50%, #c5e3f3 100%);
-      box-sizing: border-box;
-      overflow: hidden;
+      min-height: 100vh; min-height: 100dvh;
+      display: flex; flex-direction: column;
+      padding: calc(var(--safe-top) + 40px) 24px calc(var(--safe-bottom) + 40px);
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     }
-    .welcome-content { 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: center;
+    .welcome-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .welcome-logo {
+      width: 100px; height: 100px;
+      background: var(--accent);
+      border-radius: 28px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-btn);
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-12px); }
-    }
-    .welcome-mascot {
-      width: 260px;
-      height: 260px;
-      margin-bottom: -10px;
-      position: relative;
-      filter: drop-shadow(0 20px 40px rgba(255, 140, 66, 0.3));
-      animation: float 3s ease-in-out infinite;
-    }
-    .welcome-mascot img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      -webkit-user-select: none;
-      user-select: none;
-      pointer-events: none;
-    }
-    .welcome-title { 
-      font-size: 48px; 
-      font-weight: 800; 
-      margin-bottom: 4px; 
-      color: #1a2b4a;
-      letter-spacing: -1px;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    .welcome-tagline { 
-      font-size: 20px; 
-      color: #4a5568;
-      font-weight: 400;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    .welcome-bottom { 
-      position: absolute;
-      bottom: calc(env(safe-area-inset-bottom, 0px) + 40px);
-      left: 24px;
-      right: 24px;
-      text-align: center;
-    }
-    .welcome-btn {
-      width: 100%;
-      padding: 18px 32px;
-      background: linear-gradient(135deg, #FFB347 0%, #FF9F43 100%);
-      border: none;
-      border-radius: 50px;
-      color: #1a2b4a;
-      font-family: inherit;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 30px rgba(255, 159, 67, 0.4);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .welcome-btn:active { 
-      transform: scale(0.98); 
-      box-shadow: 0 4px 20px rgba(255, 159, 67, 0.3);
-    }
-    .welcome-signin { 
-      margin-top: 20px; 
-      font-size: 15px; 
-      color: #4a5568; 
-    }
-    .welcome-signin button { 
-      background: none; 
-      border: none; 
-      color: #1a2b4a; 
-      font-weight: 600; 
-      cursor: pointer; 
-      font-size: 15px;
-      text-decoration: underline;
-    }
+    .welcome-logo svg { width: 50px; height: 50px; }
+    .welcome-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .welcome-tagline { font-size: 18px; color: var(--text-dim); }
+    .welcome-bottom { text-align: center; width: 100%; }
+    .welcome-signin { margin-top: 20px; font-size: 14px; color: var(--text-dim); }
+    .welcome-signin button { background: none; border: none; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 14px; }
     
-    /* Shared Button Style - Aclio Orange */
+    /* Shared Button Style */
     .onboarding-btn { 
       width: 100%;
       padding: 18px; 
-      background: linear-gradient(135deg, #FFB347 0%, #FF9F43 100%);
+      background: var(--accent); 
       border: none; 
-      border-radius: 50px; 
-      color: #1a2b4a; 
+      border-radius: 18px; 
+      color: #fff; 
       font-family: inherit; 
       font-size: 17px; 
-      font-weight: 700; 
+      font-weight: 600; 
       cursor: pointer; 
-      box-shadow: 0 8px 30px rgba(255, 159, 67, 0.4);
+      box-shadow: var(--shadow-btn);
       transition: transform 0.2s;
     }
     .onboarding-btn:active { transform: scale(0.98); }
     .onboarding-btn:disabled { opacity: 0.5; }
 
-    /* Onboarding - Aclio Style */
+    /* Onboarding */
     .onboarding {
-      width: 100%;
-      height: 100%;
+      min-height: 100vh; min-height: 100dvh;
       display: flex; flex-direction: column;
-      background: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 50%, #c5e3f3 100%);
-      box-sizing: border-box;
-      padding-top: env(safe-area-inset-top, 0);
-      padding-bottom: env(safe-area-inset-bottom, 0);
-      overflow: hidden;
+      padding-top: var(--safe-top);
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      position: relative;
     }
     
     .onboarding-skip-top {
       position: absolute;
-      top: calc(env(safe-area-inset-top, 0px) + 20px);
+      top: calc(var(--safe-top) + 20px);
       right: 24px;
       background: none;
       border: none;
-      color: #FF9F43;
+      color: var(--accent);
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       z-index: 10;
     }
@@ -2479,7 +2400,7 @@
     .onboarding-blob {
       width: 180px; 
       height: 180px;
-      background: linear-gradient(135deg, rgba(255, 179, 71, 0.2) 0%, rgba(255, 159, 67, 0.1) 100%);
+      background: linear-gradient(135deg, var(--accent-soft) 0%, var(--accent-softer) 100%);
       border-radius: 50%;
       position: relative;
       animation: float 3s ease-in-out infinite;
@@ -2490,7 +2411,7 @@
     
     @keyframes float {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
+      50% { transform: translateY(-8px); }
     }
     
     .onboarding-image-container {
@@ -2524,11 +2445,11 @@
     }
     .onboarding-icon-badge svg { width: 26px; height: 26px; }
     
-    /* Typography - Aclio Style */
+    /* Typography */
     .onboarding-title { 
-      font-size: 26px; 
+      font-size: 24px; 
       font-weight: 700; 
-      color: #1a2b4a;
+      color: var(--text);
       margin-bottom: 16px; 
       line-height: 1.2; 
     }
@@ -2536,7 +2457,7 @@
     .onboarding-text { 
       font-size: 16px; 
       font-weight: 400;
-      color: #4a5568; 
+      color: var(--text-dim); 
       line-height: 1.5; 
       margin-bottom: 28px; 
       max-width: 85%;
@@ -2564,7 +2485,7 @@
       color: var(--text);
       box-shadow: var(--shadow-md);
     }
-    .onboarding-feature-icon { color: #FF9F43; display: flex; flex-shrink: 0; }
+    .onboarding-feature-icon { color: var(--accent); display: flex; flex-shrink: 0; }
     .onboarding-feature-icon svg { width: 18px; height: 18px; }
     
     /* Screen 2: Task Cards */
@@ -2638,13 +2559,10 @@
     
     /* Footer */
     .onboarding-footer { 
-      padding: 20px 24px 24px;
-      margin-top: auto;
-      position: relative;
-      z-index: 10;
+      padding: 20px 24px calc(var(--safe-bottom) + 24px);
     }
     
-    /* Progress Dots - Aclio Orange */
+    /* Progress Dots */
     .onboarding-dots { 
       display: flex; 
       justify-content: center; 
@@ -2656,52 +2574,47 @@
       width: 8px; 
       height: 8px; 
       border-radius: 50%; 
-      background: rgba(255, 159, 67, 0.3); 
+      background: var(--dot-inactive); 
       transition: all 0.3s ease;
     }
     
     .onboarding-dot.active { 
       width: 24px; 
       border-radius: 4px; 
-      background: #FF9F43; 
+      background: var(--accent); 
     }
     
-    /* CTA Button - Aclio Orange */
+    /* CTA Button */
     .onboarding-cta { 
       width: 100%;
       padding: 18px; 
-      background: linear-gradient(135deg, #FFB347 0%, #FF9F43 100%);
+      background: var(--accent); 
       border: none; 
-      border-radius: 50px; 
-      color: #1a2b4a; 
+      border-radius: 18px; 
+      color: #fff; 
       font-family: inherit; 
       font-size: 17px; 
-      font-weight: 700; 
+      font-weight: 600; 
       cursor: pointer; 
-      box-shadow: 0 8px 30px rgba(255, 159, 67, 0.4);
+      box-shadow: var(--shadow-btn);
       transition: transform 0.2s, box-shadow 0.2s;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
     }
     .onboarding-cta:active { 
       transform: scale(0.98); 
     }
     .onboarding-cta:disabled { opacity: 0.5; }
 
-    /* Profile Setup - Aclio Style */
+    /* Profile Setup - Single Page */
     .profile-setup {
-      width: 100%;
-      height: 100%;
+      min-height: 100vh; min-height: 100dvh;
       display: flex; flex-direction: column;
-      padding: calc(env(safe-area-inset-top, 0px) + 20px) 24px 24px;
-      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
-      background: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 50%, #c5e3f3 100%);
-      box-sizing: border-box;
-      overflow-y: auto;
+      padding: calc(var(--safe-top) + 20px) 24px calc(var(--safe-bottom) + 24px);
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      position: relative;
     }
     .profile-header { margin-top: 40px; margin-bottom: 32px; text-align: center; }
-    .profile-title { font-size: 26px; font-weight: 700; margin-bottom: 8px; color: #1a2b4a; }
-    .profile-subtitle { font-size: 16px; color: #4a5568; }
+    .profile-title { font-size: 26px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .profile-subtitle { font-size: 16px; color: var(--text-dim); }
     
     .profile-form { flex: 1; }
     .profile-field { margin-bottom: 24px; }
@@ -2719,7 +2632,7 @@
       transition: border-color 0.2s, box-shadow 0.2s;
       box-shadow: var(--shadow-md);
     }
-    .profile-input:focus { border-color: #FF9F43; box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.15); }
+    .profile-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(37, 99, 255, 0.1); }
     .profile-input::placeholder { color: var(--text-dimmer); }
     
     .profile-gender-options { display: flex; gap: 10px; }
@@ -2737,7 +2650,7 @@
       box-shadow: var(--shadow-md);
     }
     .profile-gender-btn:hover { border-color: var(--accent); }
-    .profile-gender-btn.selected { background: rgba(255, 159, 67, 0.15); border-color: #FF9F43; color: #FF9F43; font-weight: 600; }
+    .profile-gender-btn.selected { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
     
     .profile-submit { margin-top: auto; }
   </style>
@@ -2836,7 +2749,7 @@
       originalConsoleWarn.apply(console, args);
     };
 
-    // Backend API URL - change this when deploying
+    // Backend API URL
     const API_URL = 'https://aclio-production.up.railway.app/api';
     
     // Check backend health on load
@@ -3023,8 +2936,8 @@
     const ONBOARDING_SLIDES = [
       { 
         icon: 'zap',
-        iconBg: 'rgba(255, 159, 67, 0.15)',
-        iconColor: '#FF9F43',
+        iconBg: 'var(--accent-soft)',
+        iconColor: 'var(--accent)',
         image: 'https://em-content.zobj.net/source/apple/391/light-bulb_1f4a1.png',
         title: 'AI-Powered Goal Planning', 
         text: 'Transform your aspirations into personalized, AI-generated action plans tailored to your goals.',
@@ -3036,8 +2949,8 @@
       },
       { 
         icon: 'check',
-        iconBg: 'rgba(34, 197, 94, 0.1)',
-        iconColor: '#22C55E',
+        iconBg: 'var(--success-soft)',
+        iconColor: 'var(--success)',
         image: 'https://em-content.zobj.net/source/apple/391/clipboard_1f4cb.png',
         title: 'Step-by-Step Guidance', 
         text: 'Break down your goal into clear, manageable tasks with intelligent coaching that adapts to your progress.',
@@ -3051,8 +2964,8 @@
       },
       { 
         icon: 'trophy',
-        iconBg: 'rgba(255, 179, 71, 0.15)',
-        iconColor: '#FFB347',
+        iconBg: 'var(--gold-soft)',
+        iconColor: 'var(--gold)',
         image: 'https://em-content.zobj.net/source/apple/391/trophy_1f3c6.png',
         title: 'Track Your Success', 
         text: 'Celebrate milestones, stay motivated, and watch your streaks grow as you achieve your goals.',
@@ -3557,67 +3470,23 @@
         const Purchases = window.Capacitor?.Plugins?.Purchases;
         if (Purchases) {
           try {
-            // Get offerings first
-            const offeringsResult = await Purchases.getOfferings();
-            console.log('Offerings result:', JSON.stringify(offeringsResult, null, 2));
-            
-            // The offerings might be nested differently
-            const offerings = offeringsResult?.offerings || offeringsResult;
-            console.log('Parsed offerings:', JSON.stringify(offerings, null, 2));
-            
-            if (!offerings?.current) {
-              throw new Error('No offerings available - check RevenueCat dashboard');
-            }
-            
-            // Get the package directly from offerings.current
-            let pkg = null;
-            if (selectedPlan === 'yearly' && offerings.current.annual) {
-              pkg = offerings.current.annual;
-            } else if (selectedPlan === 'monthly' && offerings.current.monthly) {
-              pkg = offerings.current.monthly;
-            } else if (selectedPlan === 'weekly' && offerings.current.weekly) {
-              pkg = offerings.current.weekly;
-            }
-            
-            // Fallback: search in availablePackages
-            if (!pkg && offerings.current.availablePackages) {
-              pkg = offerings.current.availablePackages.find(p => 
-                p.product?.identifier === plan.id ||
-                p.identifier?.toLowerCase().includes(selectedPlan)
-              );
-            }
-            
-            if (!pkg) {
-              console.error('Available packages:', offerings.current.availablePackages);
-              throw new Error('Package not found for: ' + selectedPlan);
-            }
-            
-            console.log('Purchasing package:', JSON.stringify(pkg, null, 2));
-            
-            // Purchase the package - pass the package object directly
-            const result = await Purchases.purchasePackage({ 
-              aPackage: pkg 
-            });
-            
-            console.log('Purchase result:', JSON.stringify(result, null, 2));
+            // RevenueCat purchase flow
+            const result = await Purchases.purchaseProduct({ productIdentifier: plan.id });
+            const customerInfo = result?.customerInfo;
             
             // Check if premium entitlement is now active
-            if (result?.customerInfo?.entitlements?.active?.['Aclio Premium']) {
+            if (customerInfo?.entitlements?.active?.['Aclio Premium']) {
               setIsPremium(true);
               localStorage.setItem('achieve_premium', 'true');
               setShowPaywall(false);
               alert('🎉 Welcome to Premium!');
             }
           } catch (error) {
-            console.error('Full purchase error:', JSON.stringify(error, null, 2));
-            if (error.code === 'PURCHASE_CANCELLED' || 
-                error.code === 1 ||
-                error.message?.includes('cancelled') ||
-                error.message?.includes('canceled')) {
+            if (error?.code === 'PURCHASE_CANCELLED' || error?.userCancelled) {
               console.log('User cancelled purchase');
             } else {
               console.error('Purchase error:', error);
-              alert('Purchase failed: ' + (error.message || error.code || 'Unknown error'));
+              alert('Purchase failed: ' + (error?.message || 'Please try again.'));
             }
           }
         } else {
@@ -3909,25 +3778,23 @@
 
       const suggestions = ["Learn a new language", "Run a marathon", "Start a side business", "Read 20 books this year"];
 
-      // WELCOME SCREEN - Aclio Style
+      // WELCOME SCREEN
       if (view === 'welcome') {
         return (
           <div className="app app-no-scroll">
             <div className="welcome-screen fade-in">
               <div className="welcome-content">
-                {/* Flame Bunny Mascot */}
-                <div className="welcome-mascot">
-                  <img src="/mascot.png" alt="Aclio Mascot" />
+                <div className="welcome-logo">
+                  <Icons.target />
                 </div>
-                <h1 className="welcome-title">Aclio</h1>
-                <p className="welcome-tagline">Ignite your goals.</p>
+                <h1 className="welcome-title">Achieve AI</h1>
+                <p className="welcome-tagline">Your personal AI-powered goal coach</p>
               </div>
-              
               <div className="welcome-bottom">
-                <button className="welcome-btn" onClick={() => setView('onboarding')}>
+                <button className="onboarding-btn" onClick={() => setView('onboarding')}>
                   Get Started
                 </button>
-                <p className="welcome-signin">Already have an account? <button onClick={() => { setOnboarded(); setView('dashboard'); }}>Sign in</button></p>
+                <p className="welcome-signin">Already have goals? <button onClick={() => { setOnboarded(); setView('dashboard'); }}>Sign in</button></p>
               </div>
             </div>
           </div>
