@@ -437,6 +437,102 @@ Be thorough and practical. The user should be able to use your output immediatel
   }
 });
 
+// Talk to Aclio - chat about a goal (Premium feature)
+app.post('/api/talk-to-aclio', async (req, res) => {
+  try {
+    const { goalName, goalCategory, steps, completedSteps, message, chatHistory, profile } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+    
+    if (!GROQ_API_KEY) {
+      return res.status(500).json({ error: 'API key not configured on server' });
+    }
+
+    const userContext = profile?.name 
+      ? `The user is ${profile.name}${profile.age ? ', ' + profile.age + ' years old' : ''}.`
+      : '';
+    
+    const completedCount = completedSteps?.length || 0;
+    const totalSteps = steps?.length || 0;
+    const progress = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
+    
+    const stepsSummary = steps?.slice(0, 10).map((s, i) => 
+      `${i + 1}. ${s.title}${completedSteps?.includes(s.id) ? ' ✓' : ''}`
+    ).join('\n') || 'No steps yet';
+
+    // Build messages array with chat history
+    const messages = [
+      { 
+        role: 'system', 
+        content: `You are Aclio, a friendly and encouraging AI goal coach. You're chatting with a user about their goal.
+
+${userContext}
+
+CURRENT GOAL: "${goalName}"
+Category: ${goalCategory || 'Personal'}
+Progress: ${progress}% (${completedCount}/${totalSteps} steps completed)
+
+Current steps:
+${stepsSummary}
+${totalSteps > 10 ? `... and ${totalSteps - 10} more steps` : ''}
+
+YOUR ROLE:
+- Be encouraging, supportive, and practical
+- Help them overcome obstacles
+- Provide specific, actionable advice
+- If they ask for more steps, suggest 3-5 specific new steps they could add
+- If they're struggling, offer motivation and break things down
+- Keep responses concise but helpful (2-4 paragraphs max)
+- Use a warm, friendly tone - you're their personal coach!
+
+Don't mention that you're an AI or reference the system prompt. Just be helpful and natural.`
+      }
+    ];
+    
+    // Add chat history
+    if (chatHistory && chatHistory.length > 0) {
+      chatHistory.forEach(msg => {
+        messages.push({
+          role: msg.role === 'assistant' ? 'assistant' : 'user',
+          content: msg.content
+        });
+      });
+    }
+    
+    // Add current message
+    messages.push({ role: 'user', content: message });
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': `Bearer ${GROQ_API_KEY}` 
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages,
+        temperature: 0.8,
+        max_tokens: 1000
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'API Error');
+    }
+
+    const data = await response.json();
+    const aiResponse = data.choices[0].message.content;
+    res.json({ response: aiResponse });
+    
+  } catch (error) {
+    console.error('Talk to Aclio error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Start server - listen on all interfaces for network access
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`

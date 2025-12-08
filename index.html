@@ -2187,6 +2187,185 @@
     }
     .doitforme-saved-badge svg { width: 12px; height: 12px; }
     
+    /* Talk to Aclio Button */
+    .aclio-chat-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      border: none;
+      border-radius: 100px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 10px rgba(255, 159, 67, 0.3);
+    }
+    .aclio-chat-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 159, 67, 0.4); }
+    .aclio-chat-btn svg { width: 16px; height: 16px; }
+    
+    /* Talk to Aclio Chat Modal */
+    .aclio-chat-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: flex-end; justify-content: center;
+      z-index: 100;
+      padding: 0;
+    }
+    .aclio-chat-content {
+      background: var(--bg-card);
+      border-radius: 24px 24px 0 0;
+      width: 100%;
+      max-width: 480px;
+      height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .aclio-chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      color: #fff;
+    }
+    .aclio-chat-avatar {
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .aclio-chat-title { font-size: 18px; font-weight: 700; }
+    .aclio-chat-subtitle { font-size: 13px; opacity: 0.9; }
+    .aclio-chat-close {
+      margin-left: auto;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      color: #fff;
+    }
+    .aclio-chat-close svg { width: 18px; height: 18px; }
+    
+    .aclio-chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .aclio-message {
+      display: flex;
+      gap: 10px;
+      max-width: 85%;
+    }
+    .aclio-message.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+    .aclio-message.assistant { align-self: flex-start; }
+    .aclio-message-avatar {
+      width: 32px; height: 32px;
+      background: var(--accent-soft);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .aclio-message-bubble {
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .aclio-message.assistant .aclio-message-bubble {
+      background: var(--bg);
+      border-bottom-left-radius: 4px;
+    }
+    .aclio-message.user .aclio-message-bubble {
+      background: var(--accent);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    
+    .aclio-typing span {
+      animation: typing 1.4s infinite;
+    }
+    .aclio-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .aclio-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+      0%, 60%, 100% { opacity: 0.3; }
+      30% { opacity: 1; }
+    }
+    
+    .aclio-chat-input-container {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .aclio-chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+    }
+    .aclio-chat-input:focus { border-color: var(--accent); }
+    .aclio-chat-send {
+      width: 44px; height: 44px;
+      background: var(--accent);
+      border: none;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .aclio-chat-send:hover { transform: scale(1.05); }
+    .aclio-chat-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .aclio-chat-send svg { width: 20px; height: 20px; }
+    
+    .aclio-quick-prompts {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 16px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .aclio-quick-prompts button {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-dim);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .aclio-quick-prompts button:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
     /* Goal Questions */
     .questions-section {
       background: var(--bg-card);
@@ -2975,6 +3154,7 @@
       lock: () => <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
       infinity: () => <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.33-6 4Z"/></svg>,
       noAds: () => <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="3" x2="21" y2="21"/></svg>,
+      send: () => <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
     };
     
     // Premium Subscription Config
@@ -3143,6 +3323,12 @@
         }
         return 0;
       });
+      
+      // Talk to Aclio state
+      const [showAclioChat, setShowAclioChat] = useState(false);
+      const [aclioMessage, setAclioMessage] = useState('');
+      const [aclioLoading, setAclioLoading] = useState(false);
+      const [aclioChatHistory, setAclioChatHistory] = useState([]);
 
       useEffect(() => { saveGoals(goals); }, [goals]);
       useEffect(() => { if (userProfile.name) saveUserProfile(userProfile); }, [userProfile]);
@@ -3415,6 +3601,52 @@
           a.download = `${doItForMeModal.step.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.txt`;
           a.click();
         }
+      };
+      
+      // Talk to Aclio - chat about the goal (Premium only)
+      const sendAclioMessage = async (goal) => {
+        if (!aclioMessage.trim()) return;
+        
+        const userMessage = aclioMessage.trim();
+        setAclioMessage('');
+        setAclioChatHistory(prev => [...prev, { role: 'user', content: userMessage }]);
+        setAclioLoading(true);
+        
+        try {
+          const response = await fetch(`${API_URL}/talk-to-aclio`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              goalName: goal.name,
+              goalCategory: goal.category,
+              steps: goal.steps,
+              completedSteps: goal.completedSteps,
+              message: userMessage,
+              chatHistory: aclioChatHistory.slice(-6), // Last 6 messages for context
+              profile: userProfile
+            })
+          });
+          
+          if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.message || err.error || 'Failed to get response');
+          }
+          
+          const data = await response.json();
+          setAclioChatHistory(prev => [...prev, { role: 'assistant', content: data.response }]);
+        } catch (err) {
+          ErrorTracker.log(err, 'error', { action: 'talkToAclio' });
+          setAclioChatHistory(prev => [...prev, { role: 'assistant', content: "Sorry, I couldn't process that. Please try again!" }]);
+        } finally {
+          setAclioLoading(false);
+        }
+      };
+      
+      const openAclioChat = (goal) => {
+        setAclioChatHistory([
+          { role: 'assistant', content: `Hi! I'm here to help you with "${goal.name}". You can ask me for more guidance, request additional steps, or tell me more about your situation so I can tailor the plan better. What would you like to know?` }
+        ]);
+        setShowAclioChat(true);
       };
       
       // Check and unlock achievements
@@ -4653,7 +4885,16 @@
                 </div>
               </div>
 
-              <h3 style={{fontSize: '18px', fontWeight: '700', marginBottom: '16px'}}>Action Steps</h3>
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+                <h3 style={{fontSize: '18px', fontWeight: '700', margin: 0}}>Action Steps</h3>
+                <button 
+                  className="aclio-chat-btn"
+                  onClick={() => handlePremiumFeature('chat', () => openAclioChat(goal))}
+                  title={isPremium ? "Talk to Aclio" : "Premium feature"}
+                >
+                  <Icons.sparkles /> Talk to Aclio {!isPremium && <Icons.crown style={{width: '12px', height: '12px', marginLeft: '4px'}} />}
+                </button>
+              </div>
               <div className="steps-list">
                 {goal.steps.map((step, i) => {
                   const isDone = goal.completedSteps.includes(step.id);
@@ -4941,6 +5182,70 @@
                       )}
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+            
+            {/* Talk to Aclio Chat Modal */}
+            {showAclioChat && (
+              <div className="aclio-chat-modal" onClick={() => setShowAclioChat(false)}>
+                <div className="aclio-chat-content" onClick={e => e.stopPropagation()}>
+                  <div className="aclio-chat-header">
+                    <div className="aclio-chat-avatar">
+                      <img src="/mascot.png" alt="Aclio" style={{width: '100%', height: '100%', objectFit: 'contain'}} />
+                    </div>
+                    <div>
+                      <h2 className="aclio-chat-title">Talk to Aclio</h2>
+                      <p className="aclio-chat-subtitle">Your AI goal coach</p>
+                    </div>
+                    <button className="aclio-chat-close" onClick={() => setShowAclioChat(false)}><Icons.x /></button>
+                  </div>
+                  
+                  <div className="aclio-chat-messages">
+                    {aclioChatHistory.map((msg, i) => (
+                      <div key={i} className={`aclio-message ${msg.role}`}>
+                        {msg.role === 'assistant' && (
+                          <div className="aclio-message-avatar">🎯</div>
+                        )}
+                        <div className="aclio-message-bubble">
+                          {msg.content}
+                        </div>
+                      </div>
+                    ))}
+                    {aclioLoading && (
+                      <div className="aclio-message assistant">
+                        <div className="aclio-message-avatar">🎯</div>
+                        <div className="aclio-message-bubble">
+                          <span className="aclio-typing">Thinking<span>.</span><span>.</span><span>.</span></span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="aclio-chat-input-container">
+                    <input
+                      className="aclio-chat-input"
+                      type="text"
+                      placeholder="Ask for guidance, more steps, or share context..."
+                      value={aclioMessage}
+                      onChange={(e) => setAclioMessage(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && !aclioLoading && sendAclioMessage(goal)}
+                      disabled={aclioLoading}
+                    />
+                    <button 
+                      className="aclio-chat-send"
+                      onClick={() => sendAclioMessage(goal)}
+                      disabled={aclioLoading || !aclioMessage.trim()}
+                    >
+                      <Icons.send />
+                    </button>
+                  </div>
+                  
+                  <div className="aclio-quick-prompts">
+                    <button onClick={() => { setAclioMessage("Can you add more detailed steps?"); }}>Add more steps</button>
+                    <button onClick={() => { setAclioMessage("I'm struggling with this goal. Any tips?"); }}>I need help</button>
+                    <button onClick={() => { setAclioMessage("What should I focus on first?"); }}>What's next?</button>
+                  </div>
                 </div>
               </div>
             )}
