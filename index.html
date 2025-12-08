@@ -14,64 +14,81 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     :root {
-      /* Core Colors - Aclio New Design */
-      --bg: #F5F9FF;
-      --bg-card: #ffffff;
-      --bg-top: #F5F9FF;
-      --bg-bottom: #E8F4FC;
-      --bg-section: #F0F4F8;
-      --bg-input: #EDF2F7;
+      /* ============ GEMINI DESIGN TOKENS ============ */
       
-      /* Dark Hero */
-      --hero-bg: #1E2A3B;
+      /* Colors */
+      --header-bg: #0B172A;
+      --page-bg: #F5F9FF;
+      --card-bg: #FFFFFF;
+      --primary-orange: #FF9F3A;
+      --primary-orange-dark: #F27C1F;
+      --premium-gradient-start: #FFB347;
+      --premium-gradient-end: #FF8A3D;
+      --text-primary: #111827;
+      --text-secondary: #6B7280;
+      --pill-bg: #F3F4F6;
+      --dashed-border: #FBBF77;
+      --progress-bar-bg: #E5EAF2;
+      --step-teal: #14B8A6;
+      --step-green: #22C55E;
+      --border-light: #E5E7EB;
+      
+      /* Legacy aliases for compatibility */
+      --bg: var(--page-bg);
+      --bg-card: var(--card-bg);
+      --bg-top: var(--page-bg);
+      --bg-bottom: #E8F4FC;
+      --bg-section: var(--pill-bg);
+      --bg-input: #EDF2F7;
+      --hero-bg: var(--header-bg);
       --hero-text: #ffffff;
       --hero-text-dim: rgba(255, 255, 255, 0.7);
-      
-      /* Text - Strong Hierarchy */
-      --text: #1a1f36;
-      --text-dim: #4a5568;
-      --text-dimmer: #8492a6;
-      --text-muted: #a0aec0;
-      
-      /* Primary - Warm Orange */
-      --accent: #FF9F3A;
-      --accent-light: #FFB35A;
+      --text: var(--text-primary);
+      --text-dim: var(--text-secondary);
+      --text-dimmer: #9CA3AF;
+      --text-muted: #9CA3AF;
+      --accent: var(--primary-orange);
+      --accent-light: var(--premium-gradient-start);
       --accent-soft: rgba(255, 159, 58, 0.12);
       --accent-softer: rgba(255, 159, 58, 0.06);
-      
-      /* Secondary - Teal/Mint */
-      --teal: #36C1A4;
-      --teal-soft: rgba(54, 193, 164, 0.15);
+      --teal: var(--step-teal);
+      --teal-soft: rgba(20, 184, 166, 0.12);
       --teal-bg: #E6F7F3;
-      
-      /* Status */
-      --success: #39C46A;
-      --success-soft: rgba(57, 196, 106, 0.12);
+      --success: var(--step-green);
+      --success-soft: rgba(34, 197, 94, 0.12);
       --gold: #FFB347;
       --gold-soft: rgba(255, 179, 71, 0.12);
-      
-      /* Achievement Colors */
       --purple: #8B7ED8;
       --purple-bg: #EDE9F8;
       --purple-soft: rgba(139, 126, 216, 0.15);
       --mint: #4ECDC4;
       --mint-bg: #E5F9F7;
-      
-      /* Other */
-      --orange: #FF9F3A;
+      --orange: var(--primary-orange);
       --orange-soft: rgba(255, 159, 58, 0.12);
       --pink: #ec4899;
       --red: #ef4444;
       --red-soft: rgba(239, 68, 68, 0.1);
-      
-      /* UI */
-      --border: #E2E8F0;
-      --border-light: #EDF2F7;
+      --border: var(--border-light);
       --dot-inactive: rgba(255, 159, 58, 0.3);
-      --shadow-xs: 0 1px 2px rgba(26, 31, 54, 0.04);
-      --shadow: 0 2px 4px rgba(26, 31, 54, 0.06);
-      --shadow-md: 0 4px 12px rgba(26, 31, 54, 0.08);
-      --shadow-lg: 0 8px 24px rgba(26, 31, 54, 0.12);
+      
+      /* Radii - Gemini spec */
+      --radius-large: 28px;
+      --radius-card: 20px;
+      --radius-button: 18px;
+      --radius-pill: 16px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-2xl: 24px;
+      --radius-full: 100px;
+      
+      /* Shadows - Gemini spec */
+      --shadow-card: 0 6px 18px rgba(15, 23, 42, 0.08);
+      --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 6px 18px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.12);
       --shadow-btn: 0 4px 12px rgba(255, 159, 58, 0.3);
       
       /* Spacing - 8pt Grid */
@@ -83,14 +100,17 @@
       --space-6: 24px;
       --space-8: 32px;
       --space-10: 40px;
+      --section-gap: 24px;
+      --card-padding: 18px;
+      --card-gap: 16px;
+      --header-overlap: -32px;
       
-      /* Radii */
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --radius-xl: 20px;
-      --radius-2xl: 24px;
-      --radius-full: 100px;
+      /* Typography */
+      --font-greeting: 600 30px/1.2 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+      --font-section-title: 600 20px/1.3 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+      --font-card-title: 600 17px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+      --font-body: 400 15px/1.5 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+      --font-pill: 500 13px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
       
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -179,16 +199,16 @@
     }
     
     /* ============ HEADER ============ */
+    /* Header - Gemini Design */
     .header {
       position: sticky;
       top: 0;
       z-index: 50;
-      background: var(--bg);
-      padding: calc(var(--safe-top) + var(--space-3)) var(--space-4) var(--space-3);
+      background: var(--page-bg);
+      padding: calc(var(--safe-top) + var(--space-3)) var(--space-5) var(--space-3);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border-light);
     }
     
     .header-left { display: flex; align-items: center; gap: var(--space-3); }
@@ -202,7 +222,7 @@
     .header-back:hover { background: var(--border-light); }
     .header-back:active { background: var(--border); }
     .header-back svg { width: 20px; height: 20px; }
-    .header-title { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+    .header-title { font: var(--font-section-title); color: var(--text-primary); }
     .header-right { display: flex; align-items: center; gap: var(--space-2); }
     .header-icon {
       width: 40px; height: 40px;
@@ -215,75 +235,106 @@
     .header-icon:active { background: var(--border); }
     .header-icon svg { width: 20px; height: 20px; }
     
-    /* ============ DASHBOARD ============ */
-    .dashboard { padding-bottom: calc(var(--safe-bottom) + 100px); }
-    
-    /* Dark Hero Section */
-    .dashboard-hero {
-      background: var(--hero-bg);
-      padding: calc(var(--safe-top) + var(--space-5)) var(--space-4) var(--space-6);
-      border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
-      margin-bottom: var(--space-4);
+    /* ============ DASHBOARD - GEMINI DESIGN ============ */
+    .dashboard { 
+      padding-bottom: calc(var(--safe-bottom) + 100px); 
+      background: var(--page-bg);
+      min-height: 100vh;
     }
-    .greeting-section { margin-bottom: var(--space-4); }
-    .greeting-text { font-size: 26px; color: var(--hero-text); font-weight: 600; line-height: 1.2; }
-    .greeting-name { font-size: 26px; font-weight: 700; color: var(--hero-text); }
-    .greeting-subtitle { font-size: 15px; color: var(--hero-text-dim); margin-top: var(--space-2); }
+    
+    /* Dark Hero Section - 220px height with rounded bottom */
+    .dashboard-hero {
+      background: var(--header-bg);
+      padding: calc(var(--safe-top) + var(--space-5)) var(--space-5) 80px;
+      border-radius: 0 0 var(--radius-large) var(--radius-large);
+      position: relative;
+      min-height: 220px;
+    }
+    .greeting-section { margin-bottom: var(--space-3); }
+    .greeting-text { 
+      font: var(--font-greeting); 
+      color: var(--hero-text); 
+      margin: 0;
+    }
+    .greeting-name { 
+      font: var(--font-greeting); 
+      color: var(--hero-text); 
+      margin: 0;
+    }
+    .greeting-subtitle { 
+      font: var(--font-body); 
+      color: var(--hero-text-dim); 
+      margin-top: var(--space-2); 
+    }
     
     .hero-cta {
       width: 100%;
       padding: var(--space-4);
-      background: var(--accent);
+      background: var(--primary-orange);
       border: none;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-button);
       color: #fff;
-      font-family: inherit;
-      font-size: 16px;
-      font-weight: 600;
+      font: var(--font-card-title);
       cursor: pointer;
       box-shadow: var(--shadow-btn);
+      margin-top: var(--space-4);
     }
     
-    /* Progress Hub */
+    /* Progress Hub - Overlaps header */
     .progress-hub {
-      background: var(--bg-card);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4);
-      margin: 0 var(--space-4) var(--space-4);
-      box-shadow: var(--shadow-md);
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: var(--card-padding);
+      margin: var(--header-overlap) var(--space-5) var(--card-gap);
+      box-shadow: var(--shadow-card);
+      position: relative;
+      z-index: 10;
     }
-    .progress-hub-title { font-size: 16px; font-weight: 700; margin-bottom: var(--space-3); }
+    .progress-hub-title { 
+      font: var(--font-card-title); 
+      color: var(--text-primary);
+      margin-bottom: var(--space-3); 
+    }
     .progress-hub-badges { display: flex; gap: var(--space-2); flex-wrap: wrap; }
     .progress-badge {
-      display: inline-flex; align-items: center; gap: var(--space-2);
-      padding: var(--space-2) var(--space-3);
-      background: var(--bg-section);
-      border-radius: var(--radius-full);
-      font-size: 13px; font-weight: 600;
+      display: inline-flex; 
+      align-items: center; 
+      gap: var(--space-2);
+      padding: 10px 14px;
+      background: var(--pill-bg);
+      border-radius: var(--radius-pill);
+      font: var(--font-pill);
+      color: var(--text-primary);
     }
     .progress-badge svg { width: 16px; height: 16px; }
-    .progress-badge.streak { color: var(--accent); }
-    .progress-badge.level { color: var(--teal); }
+    .progress-badge.streak { color: var(--primary-orange); }
+    .progress-badge.level { color: var(--step-teal); }
     
-    .dashboard-content { padding: 0 var(--space-4); }
+    .dashboard-content { padding: 0 var(--space-5); }
     
     /* Achievement Cards */
-    .achievements-row { display: flex; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .achievements-row { display: flex; gap: var(--card-gap); margin-bottom: var(--section-gap); }
     .achievement-card {
-      flex: 1; padding: var(--space-4); border-radius: var(--radius-lg);
-      display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
-      min-height: 100px;
+      flex: 1; 
+      padding: var(--card-padding); 
+      border-radius: var(--radius-card);
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center;
+      gap: var(--space-2);
+      min-height: 110px;
     }
     .achievement-card.purple { background: var(--purple); }
-    .achievement-card.teal { background: var(--teal); }
-    .achievement-card-icon { font-size: 32px; }
-    .achievement-card-label { color: #fff; font-size: 13px; font-weight: 600; }
+    .achievement-card.teal { background: var(--step-teal); }
+    .achievement-card-icon { font-size: 36px; }
+    .achievement-card-label { color: #fff; font: var(--font-pill); font-weight: 600; }
     
-    /* Section */
-    .section { margin-bottom: var(--space-5); }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
-    .section-title { font-size: 18px; font-weight: 700; color: var(--text); }
-    .section-link { color: var(--accent); font-size: 13px; font-weight: 600; background: none; border: none; cursor: pointer; }
+    /* Section - Gemini Design */
+    .section { margin-bottom: var(--section-gap); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); }
+    .section-title { font: var(--font-section-title); color: var(--text-primary); }
+    .section-link { color: var(--primary-orange); font: var(--font-pill); background: none; border: none; cursor: pointer; }
     
     /* Today's Focus Card */
     .focus-card {
@@ -333,12 +384,12 @@
     .focus-task.done { text-decoration: line-through; color: var(--text-dim); }
     .focus-goal { font-size: 12px; color: var(--text-dim); }
     
-    /* Goal Card */
+    /* Goal Card - Gemini Design */
     .goal-card-wrapper {
       position: relative;
-      margin-bottom: var(--space-3);
+      margin-bottom: var(--card-gap);
       overflow: hidden;
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-card);
     }
     .goal-card-delete {
       position: absolute;
@@ -351,20 +402,20 @@
       align-items: center;
       justify-content: center;
       color: #fff;
-      border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+      border-radius: 0 var(--radius-card) var(--radius-card) 0;
     }
     .goal-card-delete svg { width: 22px; height: 22px; }
     .goal-card {
-      background: var(--bg-card);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4);
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: var(--card-padding);
       cursor: pointer;
       transition: all 0.15s ease;
       position: relative;
       z-index: 1;
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-card);
     }
-    .goal-card:hover { box-shadow: var(--shadow-md); }
+    .goal-card:hover { box-shadow: var(--shadow-lg); }
     .goal-card.swiping { transition: none; }
     .goal-card:active { transform: scale(0.99); }
     
@@ -390,64 +441,68 @@
     }
     .pull-refresh-icon { width: 18px; height: 18px; }
     
+    /* Goal Card Content - Gemini Design */
     .goal-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
     .goal-icon-wrap {
       width: 52px; height: 52px;
       border-radius: var(--radius-md);
       display: flex; align-items: center; justify-content: center;
+      background: var(--pill-bg);
     }
     .goal-icon-wrap svg { width: 28px; height: 28px; }
     .goal-info { flex: 1; min-width: 0; }
-    .goal-name { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: var(--space-1); line-height: 1.3; }
-    .goal-category { font-size: 13px; color: var(--text-dim); }
+    .goal-name { font: var(--font-card-title); color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .goal-category { font: var(--font-pill); color: var(--text-secondary); }
     
     .goal-progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2); }
-    .goal-progress-label { font-size: 13px; color: var(--text-dim); font-weight: 500; }
-    .goal-progress-value { font-size: 14px; font-weight: 700; color: var(--text); }
+    .goal-progress-label { font: var(--font-body); color: var(--text-secondary); }
+    .goal-progress-value { font: var(--font-card-title); color: var(--text-primary); }
     
-    .goal-progress-bar { height: 8px; background: var(--border-light); border-radius: var(--radius-full); overflow: hidden; margin-bottom: var(--space-4); }
-    .goal-progress-fill { height: 100%; background: var(--accent); border-radius: var(--radius-full); transition: width 0.4s ease; }
+    .goal-progress-bar { height: 8px; background: var(--progress-bar-bg); border-radius: var(--radius-full); overflow: hidden; }
+    .goal-progress-fill { height: 100%; background: var(--primary-orange); border-radius: var(--radius-full); transition: width 0.4s ease; }
     
-    .goal-next { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3); background: var(--bg-section); border-radius: var(--radius-sm); }
-    .goal-next-arrow { color: var(--teal); display: flex; flex-shrink: 0; }
+    .goal-next { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3); background: var(--pill-bg); border-radius: var(--radius-sm); margin-top: var(--space-3); }
+    .goal-next-arrow { color: var(--step-teal); display: flex; flex-shrink: 0; }
     .goal-next-arrow svg { width: 16px; height: 16px; }
-    .goal-next-text { font-size: 13px; color: var(--text-dim); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    .goal-next-text { font: var(--font-pill); color: var(--text-secondary); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    /* Goal Detail Summary Card */
+    /* Goal Detail Summary Card - Gemini Design */
     .goal-summary-card {
-      background: var(--bg-card);
-      border-radius: var(--radius-xl);
-      padding: var(--space-4);
-      margin-bottom: var(--space-4);
-      box-shadow: var(--shadow);
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: var(--card-padding);
+      margin-bottom: var(--card-gap);
+      box-shadow: var(--shadow-card);
     }
     .goal-summary-header { display: flex; align-items: flex-start; gap: var(--space-3); margin-bottom: var(--space-4); }
     .goal-summary-icon {
       width: 56px; height: 56px;
-      background: var(--bg-section);
+      background: var(--pill-bg);
       border-radius: var(--radius-md);
       display: flex; align-items: center; justify-content: center;
       font-size: 28px;
     }
     .goal-summary-info { flex: 1; }
-    .goal-summary-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: var(--space-1); line-height: 1.3; }
-    .goal-summary-meta { font-size: 13px; color: var(--text-dim); }
+    .goal-summary-title { font: var(--font-card-title); font-size: 18px; color: var(--text-primary); margin-bottom: 4px; line-height: 1.35; }
+    .goal-summary-meta { font: var(--font-body); color: var(--text-secondary); }
     
     .goal-summary-progress { margin-bottom: var(--space-4); }
     
-    /* Talk to Aclio Button */
+    /* Talk to Aclio Button - Gemini Design */
     .talk-to-aclio-btn {
       width: 100%;
-      padding: var(--space-4);
-      background: var(--accent);
+      padding: 16px;
+      background: var(--primary-orange);
       border: none;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-button);
       color: #fff;
-      font-family: inherit;
-      font-size: 16px;
-      font-weight: 600;
+      font: var(--font-card-title);
       cursor: pointer;
       box-shadow: var(--shadow-btn);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
     }
     
     /* Achievements */
@@ -698,11 +753,12 @@
     .premium-badge svg { width: 12px; height: 12px; }
     
     /* Premium Banner on Dashboard */
+    /* Premium Banner - Gemini Design */
     .premium-banner {
-      background: linear-gradient(135deg, #FFB347 0%, #FF9F43 100%);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--premium-gradient-start) 0%, var(--premium-gradient-end) 100%);
+      border-radius: var(--radius-card);
+      padding: var(--card-padding);
+      margin-bottom: var(--card-gap);
       position: relative;
       overflow: hidden;
     }
@@ -713,75 +769,44 @@
       right: -20%;
       width: 200px;
       height: 200px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 50%;
-    }
-    .premium-banner::after {
-      content: '';
-      position: absolute;
-      bottom: -30%;
-      left: -10%;
-      width: 150px;
-      height: 150px;
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.15);
       border-radius: 50%;
     }
     .premium-banner-content { position: relative; z-index: 1; }
     .premium-banner-header {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 8px;
     }
     .premium-banner-icon {
-      width: 36px; height: 36px;
-      background: rgba(26, 43, 74, 0.1);
-      border-radius: 10px;
+      width: 40px; height: 40px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #1a2b4a;
+      color: var(--text-primary);
     }
-    .premium-banner-icon svg { width: 20px; height: 20px; }
+    .premium-banner-icon svg { width: 22px; height: 22px; }
     .premium-banner-title {
-      color: #1a2b4a;
-      font-size: 18px;
-      font-weight: 700;
+      color: var(--text-primary);
+      font: var(--font-card-title);
     }
     .premium-banner-desc {
-      color: rgba(26, 43, 74, 0.8);
-      font-size: 13px;
-      line-height: 1.4;
-      margin-bottom: 14px;
+      color: var(--text-primary);
+      font: var(--font-body);
+      opacity: 0.85;
+      margin-bottom: var(--space-4);
     }
-    .premium-banner-features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .premium-banner-feature {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: rgba(26, 43, 74, 0.1);
-      padding: 6px 10px;
-      border-radius: 100px;
-      color: #1a2b4a;
-      font-size: 11px;
-      font-weight: 500;
-    }
-    .premium-banner-feature svg { width: 12px; height: 12px; }
     .premium-banner-btn {
       width: 100%;
-      padding: 14px;
-      background: #1a2b4a;
+      padding: 16px;
+      background: var(--header-bg);
       border: none;
-      border-radius: 50px;
+      border-radius: var(--radius-button);
       color: #fff;
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 700;
+      font: var(--font-card-title);
       cursor: pointer;
       transition: transform 0.2s;
     }
@@ -802,76 +827,82 @@
     .premium-lock svg { width: 24px; height: 24px; margin-bottom: 8px; }
     .premium-lock span { font-size: 12px; font-weight: 600; }
     
-    /* Empty State */
+    /* Empty State - Gemini Design */
     .empty-state {
       text-align: center;
-      padding: 48px 24px;
-      background: var(--bg-card);
-      border-radius: 20px;
-      border: 2px dashed var(--border);
+      padding: 48px var(--card-padding);
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      border: 2px dashed var(--dashed-border);
+      position: relative;
     }
-    .empty-emoji { margin-bottom: 16px; }
-    .empty-emoji svg { width: 56px; height: 56px; }
-    .empty-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-    .empty-text { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+    .empty-emoji { margin-bottom: var(--space-4); }
+    .empty-emoji svg { width: 56px; height: 56px; color: var(--primary-orange); }
+    .empty-title { font: var(--font-card-title); color: var(--text-primary); margin-bottom: var(--space-2); }
+    .empty-text { font: var(--font-body); color: var(--text-secondary); }
     
-    /* FAB */
+    /* FAB - Gemini Design */
     .fab {
       position: fixed;
       bottom: calc(var(--safe-bottom) + var(--space-5));
       left: 50%;
       transform: translateX(-50%);
       display: flex; align-items: center; gap: var(--space-2);
-      padding: var(--space-4) var(--space-6);
-      background: var(--accent);
+      padding: 16px 28px;
+      background: var(--primary-orange);
       border: none;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-button);
       color: #fff;
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 600;
+      font: var(--font-card-title);
       cursor: pointer;
       box-shadow: var(--shadow-btn);
       transition: all 0.15s ease;
     }
-    .fab:hover { background: var(--accent-light); }
+    .fab:hover { background: var(--primary-orange-dark); }
     .fab:active { transform: translateX(-50%) scale(0.97); }
     .fab-icon { display: flex; align-items: center; }
-    .fab-icon svg { width: 18px; height: 18px; }
+    .fab-icon svg { width: 20px; height: 20px; }
     
-    /* ============ NEW GOAL VIEW ============ */
-    .new-goal-view { padding: var(--space-4); padding-bottom: calc(var(--safe-bottom) + var(--space-6)); min-height: calc(100vh - 65px); display: flex; flex-direction: column; overflow-x: hidden; }
+    /* ============ NEW GOAL VIEW - GEMINI DESIGN ============ */
+    .new-goal-view { 
+      padding: var(--space-5); 
+      padding-bottom: calc(var(--safe-bottom) + var(--space-6)); 
+      min-height: calc(100vh - 65px); 
+      display: flex; 
+      flex-direction: column; 
+      overflow-x: hidden;
+      background: var(--page-bg);
+    }
     
-    .input-group { margin-bottom: var(--space-5); }
-    .input-label { display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: var(--space-2); }
+    .input-group { margin-bottom: var(--section-gap); }
+    .input-label { display: block; font: var(--font-body); color: var(--text-secondary); margin-bottom: var(--space-2); }
     .text-input {
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
-      padding: var(--space-4);
-      background: var(--bg-card);
+      padding: 16px;
+      background: var(--card-bg);
       border: none;
-      border-radius: var(--radius-lg);
-      font-family: inherit;
-      font-size: 16px;
-      color: var(--text);
+      border-radius: var(--radius-card);
+      font: var(--font-body);
+      color: var(--text-primary);
       outline: none;
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-card);
       transition: box-shadow 0.2s;
       -webkit-appearance: none;
       appearance: none;
     }
-    .text-input:focus { box-shadow: var(--shadow-md), 0 0 0 2px var(--accent); }
-    .text-input::placeholder { color: var(--text-dimmer); }
+    .text-input:focus { box-shadow: var(--shadow-card), 0 0 0 2px var(--primary-orange); }
+    .text-input::placeholder { color: var(--text-secondary); }
     .text-input[type="date"] { min-height: 54px; }
     
-    /* Questions Card - New Goal */
+    /* AI Questions Card - Gemini Design */
     .questions-card {
-      background: var(--bg-card);
-      border-radius: var(--radius-xl);
-      padding: var(--space-5);
-      margin-bottom: var(--space-5);
-      box-shadow: var(--shadow-md);
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: var(--card-padding);
+      margin-bottom: var(--section-gap);
+      box-shadow: var(--shadow-card);
     }
     .questions-header {
       display: flex;
@@ -881,14 +912,14 @@
     }
     .questions-icon {
       width: 48px; height: 48px;
-      background: var(--accent-soft);
+      background: rgba(255, 159, 58, 0.12);
       border-radius: var(--radius-md);
       display: flex; align-items: center; justify-content: center;
-      color: var(--accent);
+      color: var(--primary-orange);
     }
     .questions-icon svg { width: 24px; height: 24px; }
-    .questions-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-    .questions-subtitle { font-size: 13px; color: var(--text-dim); }
+    .questions-title { font: var(--font-card-title); color: var(--text-primary); margin-bottom: 2px; }
+    .questions-subtitle { font: var(--font-body); color: var(--text-secondary); }
     
     .question-item { margin-bottom: var(--space-4); }
     .question-item:last-child { margin-bottom: 0; }
@@ -900,33 +931,32 @@
     }
     .question-number {
       width: 24px; height: 24px;
-      background: var(--accent);
+      background: var(--primary-orange);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       color: #fff;
-      font-size: 13px;
+      font: var(--font-pill);
       font-weight: 700;
     }
-    .question-text { font-size: 15px; font-weight: 600; color: var(--text); }
+    .question-text { font: var(--font-body); font-weight: 600; color: var(--text-primary); }
     .question-input {
       width: 100%;
       padding: var(--space-3) var(--space-4);
-      background: var(--bg-input);
+      background: var(--pill-bg);
       border: none;
       border-radius: var(--radius-md);
-      font-family: inherit;
-      font-size: 15px;
-      color: var(--text);
+      font: var(--font-body);
+      color: var(--text-primary);
       outline: none;
     }
-    .question-input:focus { background: var(--bg-section); }
+    .question-input:focus { background: #E8ECF0; }
     
     .skip-questions {
       display: block;
       text-align: center;
       margin-top: var(--space-4);
-      color: var(--text-dim);
-      font-size: 14px;
+      color: var(--text-secondary);
+      font: var(--font-body);
       text-decoration: underline;
       cursor: pointer;
       background: none;
@@ -934,29 +964,54 @@
       font-family: inherit;
     }
     
-    /* Location Card */
+    /* AI Banner - Dashed border card */
+    .ai-banner-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--card-padding);
+      background: rgba(255, 159, 58, 0.06);
+      border: 2px dashed var(--dashed-border);
+      border-radius: var(--radius-card);
+      margin-bottom: var(--section-gap);
+      cursor: pointer;
+    }
+    .ai-banner-icon {
+      width: 44px; height: 44px;
+      background: rgba(255, 159, 58, 0.15);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary-orange);
+    }
+    .ai-banner-icon svg { width: 22px; height: 22px; }
+    .ai-banner-info { flex: 1; }
+    .ai-banner-title { font: var(--font-card-title); color: var(--text-primary); margin-bottom: 2px; }
+    .ai-banner-desc { font: var(--font-body); color: var(--text-secondary); }
+    
+    /* Location Card - Gemini Design */
     .location-card {
       display: flex;
       align-items: center;
       gap: var(--space-3);
-      padding: var(--space-4);
-      background: var(--bg-card);
-      border: 2px dashed var(--teal);
-      border-radius: var(--radius-lg);
-      margin-bottom: var(--space-5);
+      padding: var(--card-padding);
+      background: var(--card-bg);
+      border: 2px dashed var(--dashed-border);
+      border-radius: var(--radius-card);
+      margin-bottom: var(--section-gap);
       cursor: pointer;
+      box-shadow: var(--shadow);
     }
     .location-icon {
-      width: 40px; height: 40px;
-      background: var(--teal-soft);
+      width: 44px; height: 44px;
+      background: rgba(20, 184, 166, 0.12);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      color: var(--teal);
+      color: var(--step-teal);
     }
-    .location-icon svg { width: 20px; height: 20px; }
+    .location-icon svg { width: 22px; height: 22px; }
     .location-info { flex: 1; }
-    .location-title { font-size: 15px; font-weight: 600; color: var(--text); }
-    .location-desc { font-size: 13px; color: var(--text-dim); }
+    .location-title { font: var(--font-card-title); color: var(--text-primary); }
+    .location-desc { font: var(--font-body); color: var(--text-secondary); }
     
     .suggestions { margin-top: 8px; }
     .suggestions-label { font-size: 12px; color: var(--text-dimmer); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
@@ -1015,17 +1070,19 @@
     .error-msg { color: var(--red); text-align: center; margin-top: 16px; font-size: 14px; }
     
     /* ============ GOAL DETAIL VIEW ============ */
+    /* Goal Detail View - Gemini Design */
     .detail-view { 
-      padding: var(--space-4); 
-      padding-bottom: calc(var(--safe-bottom) + 100px); 
+      padding: var(--space-5); 
+      padding-bottom: calc(var(--safe-bottom) + 100px);
+      background: var(--page-bg);
     }
     
     .detail-card {
-      background: var(--bg-card);
-      border-radius: var(--radius-lg);
-      padding: var(--space-5);
-      margin-bottom: var(--space-4);
-      box-shadow: var(--shadow);
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: var(--card-padding);
+      margin-bottom: var(--card-gap);
+      box-shadow: var(--shadow-card);
     }
     
     .detail-header { display: flex; align-items: flex-start; gap: var(--space-4); margin-bottom: var(--space-4); }
@@ -1147,51 +1204,55 @@
       justify-content: center;
     }
     
-    /* Action Steps Section */
+    /* Action Steps Section - Gemini Design */
     .action-steps-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text);
+      font: var(--font-section-title);
+      color: var(--text-primary);
       margin-bottom: var(--space-4);
     }
     
-    .steps-list { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-6); }
+    .steps-list { display: flex; flex-direction: column; gap: var(--card-gap); margin-bottom: var(--section-gap); }
     
     .step-item {
       display: flex; 
       align-items: flex-start;
       gap: var(--space-3);
-      padding: var(--space-4);
-      background: var(--bg-card);
-      border-radius: var(--radius-lg);
+      padding: var(--card-padding);
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
       cursor: pointer;
       transition: all 0.15s ease;
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-card);
     }
-    .step-item:hover { box-shadow: var(--shadow-md); }
+    .step-item:hover { box-shadow: var(--shadow-lg); }
     .step-item:active { transform: scale(0.995); }
-    .step-item.done { background: var(--success-soft); box-shadow: none; }
+    .step-item.done { background: var(--card-bg); }
     
-    /* Step Checkbox - Circle style */
+    /* Step Checkbox - Teal circle outline, green filled when done */
     .step-check {
-      width: 26px; height: 26px;
-      border: 2px solid var(--teal);
+      width: 28px; height: 28px;
+      border: 2.5px solid var(--step-teal);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
       font-size: 14px;
-      color: #fff;
+      color: transparent;
       transition: all 0.15s;
       margin-top: 2px;
+      background: transparent;
     }
     .step-check:hover { background: var(--teal-soft); }
-    .step-item.done .step-check { background: var(--success); border-color: var(--success); }
+    .step-item.done .step-check { 
+      background: var(--step-green); 
+      border-color: var(--step-green); 
+      color: #fff;
+    }
     
     .step-body { flex: 1; min-width: 0; }
-    .step-title { font-size: 15px; font-weight: 600; margin-bottom: var(--space-1); color: var(--text); line-height: 1.35; }
-    .step-title-prefix { color: var(--text); font-weight: 700; }
-    .step-item.done .step-title { color: var(--text-dim); }
-    .step-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: var(--space-3); }
+    .step-title { font: var(--font-card-title); color: var(--text-primary); margin-bottom: 4px; line-height: 1.4; }
+    .step-title-prefix { font-weight: 700; }
+    .step-item.done .step-title { color: var(--text-secondary); }
+    .step-desc { font: var(--font-body); color: var(--text-secondary); margin-bottom: var(--space-3); }
     
     .step-meta-row {
       display: flex;
@@ -1202,40 +1263,38 @@
     .step-dur { 
       display: inline-flex; 
       align-items: center; 
-      gap: var(--space-1); 
-      padding: var(--space-1) var(--space-2);
-      background: var(--teal-soft);
-      border-radius: var(--radius-sm);
-      font-size: 12px; 
-      font-weight: 600;
-      color: var(--teal); 
+      gap: 6px; 
+      padding: 8px 12px;
+      background: var(--pill-bg);
+      border-radius: var(--radius-pill);
+      font: var(--font-pill);
+      color: var(--step-teal); 
     }
-    .step-dur svg { width: 12px; height: 12px; }
+    .step-dur svg { width: 14px; height: 14px; }
     
+    /* Expand details button - Ghost style */
     .step-expand-btn {
-      padding: var(--space-1) var(--space-2);
-      background: var(--bg-section);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-dim);
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-pill);
+      font: var(--font-body);
+      color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.15s;
     }
-    .step-expand-btn:hover { background: var(--border-light); color: var(--text); }
+    .step-expand-btn:hover { background: var(--pill-bg); color: var(--text-primary); }
     
     /* Completed step checkmark on right */
     .step-done-icon {
-      width: 24px; height: 24px;
-      background: var(--success);
+      width: 28px; height: 28px;
+      background: var(--step-green);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       color: #fff;
       flex-shrink: 0;
     }
-    .step-done-icon svg { width: 14px; height: 14px; }
+    .step-done-icon svg { width: 16px; height: 16px; }
     
     .delete-btn {
       width: 100%;
@@ -1253,29 +1312,28 @@
     .delete-btn:hover { background: rgba(239, 68, 68, 0.08); border-color: var(--red); }
     
     /* Search Bar */
+    /* Search Bar - Gemini Design */
     .search-bar {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 16px;
-      transition: border-color 0.2s;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--pill-bg);
+      border: none;
+      border-radius: var(--radius-pill);
+      margin-bottom: var(--section-gap);
     }
-    .search-bar:focus-within { border-color: var(--accent); }
-    .search-bar svg { width: 18px; height: 18px; color: var(--text-dim); flex-shrink: 0; }
+    .search-bar:focus-within { box-shadow: 0 0 0 2px var(--primary-orange); }
+    .search-bar svg { width: 20px; height: 20px; color: var(--text-secondary); flex-shrink: 0; }
     .search-input {
       flex: 1;
       border: none;
       background: none;
-      font-family: inherit;
-      font-size: 14px;
-      color: var(--text);
+      font: var(--font-body);
+      color: var(--text-primary);
       outline: none;
     }
-    .search-input::placeholder { color: var(--text-dimmer); }
+    .search-input::placeholder { color: var(--text-secondary); }
     .search-clear {
       width: 22px; height: 22px;
       display: flex; align-items: center; justify-content: center;
