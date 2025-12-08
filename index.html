@@ -14,78 +14,78 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     :root {
-      /* Core Colors */
-      --bg: #f8fafc;
+      /* Core Colors - Aclio Light Blue Theme */
+      --bg: #e8f4fc;
       --bg-card: #ffffff;
-      --bg-top: #F6F8FF;
-      --bg-bottom: #FFFFFF;
+      --bg-top: #e8f4fc;
+      --bg-bottom: #c5e3f3;
       
       /* Text */
-      --text: #1B1F3B;
-      --text-dim: #6B7280;
-      --text-dimmer: #94a3b8;
+      --text: #1a2b4a;
+      --text-dim: #4a5568;
+      --text-dimmer: #718096;
       
-      /* Primary */
-      --accent: #2563FF;
-      --accent-light: #60a5fa;
-      --accent-soft: #DCEBFF;
-      --accent-softer: #EDF2FF;
+      /* Primary - Aclio Orange */
+      --accent: #FF9F43;
+      --accent-light: #FFB347;
+      --accent-soft: rgba(255, 159, 67, 0.15);
+      --accent-softer: rgba(255, 159, 67, 0.08);
       
       /* Status */
       --success: #22C55E;
-      --success-soft: rgba(34, 197, 94, 0.06);
-      --gold: #FACC15;
-      --gold-soft: rgba(250, 204, 21, 0.08);
+      --success-soft: rgba(34, 197, 94, 0.1);
+      --gold: #FFB347;
+      --gold-soft: rgba(255, 179, 71, 0.15);
       
       /* Other */
       --purple: #8b5cf6;
       --purple-soft: rgba(139, 92, 246, 0.1);
-      --orange: #f59e0b;
-      --orange-soft: rgba(245, 158, 11, 0.1);
+      --orange: #FF9F43;
+      --orange-soft: rgba(255, 159, 67, 0.15);
       --pink: #ec4899;
       --red: #ef4444;
       
       /* UI */
-      --border: #e2e8f0;
-      --dot-inactive: #E0E7FF;
-      --shadow: 0 1px 3px rgba(0,0,0,0.08);
-      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
-      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-      --shadow-btn: 0 10px 25px rgba(37, 99, 255, 0.25);
+      --border: #d4e5ed;
+      --dot-inactive: rgba(255, 159, 67, 0.3);
+      --shadow: 0 2px 8px rgba(26, 43, 74, 0.08);
+      --shadow-md: 0 8px 24px rgba(26, 43, 74, 0.1);
+      --shadow-lg: 0 12px 32px rgba(26, 43, 74, 0.15);
+      --shadow-btn: 0 8px 30px rgba(255, 159, 67, 0.4);
       
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
     
-    /* Dark Mode */
+    /* Dark Mode - Aclio Dark Theme */
     .dark {
-      --bg: #0f172a;
-      --bg-card: #1e293b;
-      --bg-top: #0f172a;
-      --bg-bottom: #1e293b;
+      --bg: #1a2b4a;
+      --bg-card: #243554;
+      --bg-top: #1a2b4a;
+      --bg-bottom: #0f1a2e;
       --text: #f1f5f9;
       --text-dim: #94a3b8;
       --text-dimmer: #64748b;
-      --accent: #2563FF;
-      --accent-light: #60a5fa;
-      --accent-soft: rgba(37, 99, 255, 0.2);
-      --accent-softer: rgba(37, 99, 255, 0.1);
-      --success: #22C55E;
-      --success-soft: rgba(34, 197, 94, 0.15);
-      --gold: #FACC15;
-      --gold-soft: rgba(250, 204, 21, 0.15);
+      --accent: #FFB347;
+      --accent-light: #FFC978;
+      --accent-soft: rgba(255, 179, 71, 0.2);
+      --accent-softer: rgba(255, 179, 71, 0.1);
+      --success: #34D399;
+      --success-soft: rgba(52, 211, 153, 0.15);
+      --gold: #FFB347;
+      --gold-soft: rgba(255, 179, 71, 0.2);
       --purple: #a78bfa;
       --purple-soft: rgba(167, 139, 250, 0.15);
-      --orange: #fbbf24;
-      --orange-soft: rgba(251, 191, 36, 0.15);
+      --orange: #FFB347;
+      --orange-soft: rgba(255, 179, 71, 0.2);
       --pink: #f472b6;
       --red: #f87171;
-      --border: #334155;
-      --dot-inactive: #334155;
-      --shadow: 0 1px 3px rgba(0,0,0,0.3);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-      --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
-      --shadow-btn: 0 10px 25px rgba(37, 99, 255, 0.4);
+      --border: #3d5070;
+      --dot-inactive: rgba(255, 179, 71, 0.3);
+      --shadow: 0 2px 8px rgba(0,0,0,0.3);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.5);
+      --shadow-btn: 0 8px 30px rgba(255, 179, 71, 0.35);
     }
     
     html { 
@@ -94,7 +94,8 @@
     
     body { 
       font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--bg); 
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      background-attachment: fixed;
       color: var(--text); 
       min-height: 100vh;
       min-height: 100dvh;
@@ -140,7 +141,9 @@
       position: sticky;
       top: 0;
       z-index: 50;
-      background: var(--bg);
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-top) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       padding: calc(var(--safe-top) + 12px) 20px 12px;
       display: flex;
       align-items: center;
@@ -517,7 +520,7 @@
     
     /* Premium Banner on Dashboard */
     .premium-banner {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #FFB347 0%, #FF9F43 100%);
       border-radius: 20px;
       padding: 20px;
       margin-bottom: 16px;
@@ -553,21 +556,21 @@
     }
     .premium-banner-icon {
       width: 36px; height: 36px;
-      background: rgba(255,255,255,0.2);
+      background: rgba(26, 43, 74, 0.1);
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #FFD700;
+      color: #1a2b4a;
     }
     .premium-banner-icon svg { width: 20px; height: 20px; }
     .premium-banner-title {
-      color: #fff;
+      color: #1a2b4a;
       font-size: 18px;
       font-weight: 700;
     }
     .premium-banner-desc {
-      color: rgba(255,255,255,0.85);
+      color: rgba(26, 43, 74, 0.8);
       font-size: 13px;
       line-height: 1.4;
       margin-bottom: 14px;
@@ -582,10 +585,10 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      background: rgba(255,255,255,0.15);
+      background: rgba(26, 43, 74, 0.1);
       padding: 6px 10px;
       border-radius: 100px;
-      color: #fff;
+      color: #1a2b4a;
       font-size: 11px;
       font-weight: 500;
     }
@@ -593,10 +596,10 @@
     .premium-banner-btn {
       width: 100%;
       padding: 14px;
-      background: #fff;
+      background: #1a2b4a;
       border: none;
-      border-radius: 12px;
-      color: #764ba2;
+      border-radius: 50px;
+      color: #fff;
       font-family: inherit;
       font-size: 15px;
       font-weight: 700;
@@ -641,15 +644,15 @@
       transform: translateX(-50%);
       display: flex; align-items: center; gap: 8px;
       padding: 16px 28px;
-      background: var(--accent);
+      background: linear-gradient(135deg, #FFB347 0%, #FF9F43 100%);
       border: none;
       border-radius: 100px;
-      color: #fff;
+      color: #1a2b4a;
       font-family: inherit;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 8px 30px rgba(255, 159, 67, 0.4);
       transition: transform 0.2s;
     }
     .fab:active { transform: translateX(-50%) scale(0.95); }
@@ -694,13 +697,13 @@
     .primary-btn {
       width: 100%;
       padding: 18px;
-      background: var(--accent);
+      background: linear-gradient(135deg, #FFB347 0%, #FF9F43 100%);
       border: none;
-      border-radius: 14px;
-      color: #fff;
+      border-radius: 50px;
+      color: #1a2b4a;
       font-family: inherit;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 10px;
       margin-top: auto;
@@ -1975,12 +1978,12 @@
       align-items: center;
       gap: 6px;
       padding: 8px 14px;
-      background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+      background: linear-gradient(135deg, #FFB347 0%, #FF9F43 100%);
       border: none;
       border-radius: 100px;
       font-family: inherit;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       color: #fff;
       cursor: pointer;
       margin-top: 10px;
@@ -1988,7 +1991,7 @@
       transition: all 0.2s;
       box-shadow: 0 2px 8px rgba(37, 99, 255, 0.3);
     }
-    .doitforme-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 255, 0.4); }
+    .doitforme-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255, 159, 67, 0.4); }
     .doitforme-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .doitforme-btn svg { width: 14px; height: 14px; }
     .doitforme-btn.done {
