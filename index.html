@@ -2953,6 +2953,8 @@
       text-align: center;
       overflow-y: auto;
       min-height: 0;
+      position: relative;
+      z-index: 1;
     }
     
     /* Illustration */
@@ -3127,6 +3129,9 @@
     .onboarding-footer { 
       padding: 20px 24px calc(env(safe-area-inset-bottom, 0) + 24px);
       flex-shrink: 0;
+      position: relative;
+      z-index: 100;
+      background: linear-gradient(180deg, transparent 0%, #c5e3f3 30%);
     }
     
     /* Progress Dots - Aclio Orange */
@@ -3165,11 +3170,14 @@
       cursor: pointer; 
       box-shadow: 0 8px 30px rgba(255, 159, 67, 0.4);
       transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      z-index: 101;
+      -webkit-tap-highlight-color: rgba(255, 159, 67, 0.3);
     }
     .onboarding-cta:active { 
       transform: scale(0.98); 
     }
-    .onboarding-cta:disabled { opacity: 0.5; }
+    .onboarding-cta:disabled { opacity: 0.5; pointer-events: none; }
 
     /* Profile Setup - Aclio Style */
     .profile-setup {
