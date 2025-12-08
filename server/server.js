@@ -35,28 +35,33 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Content moderation - goals we won't help with
+// Content moderation - ONLY block genuinely dangerous content
 const isInappropriateGoal = (goal) => {
   const lowerGoal = goal.toLowerCase();
-  const inappropriatePatterns = [
-    /cheat\s+(on|with)/i,
-    /hurt\s+(someone|myself|others)/i,
-    /harm\s+(someone|myself|others)/i,
-    /kill/i,
-    /steal/i,
-    /illegal/i,
-    /scam/i,
-    /fraud/i,
-    /hack\s+(into|someone)/i,
-    /revenge/i,
-    /destroy/i,
-    /ruin\s+(someone|their)/i,
-    /blackmail/i,
-    /stalk/i,
-    /harass/i,
+  
+  // Only block: weapons, violence, crimes, self-harm, suicide
+  const dangerousPatterns = [
+    // Weapons & Violence
+    /\b(build|make|create|construct)\b.*(bomb|explosive|weapon|gun|firearm)/i,
+    /\bhow to (kill|murder|assassinate)/i,
+    /\b(kill|murder|assassinate)\s+(someone|a person|my|the)/i,
+    
+    // Self-harm & Suicide
+    /\b(kill|hurt|harm)\s*(myself|yourself)/i,
+    /\bsuicide\b/i,
+    /\bself[- ]?harm/i,
+    /\bend my life\b/i,
+    /\bways to die\b/i,
+    
+    // Serious crimes
+    /\b(how to|planning to)\s*(rob|kidnap|abduct|traffick)/i,
+    /\bchild\s*(porn|abuse|exploit)/i,
+    /\bterrorist|terrorism\b/i,
+    /\bdrug\s*(deal|traffick|sell|manufacture)/i,
+    /\bpoison\s*(someone|a person|my|the)/i,
   ];
   
-  return inappropriatePatterns.some(pattern => pattern.test(lowerGoal));
+  return dangerousPatterns.some(pattern => pattern.test(lowerGoal));
 };
 
 // Generate steps for a goal
@@ -68,11 +73,11 @@ app.post('/api/generate-steps', async (req, res) => {
       return res.status(400).json({ error: 'Goal is required' });
     }
     
-    // Check for inappropriate content
+    // Check for dangerous content only
     if (isInappropriateGoal(goal)) {
       return res.status(400).json({ 
         error: 'inappropriate',
-        message: "I can't help with that goal. Aclio is designed to help you achieve positive, constructive goals that improve your life. Try something like learning a new skill, getting healthier, or building better habits!"
+        message: "I can't help with goals that could cause harm. If you're struggling, please reach out to a crisis helpline. Otherwise, try rephrasing your goal!"
       });
     }
     
@@ -163,8 +168,8 @@ Output ONLY the JSON object, nothing else.`
       // AI likely refused the request
       console.log('AI refused request:', content.substring(0, 200));
       return res.status(400).json({ 
-        error: 'inappropriate',
-        message: "I can't create a plan for that goal. Try something positive like learning a skill, improving health, or personal growth!"
+        error: 'ai_refused',
+        message: "I couldn't generate a plan for that. Try rephrasing your goal or being more specific about what you want to achieve!"
       });
     }
     
@@ -194,11 +199,11 @@ app.post('/api/generate-questions', async (req, res) => {
       return res.status(400).json({ error: 'Goal is required' });
     }
     
-    // Check for inappropriate content
+    // Check for dangerous content only
     if (isInappropriateGoal(goal)) {
       return res.status(400).json({ 
         error: 'inappropriate',
-        message: "I can't help with that goal. Try something positive and constructive!"
+        message: "I can't help with goals that could cause harm."
       });
     }
     
@@ -256,8 +261,8 @@ Rules:
     // Check if AI refused (non-JSON response)
     if (!content.startsWith('[') && !content.startsWith('{')) {
       return res.status(400).json({ 
-        error: 'inappropriate',
-        message: "I can't help with that goal. Try something positive!"
+        error: 'ai_refused',
+        message: "Couldn't process that goal. Try rephrasing it!"
       });
     }
     
