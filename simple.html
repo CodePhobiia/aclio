@@ -3455,10 +3455,10 @@
         const plan = PREMIUM_CONFIG.PLANS[selectedPlan];
         
         // Check if running in Capacitor (native iOS)
-        if (window.Capacitor?.isNativePlatform()) {
+        const Purchases = window.Capacitor?.Plugins?.Purchases;
+        if (Purchases) {
           try {
             // RevenueCat purchase flow
-            const { Purchases } = await import('@revenuecat/purchases-capacitor');
             const { customerInfo } = await Purchases.purchaseProduct({ productIdentifier: plan.id });
             
             // Check if premium entitlement is now active
@@ -3489,9 +3489,9 @@
       };
       
       const restorePurchases = async () => {
-        if (window.Capacitor?.isNativePlatform()) {
+        const Purchases = window.Capacitor?.Plugins?.Purchases;
+        if (Purchases) {
           try {
-            const { Purchases } = await import('@revenuecat/purchases-capacitor');
             const { customerInfo } = await Purchases.restorePurchases();
             
             if (customerInfo.entitlements.active['Aclio Premium']) {
@@ -3520,9 +3520,9 @@
       
       // Initialize RevenueCat on app load (for native)
       const initRevenueCat = async () => {
-        if (window.Capacitor?.isNativePlatform()) {
+        const Purchases = window.Capacitor?.Plugins?.Purchases;
+        if (Purchases) {
           try {
-            const { Purchases } = await import('@revenuecat/purchases-capacitor');
             await Purchases.configure({ 
               apiKey: 'test_SYAgudByWWBeGBviXsVovsUbDMA' // RevenueCat API key
             });
