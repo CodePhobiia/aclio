@@ -27,46 +27,57 @@ struct NewGoalView: View {
                     onBack()
                 })
                 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: AclioSpacing.space6) {
-                        // Mascot header
-                        mascotHeader
-                        
-                        // Question title
-                        Text("What do you want to achieve?")
-                            .font(AclioFont.title3)
-                            .foregroundColor(colors.textPrimary)
-                            .multilineTextAlignment(.center)
-                        
-                        // Goal input
-                        goalInputCard
-                        
-                        // Quick suggestions
-                        if viewModel.goalText.isEmpty {
-                            quickSuggestions
+                ScrollViewReader { proxy in
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: AclioSpacing.space6) {
+                            // Mascot header
+                            mascotHeader
+                            
+                            // Question title
+                            Text("What do you want to achieve?")
+                                .font(AclioFont.title3)
+                                .foregroundColor(colors.textPrimary)
+                                .multilineTextAlignment(.center)
+                            
+                            // Goal input
+                            goalInputCard
+                            
+                            // Quick suggestions
+                            if viewModel.goalText.isEmpty {
+                                quickSuggestions
+                            }
+                            
+                            // Due date
+                            dueDateSection
+                            
+                            // Icon selection
+                            iconSelection
+                            
+                            // Color selection
+                            colorSelection
+                            
+                            // AI Questions
+                            if viewModel.showQuestions && !viewModel.questions.isEmpty {
+                                questionsCard
+                                    .id("questionsSection")
+                            }
+                            
+                            // Error
+                            if let error = viewModel.error {
+                                errorMessage(error)
+                            }
                         }
-                        
-                        // Due date
-                        dueDateSection
-                        
-                        // Icon selection
-                        iconSelection
-                        
-                        // Color selection
-                        colorSelection
-                        
-                        // AI Questions
-                        if viewModel.showQuestions && !viewModel.questions.isEmpty {
-                            questionsCard
-                        }
-                        
-                        // Error
-                        if let error = viewModel.error {
-                            errorMessage(error)
+                        .padding(.horizontal, AclioSpacing.screenHorizontal)
+                        .padding(.bottom, 160) // Space for CTA
+                    }
+                    .onChange(of: viewModel.questions.count) { _ in
+                        // Auto-scroll to questions when they appear
+                        if !viewModel.questions.isEmpty {
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                proxy.scrollTo("questionsSection", anchor: .top)
+                            }
                         }
                     }
-                    .padding(.horizontal, AclioSpacing.screenHorizontal)
-                    .padding(.bottom, 160) // Space for CTA
                 }
             }
             
@@ -314,8 +325,24 @@ struct NewGoalView: View {
             Spacer()
             
             VStack(spacing: AclioSpacing.space3) {
+                // Loading Questions indicator
+                if viewModel.isQuestionsLoading {
+                    HStack(spacing: AclioSpacing.space3) {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: colors.accent))
+                        
+                        Text("Loading personalized questions...")
+                            .font(AclioFont.body)
+                            .foregroundColor(colors.textSecondary)
+                        
+                        Spacer()
+                    }
+                    .padding(AclioSpacing.space4)
+                    .background(colors.accentSoft)
+                    .cornerRadius(AclioRadius.card)
+                }
                 // Personalize button
-                if !viewModel.showQuestions && viewModel.canSubmit && !viewModel.isLoading {
+                else if !viewModel.showQuestions && viewModel.canSubmit && !viewModel.isLoading {
                     Button(action: {
                         Task {
                             await viewModel.generateQuestions()
@@ -327,14 +354,9 @@ struct NewGoalView: View {
                                     .fill(colors.accentSoft)
                                     .frame(width: 36, height: 36)
                                 
-                                if viewModel.isQuestionsLoading {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: colors.accent))
-                                } else {
-                                    Image(systemName: "sparkles")
-                                        .font(.system(size: 16))
-                                        .foregroundColor(colors.accent)
-                                }
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(colors.accent)
                             }
                             
                             VStack(alignment: .leading, spacing: 2) {
@@ -356,7 +378,6 @@ struct NewGoalView: View {
                         .background(colors.cardBackground)
                         .cornerRadius(AclioRadius.card)
                     }
-                    .disabled(viewModel.isQuestionsLoading)
                 }
                 
                 // Main CTA
@@ -364,7 +385,7 @@ struct NewGoalView: View {
                     viewModel.isLoading ? "Creating..." : "Generate Personalized Plan",
                     icon: viewModel.isLoading ? nil : "sparkles",
                     isLoading: viewModel.isLoading,
-                    isDisabled: !viewModel.canSubmit,
+                    isDisabled: !viewModel.canSubmit || viewModel.isQuestionsLoading,
                     showMascot: !viewModel.isLoading
                 ) {
                     Task {
