@@ -206,7 +206,7 @@ actor ApiService {
             "message": message,
             "goalName": goal?.name ?? "General",
             "goalCategory": goal?.category ?? "Personal",
-            "chatHistory": chatHistory.suffix(4)
+            "chatHistory": Array(chatHistory.suffix(4))
         ]
         
         if let goal = goal {
