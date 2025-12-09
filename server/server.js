@@ -89,14 +89,13 @@ app.use(requestLogger);
 // API Keys from environment variables
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-// Model configuration - GPT models
+// Model configuration - GPT 5.1
 const MODELS = {
-  MAIN: 'gpt-4o',           // Fast and capable (fallback if gpt-5.1 doesn't work)
+  MAIN: 'gpt-5.1',          // GPT 5.1 for all tasks
   FAST: 'gpt-4o-mini'       // Fastest for simple tasks
 };
 
-// Try GPT-5.1 if available, otherwise use gpt-4o
-const PRIMARY_MODEL = 'gpt-4o';  // Change to 'gpt-5.1' when available
+const PRIMARY_MODEL = 'gpt-5.1';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ACLIO PERSONA - Lean prompts for FAST responses (no reasoning triggers)
@@ -810,7 +809,7 @@ app.listen(PORT, '0.0.0.0', () => {
   ║   OpenAI API: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Missing'}                              ║
   ║                                                           ║
   ║   Models:                                                 ║
-  ║   • GPT-4o → all tasks (fast + high quality)              ║
+  ║   • GPT-5.1 → all tasks (fast + high quality)             ║
   ║   • GPT-4o-mini → questions (fastest)                     ║
   ║                                                           ║
   ╚═══════════════════════════════════════════════════════════╝
