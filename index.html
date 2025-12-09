@@ -5074,7 +5074,8 @@
           
           setGoals([goal, ...goals]);
           resetGoalForm();
-          setView('dashboard');
+          setActiveGoal(goal);  // Open the new goal directly
+          setView('detail');    // Go to goal detail page instead of dashboard
         } catch (err) { 
           clearInterval(progressInterval);
           setError(err.message);
