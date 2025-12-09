@@ -90,10 +90,10 @@ app.use(requestLogger);
 // API Key from environment variable
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
-// Model configuration - Sonnet 4.5 for quality goal planning
+// Model configuration - Using proven fast models
 const MODELS = {
-  SONNET: 'claude-sonnet-4-5-20250929',   // High quality for plans, expand, chat
-  HAIKU: 'claude-3-5-haiku-20241022'      // Fast model for simple tasks (questions)
+  SONNET: 'claude-3-5-sonnet-20241022',   // Fast + high quality (proven 2-5 sec response)
+  HAIKU: 'claude-3-5-haiku-20241022'      // Fastest for simple tasks
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
