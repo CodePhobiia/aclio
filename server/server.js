@@ -211,7 +211,7 @@ async function callOpenAI(systemPrompt, userMessage, options = {}, opId = 'N/A')
     },
     body: JSON.stringify({
       model,
-      max_tokens: maxTokens,
+      max_completion_tokens: maxTokens,
       temperature,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -256,7 +256,7 @@ async function callOpenAIChat(systemPrompt, messages, options = {}, opId = 'N/A'
     },
     body: JSON.stringify({
       model,
-      max_tokens: maxTokens,
+      max_completion_tokens: maxTokens,
       temperature,
       messages: openAIMessages
     })
@@ -452,7 +452,7 @@ Return JSON: {"category":"<${categoriesList}>","steps":[{"id":1,"title":"<action
       },
       body: JSON.stringify({
         model: PRIMARY_MODEL,
-        max_tokens: 4000,
+        max_completion_tokens: 4000,
         temperature: 0.7,
         stream: true,
         messages: [
@@ -802,7 +802,7 @@ Keep responses focused (2-3 paragraphs). Be conversational and valuable. Don't b
       },
       body: JSON.stringify({
         model: PRIMARY_MODEL,
-        max_tokens: 800,
+        max_completion_tokens: 800,
         temperature: 0.7,
         stream: true,
         messages: openAIMessages
