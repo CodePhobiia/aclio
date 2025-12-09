@@ -139,8 +139,7 @@ export function DashboardPage({
           </div>
           
           <div className="greeting-section">
-            <p className="greeting-text">{getGreeting?.() || 'Hello'},</p>
-            <p className="greeting-name">{profile?.name || 'Achiever'}</p>
+            <p className="greeting-text">{getGreeting?.() || 'Hello'}, {profile?.name || 'Achiever'}!</p>
             <p className="greeting-subtitle">Let's make progress on your goals today.</p>
           </div>
           

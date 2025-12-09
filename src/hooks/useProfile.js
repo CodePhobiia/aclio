@@ -107,15 +107,14 @@ export function useProfile() {
     saveLocation(null);
   }, []);
 
-  // Get greeting based on time of day
+  // Get greeting based on time of day (without name - name is displayed separately)
   const getGreeting = useCallback(() => {
     const hour = new Date().getHours();
-    const name = profile.name || 'there';
     
-    if (hour < 12) return `Good morning, ${name}!`;
-    if (hour < 18) return `Good afternoon, ${name}!`;
-    return `Good evening, ${name}!`;
-  }, [profile.name]);
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  }, []);
 
   return {
     profile,
