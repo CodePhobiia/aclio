@@ -9,6 +9,7 @@ final class DashboardViewModel: ObservableObject {
     private let storage = LocalStorageService.shared
     private let gamification = GamificationService.shared
     private let premium = PremiumService.shared
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Published State
     @Published var goals: [Goal] = []
@@ -17,15 +18,15 @@ final class DashboardViewModel: ObservableObject {
     @Published var isDarkMode: Bool = false
     @Published var isRefreshing: Bool = false
     
-    // MARK: - Gamification State (from service)
-    var points: Int { gamification.points }
-    var streak: StreakData { gamification.streak }
-    var dailyBonusClaimed: Bool { gamification.dailyBonusClaimed }
-    var currentLevel: Level { gamification.currentLevel }
-    var nextLevel: Level? { gamification.nextLevel }
-    var levelProgress: Double { gamification.levelProgress }
-    var showPointsPopup: PointsPopup? { gamification.showPointsPopup }
-    var showLevelUp: LevelUpData? { gamification.showLevelUp }
+    // MARK: - Gamification State (forwarded from service)
+    @Published var points: Int = 0
+    @Published var streak: StreakData = StreakData()
+    @Published var dailyBonusClaimed: Bool = false
+    @Published var currentLevel: Level = Level.all[0]
+    @Published var nextLevel: Level? = Level.all[1]
+    @Published var levelProgress: Double = 0
+    @Published var showPointsPopup: PointsPopup?
+    @Published var showLevelUp: LevelUpData?
     
     // MARK: - Premium State (from service)
     var isPremium: Bool { premium.isPremium }
@@ -71,6 +72,36 @@ final class DashboardViewModel: ObservableObject {
     // MARK: - Initialization
     init() {
         loadData()
+        observeGamification()
+    }
+    
+    // MARK: - Observe Gamification Service
+    private func observeGamification() {
+        // Forward all gamification state changes
+        gamification.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.points = self.gamification.points
+                self.streak = self.gamification.streak
+                self.dailyBonusClaimed = self.gamification.dailyBonusClaimed
+                self.currentLevel = self.gamification.currentLevel
+                self.nextLevel = self.gamification.nextLevel
+                self.levelProgress = self.gamification.levelProgress
+                self.showPointsPopup = self.gamification.showPointsPopup
+                self.showLevelUp = self.gamification.showLevelUp
+            }
+            .store(in: &cancellables)
+        
+        // Initialize with current values
+        points = gamification.points
+        streak = gamification.streak
+        dailyBonusClaimed = gamification.dailyBonusClaimed
+        currentLevel = gamification.currentLevel
+        nextLevel = gamification.nextLevel
+        levelProgress = gamification.levelProgress
+        showPointsPopup = gamification.showPointsPopup
+        showLevelUp = gamification.showLevelUp
     }
     
     // MARK: - Data Loading
