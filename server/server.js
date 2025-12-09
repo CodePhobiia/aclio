@@ -1,7 +1,6 @@
 /**
  * Achieve AI - Backend Server
- * Securely handles API requests to Anthropic (Claude)
- * Using Sonnet 4.5 for most tasks, Opus 4.5 for heavy tasks
+ * Using OpenAI GPT for goal planning
  */
 
 require('dotenv').config();
@@ -87,14 +86,17 @@ app.use(cors({
 app.use(express.json());
 app.use(requestLogger);
 
-// API Key from environment variable
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+// API Keys from environment variables
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-// Model configuration - Sonnet 4.5 for quality
+// Model configuration - GPT models
 const MODELS = {
-  SONNET: 'claude-sonnet-4-5-20250929',   // Sonnet 4.5 for complex goal planning
-  HAIKU: 'claude-3-5-haiku-20241022'      // Fast for simple tasks
+  MAIN: 'gpt-4o',           // Fast and capable (fallback if gpt-5.1 doesn't work)
+  FAST: 'gpt-4o-mini'       // Fastest for simple tasks
 };
+
+// Try GPT-5.1 if available, otherwise use gpt-4o
+const PRIMARY_MODEL = 'gpt-4o';  // Change to 'gpt-5.1' when available
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ACLIO PERSONA - Lean prompts for FAST responses (no reasoning triggers)
@@ -122,32 +124,32 @@ If it's a schedule, give real times. If it's a plan, give specific actions.`,
   QUESTIONS: `Generate 3 short clarifying questions as JSON array. Format: [{"id":1,"question":"...","placeholder":"..."}]`
 };
 
-if (!ANTHROPIC_API_KEY) {
-  console.error('❌ ANTHROPIC_API_KEY is not set in environment variables!');
-  console.log('Please create a .env file with: ANTHROPIC_API_KEY=your_api_key_here');
+if (!OPENAI_API_KEY) {
+  console.error('❌ OPENAI_API_KEY is not set in environment variables!');
+  console.log('Please create a .env file with: OPENAI_API_KEY=your_api_key_here');
 }
 
-// Helper function to call Anthropic API
-async function callAnthropic(systemPrompt, userMessage, options = {}, opId = 'N/A') {
-  const { model = MODELS.SONNET, maxTokens = 4096, temperature = 0.7 } = options;
+// Helper function to call OpenAI API
+async function callOpenAI(systemPrompt, userMessage, options = {}, opId = 'N/A') {
+  const { model = PRIMARY_MODEL, maxTokens = 4096, temperature = 0.7 } = options;
   
-  const modelShort = model.includes('opus') ? 'OPUS' : 'SONNET';
-  console.log(`   📡 [${opId}] Calling Anthropic API (${modelShort})...`);
+  console.log(`   📡 [${opId}] Calling OpenAI API (${model})...`);
   const apiStart = Date.now();
   
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01'
+      'Authorization': `Bearer ${OPENAI_API_KEY}`
     },
     body: JSON.stringify({
       model,
       max_tokens: maxTokens,
       temperature,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }]
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage }
+      ]
     })
   });
 
@@ -155,38 +157,41 @@ async function callAnthropic(systemPrompt, userMessage, options = {}, opId = 'N/
   
   if (!response.ok) {
     const err = await response.json();
-    console.log(`   ❌ [${opId}] Anthropic API ERROR after ${formatDuration(apiDuration)}: ${err.error?.message}`);
-    throw new Error(err.error?.message || 'Anthropic API Error');
+    console.log(`   ❌ [${opId}] OpenAI API ERROR after ${formatDuration(apiDuration)}: ${err.error?.message}`);
+    throw new Error(err.error?.message || 'OpenAI API Error');
   }
 
   const data = await response.json();
-  const tokenUsage = data.usage ? `(${data.usage.input_tokens}→${data.usage.output_tokens} tokens)` : '';
-  console.log(`   ✅ [${opId}] Anthropic API responded in ${formatDuration(apiDuration)} ${tokenUsage}`);
+  const tokenUsage = data.usage ? `(${data.usage.prompt_tokens}→${data.usage.completion_tokens} tokens)` : '';
+  console.log(`   ✅ [${opId}] OpenAI API responded in ${formatDuration(apiDuration)} ${tokenUsage}`);
   
-  return data.content[0].text;
+  return data.choices[0].message.content;
 }
 
 // Helper function for multi-turn conversations
-async function callAnthropicChat(systemPrompt, messages, options = {}, opId = 'N/A') {
-  const { model = MODELS.SONNET, maxTokens = 4096, temperature = 0.8 } = options;
+async function callOpenAIChat(systemPrompt, messages, options = {}, opId = 'N/A') {
+  const { model = PRIMARY_MODEL, maxTokens = 4096, temperature = 0.8 } = options;
   
-  const modelShort = model.includes('opus') ? 'OPUS' : 'SONNET';
-  console.log(`   📡 [${opId}] Calling Anthropic Chat API (${modelShort})...`);
+  console.log(`   📡 [${opId}] Calling OpenAI Chat API (${model})...`);
   const apiStart = Date.now();
   
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  // Convert messages to OpenAI format and add system prompt
+  const openAIMessages = [
+    { role: 'system', content: systemPrompt },
+    ...messages.map(m => ({ role: m.role, content: m.content }))
+  ];
+  
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01'
+      'Authorization': `Bearer ${OPENAI_API_KEY}`
     },
     body: JSON.stringify({
       model,
       max_tokens: maxTokens,
       temperature,
-      system: systemPrompt,
-      messages
+      messages: openAIMessages
     })
   });
 
@@ -194,15 +199,15 @@ async function callAnthropicChat(systemPrompt, messages, options = {}, opId = 'N
   
   if (!response.ok) {
     const err = await response.json();
-    console.log(`   ❌ [${opId}] Anthropic Chat API ERROR after ${formatDuration(apiDuration)}: ${err.error?.message}`);
-    throw new Error(err.error?.message || 'Anthropic API Error');
+    console.log(`   ❌ [${opId}] OpenAI Chat API ERROR after ${formatDuration(apiDuration)}: ${err.error?.message}`);
+    throw new Error(err.error?.message || 'OpenAI API Error');
   }
 
   const data = await response.json();
-  const tokenUsage = data.usage ? `(${data.usage.input_tokens}→${data.usage.output_tokens} tokens)` : '';
-  console.log(`   ✅ [${opId}] Anthropic Chat API responded in ${formatDuration(apiDuration)} ${tokenUsage}`);
+  const tokenUsage = data.usage ? `(${data.usage.prompt_tokens}→${data.usage.completion_tokens} tokens)` : '';
+  console.log(`   ✅ [${opId}] OpenAI Chat API responded in ${formatDuration(apiDuration)} ${tokenUsage}`);
   
-  return data.content[0].text;
+  return data.choices[0].message.content;
 }
 
 // Health check endpoint
@@ -210,7 +215,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    apiKeyConfigured: !!ANTHROPIC_API_KEY,
+    apiKeyConfigured: !!OPENAI_API_KEY,
     models: MODELS
   });
 });
@@ -261,7 +266,7 @@ app.post('/api/generate-steps', async (req, res) => {
       });
     }
     
-    if (!ANTHROPIC_API_KEY) {
+    if (!OPENAI_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
@@ -289,8 +294,8 @@ Return JSON: {"category":"<one of: ${categoriesList}>","steps":[{"id":1,"title":
 
 8-12 steps. Be specific. Real tools/apps. No obvious steps.`;
 
-    const content = await callAnthropic(systemPrompt, userMessage, {
-      model: MODELS.SONNET,
+    const content = await callOpenAI(systemPrompt, userMessage, {
+      model: PRIMARY_MODEL,
       maxTokens: 4000,  // Reduced from 8000
       temperature: 0.7
     }, req.opId);
@@ -344,7 +349,7 @@ app.post('/api/generate-steps-stream', async (req, res) => {
       });
     }
     
-    if (!ANTHROPIC_API_KEY) {
+    if (!OPENAI_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
@@ -372,20 +377,21 @@ Return JSON: {"category":"<${categoriesList}>","steps":[{"id":1,"title":"<action
     console.log(`   📡 [${opId}] Starting streaming plan generation...`);
     const streamStart = Date.now();
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: MODELS.SONNET,
+        model: PRIMARY_MODEL,
         max_tokens: 4000,
         temperature: 0.7,
         stream: true,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userMessage }]
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage }
+        ]
       })
     });
 
@@ -413,13 +419,15 @@ Return JSON: {"category":"<${categoriesList}>","steps":[{"id":1,"title":"<action
           
           try {
             const parsed = JSON.parse(data);
-            if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+            // OpenAI format: choices[0].delta.content
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
               if (firstChunk) {
                 console.log(`   ⚡ [${opId}] First chunk in ${formatDuration(Date.now() - streamStart)}`);
                 firstChunk = false;
               }
-              fullContent += parsed.delta.text;
-              res.write(`data: ${JSON.stringify({ chunk: parsed.delta.text })}\n\n`);
+              fullContent += content;
+              res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
             }
           } catch (e) {}
         }
@@ -466,7 +474,7 @@ app.post('/api/generate-questions', async (req, res) => {
       });
     }
     
-    if (!ANTHROPIC_API_KEY) {
+    if (!OPENAI_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
@@ -477,8 +485,8 @@ app.post('/api/generate-questions', async (req, res) => {
 Return JSON array: [{"id":1,"question":"<short question>","placeholder":"<example answer>"},...]
 3 questions about: experience level, timeline, constraints.`;
 
-    const content = await callAnthropic(systemPrompt, userMessage, {
-      model: MODELS.HAIKU,  // Use Haiku for simple question generation
+    const content = await callOpenAI(systemPrompt, userMessage, {
+      model: MODELS.FAST,  // Use Haiku for simple question generation
       maxTokens: 500,
       temperature: 0.7
     }, req.opId);
@@ -522,7 +530,7 @@ app.post('/api/expand-step', async (req, res) => {
       return res.status(400).json({ error: 'Step is required' });
     }
     
-    if (!ANTHROPIC_API_KEY) {
+    if (!OPENAI_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
@@ -536,8 +544,8 @@ Return JSON: {"detailedGuide":"<2-3 paragraphs>","resources":[{"name":"...","typ
 
 Real URLs only. Be specific.`;
 
-    const content = await callAnthropic(systemPrompt, userMessage, {
-      model: MODELS.SONNET,
+    const content = await callOpenAI(systemPrompt, userMessage, {
+      model: PRIMARY_MODEL,
       maxTokens: 2000,
       temperature: 0.7
     }, req.opId);
@@ -565,7 +573,7 @@ app.post('/api/do-it-for-me', async (req, res) => {
       return res.status(400).json({ error: 'Step is required' });
     }
     
-    if (!ANTHROPIC_API_KEY) {
+    if (!OPENAI_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
@@ -577,8 +585,8 @@ Task: "${step.title}" - ${step.description}
 
 Complete this task NOW. Give the finished product, not instructions. Use markdown formatting.`;
 
-    const result = await callAnthropic(systemPrompt, userMessage, {
-      model: MODELS.SONNET,
+    const result = await callOpenAI(systemPrompt, userMessage, {
+      model: PRIMARY_MODEL,
       maxTokens: 3000,
       temperature: 0.7
     }, req.opId);
@@ -600,7 +608,7 @@ app.post('/api/talk-to-aclio', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
     
-    if (!ANTHROPIC_API_KEY) {
+    if (!OPENAI_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
@@ -638,8 +646,8 @@ Steps: ${stepsSummary}`;
     // Add current message
     messages.push({ role: 'user', content: message });
 
-    const aiResponse = await callAnthropicChat(systemPrompt, messages, {
-      model: MODELS.SONNET,
+    const aiResponse = await callOpenAIChat(systemPrompt, messages, {
+      model: PRIMARY_MODEL,
       maxTokens: 1000,
       temperature: 0.8
     }, req.opId);
@@ -663,7 +671,7 @@ app.post('/api/talk-to-aclio-stream', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
     
-    if (!ANTHROPIC_API_KEY) {
+    if (!OPENAI_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
@@ -709,30 +717,34 @@ Keep responses focused (2-3 paragraphs). Be conversational and valuable. Don't b
     }
     messages.push({ role: 'user', content: message });
 
-    console.log(`   📡 [${opId}] Starting streaming response (SONNET)...`);
+    console.log(`   📡 [${opId}] Starting streaming response (GPT)...`);
     const streamStart = Date.now();
 
-    // Call Anthropic with streaming
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    // Convert messages to OpenAI format
+    const openAIMessages = [
+      { role: 'system', content: systemPrompt },
+      ...messages.map(m => ({ role: m.role, content: m.content }))
+    ];
+
+    // Call OpenAI with streaming
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: MODELS.SONNET,
-        max_tokens: 800,  // Reduced for faster response
+        model: PRIMARY_MODEL,
+        max_tokens: 800,
         temperature: 0.7,
         stream: true,
-        system: systemPrompt,
-        messages
+        messages: openAIMessages
       })
     });
 
     if (!response.ok) {
       const err = await response.json();
-      throw new Error(err.error?.message || 'Anthropic API Error');
+      throw new Error(err.error?.message || 'OpenAI API Error');
     }
 
     // Stream the response
@@ -755,14 +767,16 @@ Keep responses focused (2-3 paragraphs). Be conversational and valuable. Don't b
           
           try {
             const parsed = JSON.parse(data);
-            if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+            // OpenAI format: choices[0].delta.content
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
               if (!firstChunkTime) {
                 firstChunkTime = Date.now();
                 console.log(`   ⚡ [${opId}] First chunk in ${formatDuration(firstChunkTime - streamStart)}`);
               }
-              fullResponse += parsed.delta.text;
+              fullResponse += content;
               // Send chunk to client
-              res.write(`data: ${JSON.stringify({ text: parsed.delta.text })}\n\n`);
+              res.write(`data: ${JSON.stringify({ text: content })}\n\n`);
             }
           } catch (e) {
             // Skip non-JSON lines
@@ -793,11 +807,11 @@ app.listen(PORT, '0.0.0.0', () => {
   ║   🎯 Achieve AI Server                                    ║
   ║                                                           ║
   ║   Server running on http://0.0.0.0:${PORT}                  ║
-  ║   Anthropic API: ${ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Missing'}                            ║
+  ║   OpenAI API: ${OPENAI_API_KEY ? '✅ Configured' : '❌ Missing'}                              ║
   ║                                                           ║
   ║   Models:                                                 ║
-  ║   • Sonnet 4.5 → all tasks (streaming for chat)           ║
-  ║   • Haiku 3.5  → questions (fast)                         ║
+  ║   • GPT-4o → all tasks (fast + high quality)              ║
+  ║   • GPT-4o-mini → questions (fastest)                     ║
   ║                                                           ║
   ╚═══════════════════════════════════════════════════════════╝
   `);
