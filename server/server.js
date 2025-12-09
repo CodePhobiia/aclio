@@ -7,9 +7,76 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// REQUEST LOGGING & OBSERVABILITY
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Generate unique operation ID
+const generateOpId = () => crypto.randomBytes(4).toString('hex');
+
+// Format duration for logging
+const formatDuration = (ms) => {
+  if (ms < 1000) return `${ms}ms`;
+  return `${(ms / 1000).toFixed(2)}s`;
+};
+
+// Request logger middleware
+const requestLogger = (req, res, next) => {
+  const opId = generateOpId();
+  const startTime = Date.now();
+  
+  // Attach to request for use in handlers
+  req.opId = opId;
+  req.startTime = startTime;
+  
+  // Log request start
+  const logData = {
+    opId,
+    method: req.method,
+    path: req.path,
+    timestamp: new Date().toISOString(),
+  };
+  
+  // Add relevant body info (without sensitive data)
+  if (req.body) {
+    if (req.body.goal) logData.goal = req.body.goal.substring(0, 50);
+    if (req.body.message) logData.message = req.body.message.substring(0, 50);
+    if (req.body.goalName) logData.goalName = req.body.goalName;
+  }
+  
+  console.log(`\n🚀 [${opId}] START ${req.method} ${req.path}`, JSON.stringify(logData));
+  
+  // Capture response
+  const originalSend = res.send;
+  res.send = function(body) {
+    const duration = Date.now() - startTime;
+    const status = res.statusCode;
+    
+    // Color code based on duration
+    let durationIcon = '⚡';
+    if (duration > 2000) durationIcon = '🐢';
+    else if (duration > 5000) durationIcon = '🔴';
+    else if (duration > 10000) durationIcon = '💀';
+    
+    const statusIcon = status >= 400 ? '❌' : '✅';
+    
+    console.log(`${statusIcon} [${opId}] END ${req.method} ${req.path} | Status: ${status} | ${durationIcon} Duration: ${formatDuration(duration)}`);
+    
+    // Warn on slow requests
+    if (duration > 5000) {
+      console.warn(`⚠️  [${opId}] SLOW REQUEST: ${req.path} took ${formatDuration(duration)}`);
+    }
+    
+    return originalSend.call(this, body);
+  };
+  
+  next();
+};
 
 // Middleware - allow all origins for development
 app.use(cors({
@@ -18,6 +85,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(requestLogger);
 
 // API Key from environment variable
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -111,8 +179,12 @@ if (!ANTHROPIC_API_KEY) {
 }
 
 // Helper function to call Anthropic API
-async function callAnthropic(systemPrompt, userMessage, options = {}) {
+async function callAnthropic(systemPrompt, userMessage, options = {}, opId = 'N/A') {
   const { model = MODELS.SONNET, maxTokens = 4096, temperature = 0.7 } = options;
+  
+  const modelShort = model.includes('opus') ? 'OPUS' : 'SONNET';
+  console.log(`   📡 [${opId}] Calling Anthropic API (${modelShort})...`);
+  const apiStart = Date.now();
   
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -130,18 +202,28 @@ async function callAnthropic(systemPrompt, userMessage, options = {}) {
     })
   });
 
+  const apiDuration = Date.now() - apiStart;
+  
   if (!response.ok) {
     const err = await response.json();
+    console.log(`   ❌ [${opId}] Anthropic API ERROR after ${formatDuration(apiDuration)}: ${err.error?.message}`);
     throw new Error(err.error?.message || 'Anthropic API Error');
   }
 
   const data = await response.json();
+  const tokenUsage = data.usage ? `(${data.usage.input_tokens}→${data.usage.output_tokens} tokens)` : '';
+  console.log(`   ✅ [${opId}] Anthropic API responded in ${formatDuration(apiDuration)} ${tokenUsage}`);
+  
   return data.content[0].text;
 }
 
 // Helper function for multi-turn conversations
-async function callAnthropicChat(systemPrompt, messages, options = {}) {
+async function callAnthropicChat(systemPrompt, messages, options = {}, opId = 'N/A') {
   const { model = MODELS.OPUS, maxTokens = 4096, temperature = 0.8 } = options;
+  
+  const modelShort = model.includes('opus') ? 'OPUS' : 'SONNET';
+  console.log(`   📡 [${opId}] Calling Anthropic Chat API (${modelShort})...`);
+  const apiStart = Date.now();
   
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -159,12 +241,18 @@ async function callAnthropicChat(systemPrompt, messages, options = {}) {
     })
   });
 
+  const apiDuration = Date.now() - apiStart;
+  
   if (!response.ok) {
     const err = await response.json();
+    console.log(`   ❌ [${opId}] Anthropic Chat API ERROR after ${formatDuration(apiDuration)}: ${err.error?.message}`);
     throw new Error(err.error?.message || 'Anthropic API Error');
   }
 
   const data = await response.json();
+  const tokenUsage = data.usage ? `(${data.usage.input_tokens}→${data.usage.output_tokens} tokens)` : '';
+  console.log(`   ✅ [${opId}] Anthropic Chat API responded in ${formatDuration(apiDuration)} ${tokenUsage}`);
+  
   return data.content[0].text;
 }
 
@@ -277,7 +365,7 @@ Output ONLY valid JSON, nothing else.`;
       model: MODELS.SONNET,
       maxTokens: 8000,
       temperature: 0.7
-    });
+    }, req.opId);
     
     let cleanContent = content.trim();
     if (cleanContent.startsWith('```')) {
@@ -363,7 +451,7 @@ Output ONLY valid JSON array, nothing else.`;
       model: MODELS.SONNET,
       maxTokens: 500,
       temperature: 0.7
-    });
+    }, req.opId);
     
     let cleanContent = content.trim();
     if (cleanContent.startsWith('```')) {
@@ -456,7 +544,7 @@ Output ONLY valid JSON, nothing else.`;
       model: MODELS.SONNET,
       maxTokens: 2000,
       temperature: 0.7
-    });
+    }, req.opId);
     
     let cleanContent = content.trim();
     if (cleanContent.startsWith('```')) {
@@ -525,7 +613,7 @@ FORMAT GUIDELINES:
       model: MODELS.OPUS,
       maxTokens: 3000,
       temperature: 0.7
-    });
+    }, req.opId);
     
     res.json({ result });
     
@@ -619,7 +707,7 @@ Remember: You ARE Aclio. Speak naturally as their personal coach, not as "an AI 
       model: MODELS.OPUS,
       maxTokens: 1000,
       temperature: 0.8
-    });
+    }, req.opId);
     
     res.json({ response: aiResponse });
     
