@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 import Combine
+import UserNotifications
 
 // MARK: - Settings View Model
 @MainActor

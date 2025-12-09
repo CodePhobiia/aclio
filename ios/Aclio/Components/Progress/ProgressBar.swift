@@ -48,7 +48,7 @@ struct ProgressBar: View {
                 }
             }
         }
-        .onChange(of: progress) { _, newValue in
+        .onChange(of: progress) { newValue in
             if animated {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                     animatedProgress = newValue

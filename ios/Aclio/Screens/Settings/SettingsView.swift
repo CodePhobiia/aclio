@@ -106,19 +106,19 @@ struct SettingsView: View {
                             SettingsRow(
                                 icon: "shield.fill",
                                 title: "Privacy Policy",
-                                trailingIcon: "arrow.up.forward",
                                 action: {
                                     openURL(URL(string: "https://thecribbusiness.github.io/aclio/privacy-policy.html")!)
-                                }
+                                },
+                                trailingIcon: "arrow.up.forward"
                             )
                             
                             SettingsRow(
                                 icon: "doc.text.fill",
                                 title: "Terms of Service",
-                                trailingIcon: "arrow.up.forward",
                                 action: {
                                     openURL(URL(string: "https://thecribbusiness.github.io/aclio/terms-of-service.html")!)
-                                }
+                                },
+                                trailingIcon: "arrow.up.forward"
                             )
                         }
                         
@@ -268,7 +268,7 @@ struct SettingsToggleRow: View {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
                 .tint(colors.accent)
-                .onChange(of: isOn) { _, newValue in
+                .onChange(of: isOn) { newValue in
                     onChange?(newValue)
                 }
         }

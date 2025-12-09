@@ -45,7 +45,7 @@ struct ChatView: View {
                         .padding(.horizontal, AclioSpacing.screenHorizontal)
                         .padding(.vertical, AclioSpacing.space4)
                     }
-                    .onChange(of: viewModel.messages.count) { _, _ in
+                    .onChange(of: viewModel.messages.count) { _ in
                         if let lastId = viewModel.messages.last?.id {
                             withAnimation {
                                 proxy.scrollTo(lastId, anchor: .bottom)

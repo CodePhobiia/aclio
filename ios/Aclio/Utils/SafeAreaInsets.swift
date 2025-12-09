@@ -45,7 +45,7 @@ struct SafeAreaInsetsProvider: ViewModifier {
                         .onAppear {
                             insets = geometry.safeAreaInsets
                         }
-                        .onChange(of: geometry.safeAreaInsets) { _, newValue in
+                        .onChange(of: geometry.safeAreaInsets) { newValue in
                             insets = newValue
                         }
                 }
