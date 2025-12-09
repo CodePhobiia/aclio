@@ -10,6 +10,7 @@ final class GoalDetailViewModel: ObservableObject {
     private let apiService = ApiService.shared
     private let gamification = GamificationService.shared
     private let premium = PremiumService.shared
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Published State
     @Published var goal: Goal
@@ -19,12 +20,9 @@ final class GoalDetailViewModel: ObservableObject {
     @Published var showCelebration: Bool = false
     @Published var error: String?
     
-    // MARK: - Premium
-    var isPremium: Bool { premium.isPremium }
-    var showPaywall: Bool {
-        get { premium.showPaywall }
-        set { premium.showPaywall = newValue }
-    }
+    // MARK: - Premium State (forwarded from service)
+    @Published var isPremium: Bool = false
+    @Published var showPaywall: Bool = false
     
     // MARK: - Computed
     var profile: UserProfile? {
@@ -39,6 +37,28 @@ final class GoalDetailViewModel: ObservableObject {
     init(goal: Goal) {
         self.goal = goal
         loadExpandedSteps()
+        observePremium()
+    }
+    
+    // MARK: - Observe Premium Service
+    private func observePremium() {
+        premium.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.isPremium = self.premium.isPremium
+                self.showPaywall = self.premium.showPaywall
+            }
+            .store(in: &cancellables)
+        
+        // Initialize with current values
+        isPremium = premium.isPremium
+        showPaywall = premium.showPaywall
+    }
+    
+    func dismissPaywall() {
+        showPaywall = false
+        premium.showPaywall = false
     }
     
     // MARK: - Load Expanded Steps from Cache

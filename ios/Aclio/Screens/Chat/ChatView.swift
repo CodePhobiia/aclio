@@ -64,7 +64,7 @@ struct ChatView: View {
             }
         }
         .sheet(isPresented: $viewModel.showPaywall) {
-            PaywallView(onDismiss: { viewModel.showPaywall = false })
+            PaywallView(onDismiss: { viewModel.dismissPaywall() })
         }
     }
     

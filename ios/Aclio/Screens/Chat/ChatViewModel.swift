@@ -31,23 +31,22 @@ final class ChatViewModel: ObservableObject {
     private let storage = LocalStorageService.shared
     private let apiService = ApiService.shared
     private let premium = PremiumService.shared
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Published State
     @Published var messages: [ChatMessage] = []
     @Published var inputText: String = ""
     @Published var isLoading: Bool = false
     
+    // MARK: - Premium State (forwarded from service)
+    @Published var isPremium: Bool = false
+    @Published var showPaywall: Bool = false
+    
     // MARK: - Properties
     let goal: Goal?
     
     var profile: UserProfile? {
         storage.loadProfile()
-    }
-    
-    var isPremium: Bool { premium.isPremium }
-    var showPaywall: Bool {
-        get { premium.showPaywall }
-        set { premium.showPaywall = newValue }
     }
     
     var quickPrompts: [String] {
@@ -76,6 +75,28 @@ final class ChatViewModel: ObservableObject {
     init(goal: Goal?) {
         self.goal = goal
         addWelcomeMessage()
+        observePremium()
+    }
+    
+    // MARK: - Observe Premium Service
+    private func observePremium() {
+        premium.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.isPremium = self.premium.isPremium
+                self.showPaywall = self.premium.showPaywall
+            }
+            .store(in: &cancellables)
+        
+        // Initialize with current values
+        isPremium = premium.isPremium
+        showPaywall = premium.showPaywall
+    }
+    
+    func dismissPaywall() {
+        showPaywall = false
+        premium.showPaywall = false
     }
     
     private func addWelcomeMessage() {

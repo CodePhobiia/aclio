@@ -28,12 +28,9 @@ final class DashboardViewModel: ObservableObject {
     @Published var showPointsPopup: PointsPopup?
     @Published var showLevelUp: LevelUpData?
     
-    // MARK: - Premium State (from service)
-    var isPremium: Bool { premium.isPremium }
-    var showPaywall: Bool {
-        get { premium.showPaywall }
-        set { premium.showPaywall = newValue }
-    }
+    // MARK: - Premium State (forwarded from service)
+    @Published var isPremium: Bool = false
+    @Published var showPaywall: Bool = false
     
     // MARK: - Computed Properties
     var greeting: String {
@@ -72,11 +69,11 @@ final class DashboardViewModel: ObservableObject {
     // MARK: - Initialization
     init() {
         loadData()
-        observeGamification()
+        observeServices()
     }
     
-    // MARK: - Observe Gamification Service
-    private func observeGamification() {
+    // MARK: - Observe Services
+    private func observeServices() {
         // Forward all gamification state changes
         gamification.objectWillChange
             .receive(on: DispatchQueue.main)
@@ -93,6 +90,16 @@ final class DashboardViewModel: ObservableObject {
             }
             .store(in: &cancellables)
         
+        // Forward all premium state changes
+        premium.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.isPremium = self.premium.isPremium
+                self.showPaywall = self.premium.showPaywall
+            }
+            .store(in: &cancellables)
+        
         // Initialize with current values
         points = gamification.points
         streak = gamification.streak
@@ -102,6 +109,8 @@ final class DashboardViewModel: ObservableObject {
         levelProgress = gamification.levelProgress
         showPointsPopup = gamification.showPointsPopup
         showLevelUp = gamification.showLevelUp
+        isPremium = premium.isPremium
+        showPaywall = premium.showPaywall
     }
     
     // MARK: - Data Loading
@@ -150,8 +159,19 @@ final class DashboardViewModel: ObservableObject {
         if premium.canCreateGoal(currentCount: goals.count) {
             onSuccess()
         } else {
+            showPaywall = true
             premium.showPaywall = true
         }
+    }
+    
+    func showPremiumPaywall() {
+        showPaywall = true
+        premium.showPaywall = true
+    }
+    
+    func dismissPaywall() {
+        showPaywall = false
+        premium.showPaywall = false
     }
     
     func goalsRemaining() -> Int {

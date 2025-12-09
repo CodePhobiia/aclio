@@ -10,6 +10,7 @@ final class SettingsViewModel: NSObject, ObservableObject {
     // MARK: - Dependencies
     private let storage = LocalStorageService.shared
     private let premium = PremiumService.shared
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Published State
     @Published var profile: UserProfile = UserProfile()
@@ -19,12 +20,9 @@ final class SettingsViewModel: NSObject, ObservableObject {
     @Published var locationLoading: Bool = false
     @Published var showLogoutConfirm: Bool = false
     
-    // MARK: - Premium
-    var isPremium: Bool { premium.isPremium }
-    var showPaywall: Bool {
-        get { premium.showPaywall }
-        set { premium.showPaywall = newValue }
-    }
+    // MARK: - Premium State (forwarded from service)
+    @Published var isPremium: Bool = false
+    @Published var showPaywall: Bool = false
     
     // MARK: - Location Manager
     private var locationManager: CLLocationManager?
@@ -33,6 +31,33 @@ final class SettingsViewModel: NSObject, ObservableObject {
     override init() {
         super.init()
         loadData()
+        observePremium()
+    }
+    
+    // MARK: - Observe Premium Service
+    private func observePremium() {
+        premium.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.isPremium = self.premium.isPremium
+                self.showPaywall = self.premium.showPaywall
+            }
+            .store(in: &cancellables)
+        
+        // Initialize with current values
+        isPremium = premium.isPremium
+        showPaywall = premium.showPaywall
+    }
+    
+    func showPremiumPaywall() {
+        showPaywall = true
+        premium.showPaywall = true
+    }
+    
+    func dismissPaywall() {
+        showPaywall = false
+        premium.showPaywall = false
     }
     
     // MARK: - Load Data

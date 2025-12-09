@@ -79,7 +79,7 @@ struct SettingsView: View {
                                 showChevron: !viewModel.isPremium,
                                 action: {
                                     if !viewModel.isPremium {
-                                        viewModel.showPaywall = true
+                                        viewModel.showPremiumPaywall()
                                     }
                                 }
                             )
@@ -147,7 +147,7 @@ struct SettingsView: View {
         }
         .preferredColorScheme(viewModel.isDarkMode ? .dark : .light)
         .sheet(isPresented: $viewModel.showPaywall) {
-            PaywallView(onDismiss: { viewModel.showPaywall = false })
+            PaywallView(onDismiss: { viewModel.dismissPaywall() })
         }
         .confirmationDialog("Sign Out", isPresented: $viewModel.showLogoutConfirm) {
             Button("Sign Out", role: .destructive) {

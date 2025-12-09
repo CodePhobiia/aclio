@@ -71,7 +71,7 @@ struct GoalDetailView: View {
             }
         }
         .sheet(isPresented: $viewModel.showPaywall) {
-            PaywallView(onDismiss: { viewModel.showPaywall = false })
+            PaywallView(onDismiss: { viewModel.dismissPaywall() })
         }
         .confirmationDialog("Delete Goal", isPresented: $showDeleteConfirm) {
             Button("Delete", role: .destructive) {

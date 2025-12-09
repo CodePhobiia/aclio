@@ -31,7 +31,7 @@ struct DashboardView: View {
                         // Premium Banner
                         if !viewModel.isPremium {
                             PremiumBannerCard {
-                                viewModel.showPaywall = true
+                                viewModel.showPremiumPaywall()
                             }
                             .padding(.horizontal, AclioSpacing.screenHorizontal)
                         }
@@ -81,7 +81,7 @@ struct DashboardView: View {
             }
         }
         .sheet(isPresented: $viewModel.showPaywall) {
-            PaywallView(onDismiss: { viewModel.showPaywall = false })
+            PaywallView(onDismiss: { viewModel.dismissPaywall() })
         }
         .preferredColorScheme(viewModel.isDarkMode ? .dark : .light)
     }
