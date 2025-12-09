@@ -7,9 +7,10 @@ struct StepItemView: View {
     let isCompleted: Bool
     let isExpanding: Bool
     let isDoingIt: Bool
-    let expandedContent: String?
+    let hasSavedExpand: Bool
     let onToggle: () -> Void
     let onExpand: () -> Void
+    let onViewExpand: () -> Void
     let onDoItForMe: () -> Void
     
     @Environment(\.colorScheme) private var colorScheme
@@ -75,27 +76,27 @@ struct StepItemView: View {
                         .foregroundColor(colors.textMuted)
                     }
                     
-                    // Expanded content
-                    if let content = expandedContent {
-                        Text(content)
-                            .font(AclioFont.body)
-                            .foregroundColor(colors.textSecondary)
-                            .padding(AclioSpacing.space3)
-                            .background(colors.pillBackground)
-                            .cornerRadius(AclioRadius.small)
-                            .padding(.top, AclioSpacing.space2)
-                    }
-                    
                     // Action buttons (only if not completed)
                     if !isCompleted {
                         HStack(spacing: AclioSpacing.space2) {
-                            StepActionButton(
-                                title: "Expand",
-                                icon: "arrow.up.left.and.arrow.down.right",
-                                isLoading: isExpanding,
-                                isDone: expandedContent != nil,
-                                action: onExpand
-                            )
+                            if hasSavedExpand {
+                                // Show "View" button for saved expansions
+                                StepActionButton(
+                                    title: "View",
+                                    icon: "eye",
+                                    isLoading: false,
+                                    style: .saved,
+                                    action: onViewExpand
+                                )
+                            } else {
+                                // Show "Expand" button for new expansions
+                                StepActionButton(
+                                    title: "Expand",
+                                    icon: "arrow.up.left.and.arrow.down.right",
+                                    isLoading: isExpanding,
+                                    action: onExpand
+                                )
+                            }
                             
                             StepActionButton(
                                 title: "Do it for me",
@@ -131,7 +132,6 @@ struct StepActionButton: View {
     let title: String
     let icon: String
     let isLoading: Bool
-    let isDone: Bool
     let style: ButtonStyle
     let action: () -> Void
     
@@ -140,26 +140,41 @@ struct StepActionButton: View {
     enum ButtonStyle {
         case normal
         case accent
+        case saved
     }
     
     init(
         title: String,
         icon: String,
         isLoading: Bool = false,
-        isDone: Bool = false,
         style: ButtonStyle = .normal,
         action: @escaping () -> Void
     ) {
         self.title = title
         self.icon = icon
         self.isLoading = isLoading
-        self.isDone = isDone
         self.style = style
         self.action = action
     }
     
     private var colors: AclioColors {
         AclioColors(colorScheme)
+    }
+    
+    private var foregroundColor: Color {
+        switch style {
+        case .normal: return colors.teal
+        case .accent: return colors.accent
+        case .saved: return colors.success
+        }
+    }
+    
+    private var backgroundColor: Color {
+        switch style {
+        case .normal: return colors.tealSoft
+        case .accent: return colors.accentSoft
+        case .saved: return colors.successSoft
+        }
     }
     
     var body: some View {
@@ -180,14 +195,13 @@ struct StepActionButton: View {
                 Text(title)
                     .font(AclioFont.captionMedium)
             }
-            .foregroundColor(style == .accent ? colors.accent : colors.teal)
+            .foregroundColor(foregroundColor)
             .padding(.horizontal, AclioSpacing.space3)
             .padding(.vertical, AclioSpacing.space2)
-            .background(style == .accent ? colors.accentSoft : colors.tealSoft)
+            .background(backgroundColor)
             .cornerRadius(AclioRadius.small)
-            .opacity(isDone ? 0.5 : 1)
         }
-        .disabled(isLoading || isDone)
+        .disabled(isLoading)
     }
 }
 
@@ -200,21 +214,36 @@ struct StepActionButton: View {
             isCompleted: false,
             isExpanding: false,
             isDoingIt: false,
-            expandedContent: nil,
+            hasSavedExpand: false,
             onToggle: {},
             onExpand: {},
+            onViewExpand: {},
             onDoItForMe: {}
         )
         
         StepItemView(
             step: Step(id: 2, title: "Build first app", description: "Create a Hello World app"),
             stepNumber: 2,
+            isCompleted: false,
+            isExpanding: false,
+            isDoingIt: false,
+            hasSavedExpand: true,
+            onToggle: {},
+            onExpand: {},
+            onViewExpand: {},
+            onDoItForMe: {}
+        )
+        
+        StepItemView(
+            step: Step(id: 3, title: "Completed step", description: "This one is done"),
+            stepNumber: 3,
             isCompleted: true,
             isExpanding: false,
             isDoingIt: false,
-            expandedContent: nil,
+            hasSavedExpand: false,
             onToggle: {},
             onExpand: {},
+            onViewExpand: {},
             onDoItForMe: {}
         )
     }

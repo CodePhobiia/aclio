@@ -14,7 +14,7 @@ final class GoalDetailViewModel: ObservableObject {
     
     // MARK: - Published State
     @Published var goal: Goal
-    @Published var expandedSteps: [String: String] = [:] // "goalId-stepId" -> content
+    @Published var savedExpandedSteps: Set<Int> = [] // Step IDs that have been saved
     @Published var expandingStepId: Int?
     @Published var doingItForMeStepId: Int?
     @Published var showCelebration: Bool = false
@@ -23,7 +23,10 @@ final class GoalDetailViewModel: ObservableObject {
     // MARK: - Result Views State
     @Published var showExpandedResult: Bool = false
     @Published var expandedResultStep: Step?
-    @Published var expandedResultContent: String = ""
+    @Published var expandedResultGuide: String = ""
+    @Published var expandedResultTips: [String] = []
+    @Published var expandedResultResources: [ExpandResource] = []
+    @Published var expandedResultIsSaved: Bool = false
     
     @Published var showDoItForMeResult: Bool = false
     @Published var doItForMeResultStep: Step?
@@ -73,10 +76,14 @@ final class GoalDetailViewModel: ObservableObject {
     // MARK: - Load Expanded Steps from Cache
     private func loadExpandedSteps() {
         for step in goal.steps {
-            if let content = storage.loadExpandedStep(goalId: goal.id, stepId: step.id) {
-                expandedSteps["\(goal.id)-\(step.id)"] = content
+            if storage.loadExpandedStep(goalId: goal.id, stepId: step.id) != nil {
+                savedExpandedSteps.insert(step.id)
             }
         }
+    }
+    
+    func isStepExpanded(_ stepId: Int) -> Bool {
+        savedExpandedSteps.contains(stepId)
     }
     
     // MARK: - Toggle Step
@@ -118,14 +125,14 @@ final class GoalDetailViewModel: ObservableObject {
                 profile: profile
             )
             
-            print("✅ Expand response: \(response.content.prefix(50))...")
-            let key = "\(goal.id)-\(step.id)"
-            expandedSteps[key] = response.content
-            storage.saveExpandedStep(goalId: goal.id, stepId: step.id, content: response.content)
+            print("✅ Expand response received")
             
-            // Show the result view
+            // Show the result view with full data
             expandedResultStep = step
-            expandedResultContent = response.content
+            expandedResultGuide = response.detailedGuide ?? ""
+            expandedResultTips = response.tips ?? []
+            expandedResultResources = response.resources ?? []
+            expandedResultIsSaved = false
             expandingStepId = nil
             showExpandedResult = true
             
@@ -134,6 +141,30 @@ final class GoalDetailViewModel: ObservableObject {
             self.error = "Failed to expand: \(apiError.localizedDescription)"
             expandingStepId = nil
         }
+    }
+    
+    // MARK: - View Saved Expanded Content
+    func viewSavedExpand(_ step: Step) {
+        guard let content = storage.loadExpandedStep(goalId: goal.id, stepId: step.id) else { return }
+        
+        // Parse saved content (simple format for now)
+        expandedResultStep = step
+        expandedResultGuide = content
+        expandedResultTips = []
+        expandedResultResources = []
+        expandedResultIsSaved = true
+        showExpandedResult = true
+    }
+    
+    // MARK: - Save Expanded Content
+    func saveExpandedContent() {
+        guard let step = expandedResultStep else { return }
+        
+        // Save to storage
+        let content = expandedResultGuide
+        storage.saveExpandedStep(goalId: goal.id, stepId: step.id, content: content)
+        savedExpandedSteps.insert(step.id)
+        expandedResultIsSaved = true
     }
     
     // MARK: - Do It For Me
@@ -174,7 +205,9 @@ final class GoalDetailViewModel: ObservableObject {
     func dismissExpandedResult() {
         showExpandedResult = false
         expandedResultStep = nil
-        expandedResultContent = ""
+        expandedResultGuide = ""
+        expandedResultTips = []
+        expandedResultResources = []
     }
     
     func dismissDoItForMeResult() {
@@ -204,9 +237,6 @@ final class GoalDetailViewModel: ObservableObject {
         }
     }
     
-    func getExpandedContent(for stepId: Int) -> String? {
-        expandedSteps["\(goal.id)-\(stepId)"]
-    }
     
     func dismissCelebration() {
         showCelebration = false

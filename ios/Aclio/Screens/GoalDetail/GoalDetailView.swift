@@ -77,8 +77,12 @@ struct GoalDetailView: View {
             if let step = viewModel.expandedResultStep {
                 ExpandedContentView(
                     stepTitle: step.title,
-                    content: viewModel.expandedResultContent,
-                    onDismiss: { viewModel.dismissExpandedResult() }
+                    detailedGuide: viewModel.expandedResultGuide,
+                    tips: viewModel.expandedResultTips,
+                    resources: viewModel.expandedResultResources,
+                    isAlreadySaved: viewModel.expandedResultIsSaved,
+                    onExit: { viewModel.dismissExpandedResult() },
+                    onSave: { viewModel.saveExpandedContent() }
                 )
             }
         }
@@ -250,7 +254,7 @@ struct GoalDetailView: View {
                         isCompleted: viewModel.goal.isStepCompleted(step.id),
                         isExpanding: viewModel.expandingStepId == step.id,
                         isDoingIt: viewModel.doingItForMeStepId == step.id,
-                        expandedContent: viewModel.getExpandedContent(for: step.id),
+                        hasSavedExpand: viewModel.isStepExpanded(step.id),
                         onToggle: {
                             viewModel.toggleStep(step.id)
                         },
@@ -258,6 +262,9 @@ struct GoalDetailView: View {
                             Task {
                                 await viewModel.expandStep(step)
                             }
+                        },
+                        onViewExpand: {
+                            viewModel.viewSavedExpand(step)
                         },
                         onDoItForMe: {
                             Task {
