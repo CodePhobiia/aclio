@@ -90,10 +90,13 @@ app.use(requestLogger);
 // API Key from environment variable
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
-// Model configuration - Sonnet 4.5 for most tasks, Opus 4.5 for heavy tasks
+// Model configuration - Use fastest available models
+// claude-3-5-sonnet is fast and high quality
+// claude-3-5-haiku is fastest for simple tasks
 const MODELS = {
-  SONNET: 'claude-sonnet-4-5-20250929',  // For most tasks (generate-steps, questions, expand)
-  OPUS: 'claude-opus-4-5-20251101'        // For heavy tasks (do-it-for-me, chat)
+  FAST: 'claude-3-5-haiku-20241022',      // Fastest - for questions, simple tasks
+  SONNET: 'claude-3-5-sonnet-20241022',   // Fast + high quality - for plans, expand
+  OPUS: 'claude-3-5-sonnet-20241022'      // Using Sonnet instead of Opus for speed (Opus is slower)
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -448,7 +451,7 @@ Output ONLY valid JSON array, nothing else.`;
     const userMessage = `Goal: "${goal}"\n\nGenerate 3 contextual questions. ONLY JSON array.`;
 
     const content = await callAnthropic(systemPrompt, userMessage, {
-      model: MODELS.SONNET,
+      model: MODELS.FAST,  // Use Haiku for simple question generation
       maxTokens: 500,
       temperature: 0.7
     }, req.opId);
