@@ -46,7 +46,10 @@ actor ApiService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         if let body = body {
-            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+            guard JSONSerialization.isValidJSONObject(body) else {
+                throw ApiError.serverError("Invalid request body")
+            }
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
         }
         
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -203,33 +206,41 @@ actor ApiService {
         }
         
         var body: [String: Any] = [
-            "message": message,
-            "goalName": goal?.name ?? "General",
-            "goalCategory": goal?.category ?? "Personal",
-            "chatHistory": Array(chatHistory.suffix(4))
+            "message": message as Any,
+            "goalName": (goal?.name ?? "General") as Any,
+            "goalCategory": (goal?.category ?? "Personal") as Any,
+            "chatHistory": Array(chatHistory.suffix(4)) as Any
         ]
         
         if let goal = goal {
-            body["steps"] = goal.steps.map { [
-                "id": $0.id,
-                "title": $0.title,
-                "description": $0.description
-            ]}
-            body["completedSteps"] = goal.completedSteps
+            let stepsArray: [[String: Any]] = goal.steps.map { step in
+                [
+                    "id": step.id as Any,
+                    "title": step.title as Any,
+                    "description": step.description as Any
+                ]
+            }
+            body["steps"] = stepsArray as Any
+            body["completedSteps"] = goal.completedSteps as Any
         }
         
         if let profile = profile {
-            body["profile"] = [
-                "name": profile.name,
-                "age": profile.age,
-                "gender": profile.gender?.rawValue ?? ""
+            let profileDict: [String: Any] = [
+                "name": profile.name as Any,
+                "age": profile.age as Any,
+                "gender": (profile.gender?.rawValue ?? "") as Any
             ]
+            body["profile"] = profileDict as Any
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        guard JSONSerialization.isValidJSONObject(body) else {
+            throw ApiError.serverError("Invalid request body")
+        }
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
         let (bytes, response) = try await URLSession.shared.bytes(for: request)
         
