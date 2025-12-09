@@ -9,8 +9,12 @@ dist/
 .env
 server/.env
 
-# iOS build files (will be generated on Mac)
-ios/
+# iOS Capacitor build files (legacy, will be removed)
+ios/App/
+ios/Aclio.xcodeproj/
+ios/Aclio.xcworkspace/
+ios/Pods/
+ios/Podfile.lock
 
 # IDE
 .idea/
