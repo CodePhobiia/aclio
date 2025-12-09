@@ -1099,6 +1099,151 @@
     
     .error-msg { color: var(--red); text-align: center; margin-top: 16px; font-size: 14px; }
     
+    /* ============ GENERATION LOADING OVERLAY ============ */
+    .generation-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+    .generation-content {
+      text-align: center;
+      max-width: 320px;
+      width: 100%;
+    }
+    .generation-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--primary-orange-dark) 100%);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 8px 32px rgba(255, 159, 58, 0.3);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    .generation-icon svg {
+      width: 40px;
+      height: 40px;
+      color: white;
+      animation: spin 3s linear infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 8px 32px rgba(255, 159, 58, 0.3); transform: scale(1); }
+      50% { box-shadow: 0 12px 48px rgba(255, 159, 58, 0.5); transform: scale(1.05); }
+    }
+    .generation-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .generation-message {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+      min-height: 44px;
+      line-height: 1.5;
+    }
+    .generation-progress-container {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    .generation-progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+    .generation-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--primary-orange-dark) 100%);
+      border-radius: 100px;
+      transition: width 0.5s ease-out;
+      position: relative;
+    }
+    .generation-progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .generation-progress-text {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-top: 8px;
+    }
+    .generation-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 32px;
+      text-align: left;
+    }
+    .generation-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      opacity: 0.5;
+      transition: all 0.3s ease;
+    }
+    .generation-step.active {
+      opacity: 1;
+      background: var(--accent-soft);
+    }
+    .generation-step.done {
+      opacity: 1;
+    }
+    .generation-step-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+    .generation-step.active .generation-step-icon {
+      background: var(--accent);
+      color: white;
+    }
+    .generation-step.done .generation-step-icon {
+      background: var(--success);
+      color: white;
+    }
+    .generation-step-text {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+    .generation-step.active .generation-step-text {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .generation-step.done .generation-step-text {
+      color: var(--text);
+    }
+    
     /* ============ GOAL DETAIL VIEW ============ */
     /* Goal Detail View - Gemini Design */
     .detail-view { 
@@ -4000,6 +4145,7 @@
       const [goalQuestions, setGoalQuestions] = useState(null); // { questions: [], answers: {} }
       const [questionsLoading, setQuestionsLoading] = useState(false);
       const [loading, setLoading] = useState(false);
+      const [generationProgress, setGenerationProgress] = useState({ step: 0, message: '' });
       const [error, setError] = useState('');
       const [showCelebration, setShowCelebration] = useState(false);
       const [userProfile, setUserProfile] = useState(loadUserProfile() || { name: '', age: '', gender: '' });
@@ -4841,6 +4987,26 @@
       const createGoal = async () => {
         if (!newGoal.trim() || loading) return;
         setLoading(true); setError('');
+        setGenerationProgress({ step: 0, message: 'Starting AI...' });
+        
+        // Progress simulation messages
+        const progressSteps = [
+          { step: 1, message: 'Understanding your goal...' },
+          { step: 2, message: 'Analyzing best strategies...' },
+          { step: 3, message: 'Creating actionable steps...' },
+          { step: 4, message: 'Adding specific resources...' },
+          { step: 5, message: 'Finalizing your plan...' }
+        ];
+        
+        // Simulate progress while waiting for API
+        let progressIndex = 0;
+        const progressInterval = setInterval(() => {
+          if (progressIndex < progressSteps.length) {
+            setGenerationProgress(progressSteps[progressIndex]);
+            progressIndex++;
+          }
+        }, 2000);
+        
         try {
           // Build additional context from questions
           let additionalContext = null;
@@ -4851,6 +5017,8 @@
           }
           
           const result = await generateSteps(newGoal, userProfile, userLocation, additionalContext);
+          clearInterval(progressInterval);
+          setGenerationProgress({ step: 5, message: 'Done!' });
           const steps = result.steps || result; // Handle both new and old format
           const category = result.category || 'Personal Growth';
           
@@ -4901,10 +5069,14 @@
           resetGoalForm();
           setView('dashboard');
         } catch (err) { 
+          clearInterval(progressInterval);
           setError(err.message);
           ErrorTracker.log(err, 'error', { action: 'createGoal', goal: newGoal });
         }
-        finally { setLoading(false); }
+        finally { 
+          setLoading(false); 
+          setGenerationProgress({ step: 0, message: '' });
+        }
       };
 
       const toggleStep = (goalId, stepId) => {
@@ -5664,6 +5836,66 @@
                 {loading ? <><span className="spin">◌</span> Generating...</> : <><Icons.sparkles /> Generate Plan {hasAnsweredQuestions ? '(Personalized)' : ''}</>}
               </button>
             </div>
+            
+            {/* Generation Loading Overlay */}
+            {loading && (
+              <div className="generation-overlay fade-in">
+                <div className="generation-content">
+                  <div className="generation-icon">
+                    <Icons.sparkles />
+                  </div>
+                  <h2 className="generation-title">Creating Your Plan</h2>
+                  <p className="generation-message">
+                    {generationProgress.message || 'AI is crafting a personalized action plan just for you...'}
+                  </p>
+                  
+                  <div className="generation-progress-container">
+                    <div className="generation-progress-bar">
+                      <div 
+                        className="generation-progress-fill" 
+                        style={{width: `${Math.min((generationProgress.step / 5) * 100, 95)}%`}}
+                      />
+                    </div>
+                    <p className="generation-progress-text">
+                      {generationProgress.step > 0 ? `Step ${generationProgress.step} of 5` : 'Initializing...'}
+                    </p>
+                  </div>
+                  
+                  <div className="generation-steps">
+                    <div className={`generation-step ${generationProgress.step >= 1 ? (generationProgress.step > 1 ? 'done' : 'active') : ''}`}>
+                      <div className="generation-step-icon">
+                        {generationProgress.step > 1 ? <Icons.check /> : '1'}
+                      </div>
+                      <span className="generation-step-text">Understanding your goal</span>
+                    </div>
+                    <div className={`generation-step ${generationProgress.step >= 2 ? (generationProgress.step > 2 ? 'done' : 'active') : ''}`}>
+                      <div className="generation-step-icon">
+                        {generationProgress.step > 2 ? <Icons.check /> : '2'}
+                      </div>
+                      <span className="generation-step-text">Analyzing strategies</span>
+                    </div>
+                    <div className={`generation-step ${generationProgress.step >= 3 ? (generationProgress.step > 3 ? 'done' : 'active') : ''}`}>
+                      <div className="generation-step-icon">
+                        {generationProgress.step > 3 ? <Icons.check /> : '3'}
+                      </div>
+                      <span className="generation-step-text">Creating action steps</span>
+                    </div>
+                    <div className={`generation-step ${generationProgress.step >= 4 ? (generationProgress.step > 4 ? 'done' : 'active') : ''}`}>
+                      <div className="generation-step-icon">
+                        {generationProgress.step > 4 ? <Icons.check /> : '4'}
+                      </div>
+                      <span className="generation-step-text">Adding resources</span>
+                    </div>
+                    <div className={`generation-step ${generationProgress.step >= 5 ? 'done' : ''}`}>
+                      <div className="generation-step-icon">
+                        {generationProgress.step >= 5 ? <Icons.check /> : '5'}
+                      </div>
+                      <span className="generation-step-text">Finalizing plan</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
       }
