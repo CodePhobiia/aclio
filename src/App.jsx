@@ -208,7 +208,8 @@ export default function App() {
 
   // Render pages based on view
   return (
-    <>
+    <div className="app-root">
+      <>
       {view === 'welcome' && (
         <WelcomePage 
           onGetStarted={() => navigate('onboarding')}
@@ -368,6 +369,7 @@ export default function App() {
           isPremium={premium.isPremium}
         />
       )}
-    </>
+      </>
+    </div>
   );
 }

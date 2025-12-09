@@ -13,12 +13,13 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     preferredContentMode: 'mobile',
     scheme: 'Aclio',
-    backgroundColor: '#e8f4fc',
+    backgroundColor: '#020617',
   },
   plugins: {
     StatusBar: {
+      overlaysWebView: true,
       style: 'DARK',
-      backgroundColor: '#e8f4fc',
+      backgroundColor: '#020617',
     },
   },
 };
