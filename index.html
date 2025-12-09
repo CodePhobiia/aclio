@@ -894,19 +894,57 @@
     .fab-icon { display: flex; align-items: center; }
     .fab-icon svg { width: 18px; height: 18px; }
     
-    /* ============ NEW GOAL VIEW - GEMINI DESIGN ============ */
+    /* ============ NEW GOAL VIEW - REFINED ============ */
     .new-goal-view { 
-      padding: var(--space-5); 
-      padding-bottom: calc(var(--safe-bottom) + var(--space-6)); 
-      min-height: calc(100vh - 65px); 
+      padding: 16px 20px;
+      padding-bottom: calc(var(--safe-bottom) + 100px); 
+      min-height: calc(100vh - 56px); 
       display: flex; 
       flex-direction: column; 
       overflow-x: hidden;
       background: var(--page-bg);
     }
     
-    .input-group { margin-bottom: var(--section-gap); }
-    .input-label { display: block; font: var(--font-body); color: var(--text-secondary); margin-bottom: var(--space-2); }
+    /* Consistent section spacing */
+    .new-goal-section { margin-bottom: 20px; }
+    
+    .input-group { margin-bottom: 20px; }
+    .input-label { 
+      display: block; 
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary); 
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .input-hint {
+      font-size: 12px;
+      color: var(--text-dimmer);
+      margin-top: 6px;
+    }
+    
+    /* Primary goal input - emphasized */
+    .goal-input-primary {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: 18px 16px;
+      background: var(--card-bg);
+      border: none;
+      border-radius: var(--radius-card);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text-primary);
+      outline: none;
+      box-shadow: var(--shadow-card);
+      transition: box-shadow 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .goal-input-primary:focus { box-shadow: var(--shadow-card), 0 0 0 2px var(--primary-orange); }
+    .goal-input-primary::placeholder { color: var(--text-secondary); font-weight: 400; }
+    
     .text-input {
       width: 100%;
       max-width: 100%;
@@ -1044,34 +1082,56 @@
     .location-title { font: var(--font-card-title); color: var(--text-primary); }
     .location-desc { font: var(--font-body); color: var(--text-secondary); }
     
-    .suggestions { margin-top: 8px; }
-    .suggestions-label { font-size: 12px; color: var(--text-dimmer); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
-    .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+    .suggestions { margin-bottom: 20px; }
+    .suggestions-label { 
+      font-size: 12px; 
+      color: var(--text-dimmer); 
+      text-transform: uppercase; 
+      letter-spacing: 0.5px; 
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .chip {
-      padding: 10px 16px;
-      background: var(--bg-card);
+      padding: 8px 14px;
+      background: transparent;
       border: 1px solid var(--border);
       border-radius: 100px;
       font-family: inherit;
-      font-size: 14px;
-      color: var(--text);
+      font-size: 13px;
+      color: var(--text-dim);
       cursor: pointer;
       transition: all 0.2s;
     }
-    .chip:active { background: var(--accent-soft); border-color: var(--accent); }
+    .chip:hover { background: var(--bg-card); color: var(--text); }
+    .chip:active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    
+    /* CTA Footer Area */
+    .cta-footer {
+      margin-top: auto;
+      padding-top: 16px;
+    }
+    .cta-hint {
+      font-size: 12px;
+      color: var(--text-dimmer);
+      text-align: center;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
     
     .primary-btn {
       width: 100%;
-      padding: var(--space-4) var(--space-6);
+      padding: 16px 24px;
       background: var(--accent);
       border: none;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-card);
       color: #fff;
       font-family: inherit;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: var(--space-2);
+      box-shadow: 0 4px 12px rgba(255, 159, 58, 0.3);
       margin-top: auto;
       box-shadow: var(--shadow-btn);
       transition: all 0.15s ease;
@@ -3219,57 +3279,75 @@
       color: var(--accent);
     }
     
-    /* Goal Questions */
+    /* Goal Questions - Refined */
     .questions-section {
       background: var(--bg-card);
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      padding: 20px;
-      margin-bottom: 24px;
+      border-radius: var(--radius-card);
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-card);
     }
     .questions-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
     }
     .questions-icon {
-      width: 40px; height: 40px;
+      width: 36px; height: 36px;
       background: linear-gradient(135deg, var(--accent-soft) 0%, var(--purple-soft) 100%);
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
       color: var(--accent);
+      flex-shrink: 0;
     }
-    .questions-icon svg { width: 20px; height: 20px; }
+    .questions-icon svg { width: 18px; height: 18px; }
+    .questions-header-text { flex: 1; }
     .questions-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
     }
     .questions-subtitle {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-dim);
+      line-height: 1.4;
+    }
+    .questions-value-hint {
+      font-size: 11px;
+      color: var(--accent);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+    
+    .questions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
     
     .question-item {
-      margin-bottom: 16px;
+      /* No margin, gap handles it */
     }
-    .question-item:last-child { margin-bottom: 0; }
     .question-label {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-dim);
+      margin-bottom: 6px;
     }
     .question-number {
-      width: 22px; height: 22px;
-      background: var(--accent);
-      color: #fff;
+      width: 18px; height: 18px;
+      background: var(--border);
+      color: var(--text-dim);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 600;
       flex-shrink: 0;
     }
@@ -3277,16 +3355,20 @@
       width: 100%;
       padding: 14px 16px;
       background: var(--bg);
-      border: 1px solid var(--border);
+      border: 1.5px solid var(--border);
       border-radius: 12px;
       font-family: inherit;
       font-size: 15px;
+      font-weight: 500;
       color: var(--text);
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .question-input:focus { border-color: var(--accent); }
-    .question-input::placeholder { color: var(--text-dimmer); }
+    .question-input:focus { 
+      border-color: var(--accent); 
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .question-input::placeholder { color: var(--text-dimmer); font-weight: 400; }
     
     .questions-loading {
       display: flex;
@@ -3304,35 +3386,93 @@
       justify-content: center;
       gap: 10px;
       width: 100%;
-      padding: 16px;
+      padding: 14px 16px;
       background: linear-gradient(135deg, var(--accent-soft) 0%, var(--purple-soft) 100%);
       border: 2px dashed var(--accent);
-      border-radius: 14px;
+      border-radius: var(--radius-card);
       font-family: inherit;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 500;
       color: var(--accent);
       cursor: pointer;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       transition: all 0.2s;
     }
     .questions-generate-btn:hover { background: var(--accent); color: #fff; border-style: solid; }
     .questions-generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .questions-generate-btn svg { width: 20px; height: 20px; }
+    .questions-generate-btn svg { width: 18px; height: 18px; }
     
     .questions-skip {
       text-align: center;
-      margin-top: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      margin-top: 14px;
     }
     .questions-skip-btn {
       background: none;
       border: none;
       font-family: inherit;
-      font-size: 14px;
-      color: var(--text-dim);
+      font-size: 13px;
+      color: var(--text-dimmer);
       cursor: pointer;
-      text-decoration: underline;
+      padding: 6px 12px;
     }
+    .questions-skip-btn:hover { color: var(--text-dim); }
+    
+    /* Location card - refined */
+    .location-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--bg-card);
+      border: none;
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      font-family: inherit;
+      margin-bottom: 20px;
+      transition: all 0.2s;
+    }
+    .location-card:hover { box-shadow: var(--shadow-md); }
+    .location-card:active { transform: scale(0.99); }
+    .location-card-icon {
+      width: 40px; height: 40px;
+      background: var(--accent-soft);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .location-card-icon svg { width: 20px; height: 20px; }
+    .location-card-content { flex: 1; text-align: left; }
+    .location-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .location-card-subtitle {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .location-card-chevron {
+      color: var(--text-dimmer);
+    }
+    .location-card-chevron svg { width: 16px; height: 16px; }
+    .location-enabled {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--success-soft);
+      border-radius: var(--radius-card);
+      margin-bottom: 20px;
+    }
+    .location-enabled svg { width: 18px; height: 18px; color: var(--success); }
+    .location-enabled-text { font-size: 14px; color: var(--success); font-weight: 500; }
+    .location-enabled-hint { font-size: 12px; color: var(--text-dim); margin-left: 4px; }
     
     /* Celebration Modal */
     .modal-overlay {
@@ -5722,63 +5862,70 @@
               </div>
             </header>
             <div className="new-goal-view fade-in">
+              {/* Primary Goal Input */}
               <div className="input-group">
                 <label className="input-label">What do you want to achieve?</label>
                 <input 
-                  className="text-input" 
-                  placeholder="e.g., Learn to play guitar..." 
+                  className="goal-input-primary" 
+                  placeholder="e.g., Learn salsa basics in 3 months" 
                   value={newGoal} 
                   onChange={e => { setNewGoal(e.target.value); setGoalQuestions(null); }} 
                   disabled={loading} 
                   autoFocus 
                 />
+                <p className="input-hint">Be specific about what success looks like</p>
               </div>
               
-              {/* AI Questions Section */}
+              {/* AI Questions Button */}
               {newGoal.trim() && !goalQuestions && !questionsLoading && (
                 <button 
                   className="questions-generate-btn"
                   onClick={() => generateQuestions(newGoal)}
                   disabled={loading}
                 >
-                  <Icons.sparkles /> Get personalized questions from AI
+                  <Icons.sparkles /> Get personalized questions
                 </button>
               )}
               
+              {/* AI Questions Loading */}
               {questionsLoading && (
                 <div className="questions-section">
                   <div className="questions-loading">
                     <span className="spin" style={{fontSize: '20px', color: 'var(--accent)'}}>◌</span>
-                    AI is thinking of questions...
+                    AI is preparing questions...
                   </div>
                 </div>
               )}
               
+              {/* AI Questions Card */}
               {goalQuestions && (
                 <div className="questions-section">
                   <div className="questions-header">
                     <div className="questions-icon"><Icons.sparkles /></div>
-                    <div>
+                    <div className="questions-header-text">
                       <h3 className="questions-title">Help AI understand better</h3>
-                      <p className="questions-subtitle">Answer to get a more personalized plan</p>
+                      <p className="questions-subtitle">Answer to get a personalized plan</p>
+                      <p className="questions-value-hint">Your answers shape your action steps</p>
                     </div>
                   </div>
                   
-                  {goalQuestions.questions.map((q, i) => (
-                    <div key={q.id} className="question-item">
-                      <label className="question-label">
-                        <span className="question-number">{i + 1}</span>
-                        {q.question}
-                      </label>
-                      <input
-                        className="question-input"
-                        placeholder={q.placeholder}
-                        value={goalQuestions.answers[q.id] || ''}
-                        onChange={(e) => updateQuestionAnswer(q.id, e.target.value)}
-                        disabled={loading}
-                      />
-                    </div>
-                  ))}
+                  <div className="questions-list">
+                    {goalQuestions.questions.map((q, i) => (
+                      <div key={q.id} className="question-item">
+                        <label className="question-label">
+                          <span className="question-number">{i + 1}</span>
+                          {q.question}
+                        </label>
+                        <input
+                          className="question-input"
+                          placeholder={q.placeholder}
+                          value={goalQuestions.answers[q.id] || ''}
+                          onChange={(e) => updateQuestionAnswer(q.id, e.target.value)}
+                          disabled={loading}
+                        />
+                      </div>
+                    ))}
+                  </div>
                   
                   <div className="questions-skip">
                     <button className="questions-skip-btn" onClick={() => setGoalQuestions(null)}>
@@ -5788,6 +5935,7 @@
                 </div>
               )}
               
+              {/* Target Date */}
               <div className="input-group">
                 <label className="input-label">Target completion date (optional)</label>
                 <input 
@@ -5797,52 +5945,72 @@
                   onChange={e => setNewGoalDueDate(e.target.value)} 
                   disabled={loading}
                   min={new Date().toISOString().split('T')[0]}
+                  placeholder="Optional – helps prioritize steps"
                 />
               </div>
               
-              {/* Location Status */}
+              {/* Location Card */}
               {userLocation ? (
-                <div style={{display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', background: 'var(--success-soft)', borderRadius: '12px', marginBottom: '20px'}}>
-                  <Icons.mapPin style={{width: '18px', height: '18px', color: 'var(--success)'}} />
-                  <span style={{fontSize: '14px', color: 'var(--success)', fontWeight: '500'}}>Location enabled</span>
-                  <span style={{fontSize: '13px', color: 'var(--text-dim)', marginLeft: '4px'}}>• AI will suggest nearby resources</span>
+                <div className="location-enabled">
+                  <Icons.mapPin />
+                  <span className="location-enabled-text">Location enabled</span>
+                  <span className="location-enabled-hint">• Nearby suggestions active</span>
                 </div>
               ) : (
                 <button
                   type="button"
+                  className="location-card"
                   onClick={requestLocation}
                   disabled={locationLoading}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '10px',
-                    width: '100%', padding: '14px 16px',
-                    background: 'var(--bg-card)', border: '1px dashed var(--border)',
-                    borderRadius: '12px', marginBottom: '20px',
-                    cursor: 'pointer', fontFamily: 'inherit'
-                  }}
                 >
-                  <div style={{width: '36px', height: '36px', background: 'var(--accent-soft)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)'}}>
+                  <div className="location-card-icon">
                     <Icons.mapPin />
                   </div>
-                  <div style={{flex: 1, textAlign: 'left'}}>
-                    <p style={{fontSize: '14px', fontWeight: '600', color: 'var(--text)'}}>
+                  <div className="location-card-content">
+                    <p className="location-card-title">
                       {locationLoading ? 'Getting location...' : 'Enable Location'}
                     </p>
-                    <p style={{fontSize: '12px', color: 'var(--text-dim)'}}>Get personalized nearby suggestions</p>
+                    <p className="location-card-subtitle">Get nearby resource suggestions</p>
                   </div>
-                  {locationLoading && <span className="spin" style={{color: 'var(--accent)'}}>◌</span>}
+                  {locationLoading ? (
+                    <span className="spin" style={{color: 'var(--accent)'}}>◌</span>
+                  ) : (
+                    <div className="location-card-chevron"><Icons.chevronRight /></div>
+                  )}
                 </button>
               )}
               
+              {/* Suggestions */}
               <div className="suggestions">
-                <p className="suggestions-label">Suggestions</p>
+                <p className="suggestions-label">Quick ideas</p>
                 <div className="chips">
-                  {suggestions.map(s => <button key={s} className="chip" onClick={() => { setNewGoal(s); setGoalQuestions(null); }} disabled={loading}>{s}</button>)}
+                  {suggestions.map(s => (
+                    <button 
+                      key={s} 
+                      className="chip" 
+                      onClick={() => { setNewGoal(s); setGoalQuestions(null); }} 
+                      disabled={loading}
+                    >
+                      {s}
+                    </button>
+                  ))}
                 </div>
               </div>
+              
+              {/* Error Message */}
               {error && <p className="error-msg">{error}</p>}
-              <button className="primary-btn" onClick={createGoal} disabled={!newGoal.trim() || loading}>
-                {loading ? <><span className="spin">◌</span> Generating...</> : <><Icons.sparkles /> Generate Plan {hasAnsweredQuestions ? '(Personalized)' : ''}</>}
-              </button>
+              
+              {/* CTA Footer */}
+              <div className="cta-footer">
+                <p className="cta-hint">We'll create a step-by-step plan based on your goal{hasAnsweredQuestions ? ' and answers' : ''}</p>
+                <button className="primary-btn" onClick={createGoal} disabled={!newGoal.trim() || loading}>
+                  {loading ? (
+                    <><span className="spin">◌</span> Generating...</>
+                  ) : (
+                    <><Icons.sparkles /> {hasAnsweredQuestions ? 'Generate Personalized Plan' : 'Generate Plan'}</>
+                  )}
+                </button>
+              </div>
             </div>
             
             {/* Generation Loading Overlay */}
