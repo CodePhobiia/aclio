@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@capacitor/status-bar": "^6.1.0",
+    "@capacitor/status-bar": "^6.0.0",
     "framer-motion": "^11.0.0",
     "lucide-react": "^0.300.0",
     "react": "^18.2.0",
