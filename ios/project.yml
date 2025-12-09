@@ -12,8 +12,6 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
-    INFOPLIST_FILE: Aclio/Info.plist
-    PRODUCT_BUNDLE_IDENTIFIER: com.ahmed.aclio
     SWIFT_VERSION: "5.9"
 
 targets:
@@ -21,14 +19,20 @@ targets:
     type: application
     platform: iOS
     sources:
-      - path: Theme
-      - path: Models
-      - path: Services
-      - path: Utils
-      - path: Components
-      - path: Screens
-      - path: AclioApp.swift
-      - path: Assets.xcassets
+      - path: Aclio/Theme
+        group: Theme
+      - path: Aclio/Models
+        group: Models
+      - path: Aclio/Services
+        group: Services
+      - path: Aclio/Utils
+        group: Utils
+      - path: Aclio/Components
+        group: Components
+      - path: Aclio/Screens
+        group: Screens
+      - path: Aclio/AclioApp.swift
+      - path: Aclio/Assets.xcassets
     settings:
       base:
         INFOPLIST_FILE: Aclio/Info.plist

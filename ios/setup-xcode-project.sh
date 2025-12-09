@@ -28,9 +28,9 @@ cd "$SCRIPT_DIR"
 
 echo "📁 Working directory: $(pwd)"
 
-# Generate the Xcode project from the Aclio subfolder's project.yml
+# Generate the Xcode project
 echo "🔨 Generating Xcode project..."
-xcodegen generate --spec Aclio/project.yml
+xcodegen generate --spec project.yml
 
 # Check if project was created
 if [ -d "Aclio.xcodeproj" ]; then
