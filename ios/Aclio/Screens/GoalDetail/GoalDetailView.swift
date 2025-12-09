@@ -73,6 +73,25 @@ struct GoalDetailView: View {
         .sheet(isPresented: $viewModel.showPaywall) {
             PaywallView(onDismiss: { viewModel.dismissPaywall() })
         }
+        .sheet(isPresented: $viewModel.showExpandedResult) {
+            if let step = viewModel.expandedResultStep {
+                ExpandedContentView(
+                    stepTitle: step.title,
+                    content: viewModel.expandedResultContent,
+                    onDismiss: { viewModel.dismissExpandedResult() }
+                )
+            }
+        }
+        .sheet(isPresented: $viewModel.showDoItForMeResult) {
+            if let step = viewModel.doItForMeResultStep {
+                DoItForMeResultView(
+                    stepTitle: step.title,
+                    result: viewModel.doItForMeResultContent,
+                    onDismiss: { viewModel.dismissDoItForMeResult() },
+                    onMarkComplete: { viewModel.markDoItForMeStepComplete() }
+                )
+            }
+        }
         .confirmationDialog("Delete Goal", isPresented: $showDeleteConfirm) {
             Button("Delete", role: .destructive) {
                 viewModel.deleteGoal()

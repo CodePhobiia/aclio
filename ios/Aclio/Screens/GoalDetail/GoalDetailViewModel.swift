@@ -20,6 +20,15 @@ final class GoalDetailViewModel: ObservableObject {
     @Published var showCelebration: Bool = false
     @Published var error: String?
     
+    // MARK: - Result Views State
+    @Published var showExpandedResult: Bool = false
+    @Published var expandedResultStep: Step?
+    @Published var expandedResultContent: String = ""
+    
+    @Published var showDoItForMeResult: Bool = false
+    @Published var doItForMeResultStep: Step?
+    @Published var doItForMeResultContent: String = ""
+    
     // MARK: - Premium State (forwarded from service)
     @Published var isPremium: Bool = false
     @Published var showPaywall: Bool = false
@@ -114,12 +123,17 @@ final class GoalDetailViewModel: ObservableObject {
             expandedSteps[key] = response.content
             storage.saveExpandedStep(goalId: goal.id, stepId: step.id, content: response.content)
             
+            // Show the result view
+            expandedResultStep = step
+            expandedResultContent = response.content
+            expandingStepId = nil
+            showExpandedResult = true
+            
         } catch let apiError {
             print("❌ Expand failed: \(apiError)")
             self.error = "Failed to expand: \(apiError.localizedDescription)"
+            expandingStepId = nil
         }
-        
-        expandingStepId = nil
     }
     
     // MARK: - Do It For Me
@@ -142,15 +156,36 @@ final class GoalDetailViewModel: ObservableObject {
             )
             
             print("✅ DoItForMe response: \(response.displayContent.prefix(50))...")
-            // Mark step as completed
-            toggleStep(step.id)
+            
+            // Show the result view (don't mark complete yet - let user do it from result view)
+            doItForMeResultStep = step
+            doItForMeResultContent = response.displayContent
+            doingItForMeStepId = nil
+            showDoItForMeResult = true
             
         } catch let apiError {
             print("❌ DoItForMe failed: \(apiError)")
             self.error = "Failed: \(apiError.localizedDescription)"
+            doingItForMeStepId = nil
         }
-        
-        doingItForMeStepId = nil
+    }
+    
+    // MARK: - Dismiss Results
+    func dismissExpandedResult() {
+        showExpandedResult = false
+        expandedResultStep = nil
+        expandedResultContent = ""
+    }
+    
+    func dismissDoItForMeResult() {
+        showDoItForMeResult = false
+        doItForMeResultStep = nil
+        doItForMeResultContent = ""
+    }
+    
+    func markDoItForMeStepComplete() {
+        guard let step = doItForMeResultStep else { return }
+        toggleStep(step.id)
     }
     
     // MARK: - Delete Goal
