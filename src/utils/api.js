@@ -15,7 +15,7 @@ export const checkBackendHealth = async () => {
   }
 };
 
-// Generate steps for a goal
+// Generate steps for a goal (non-streaming fallback)
 export const generateSteps = async (goal, profile = {}, location = null, additionalContext = null) => {
   const response = await fetch(`${API_URL}/generate-steps`, {
     method: 'POST',
@@ -38,6 +38,59 @@ export const generateSteps = async (goal, profile = {}, location = null, additio
   }
 
   return await response.json();
+};
+
+// Generate steps with streaming - shows progress as plan is created
+export const generateStepsStream = async (goal, profile = {}, location = null, additionalContext = null, onChunk) => {
+  const response = await fetch(`${API_URL}/generate-steps-stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+      goal, 
+      profile, 
+      location, 
+      additionalContext, 
+      categories: CATEGORIES.join(', ') 
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.message || err.error || 'Failed to generate plan');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let result = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value);
+    const lines = chunk.split('\n');
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        try {
+          const data = JSON.parse(line.slice(6));
+          if (data.chunk && onChunk) {
+            onChunk(data.chunk);
+          }
+          if (data.done && data.result) {
+            result = data.result;
+          }
+          if (data.error) {
+            throw new Error(data.error);
+          }
+        } catch (e) {
+          // Skip parse errors
+        }
+      }
+    }
+  }
+
+  return result;
 };
 
 // Generate clarifying questions for a goal

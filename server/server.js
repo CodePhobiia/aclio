@@ -90,10 +90,10 @@ app.use(requestLogger);
 // API Key from environment variable
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
-// Model configuration - Using proven fast models
+// Model configuration - Sonnet 4.5 for quality
 const MODELS = {
-  SONNET: 'claude-3-5-sonnet-20241022',   // Fast + high quality (proven 2-5 sec response)
-  HAIKU: 'claude-3-5-haiku-20241022'      // Fastest for simple tasks
+  SONNET: 'claude-sonnet-4-5-20250929',   // Sonnet 4.5 for complex goal planning
+  HAIKU: 'claude-3-5-haiku-20241022'      // Fast for simple tasks
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -326,7 +326,130 @@ Return JSON: {"category":"<one of: ${categoriesList}>","steps":[{"id":1,"title":
   }
 });
 
-// Generate context questions for a goal (Uses Sonnet 4.5)
+// Generate steps - STREAMING version for instant feedback
+app.post('/api/generate-steps-stream', async (req, res) => {
+  const opId = req.opId || generateOpId();
+  
+  try {
+    const { goal, profile, location, additionalContext, categories } = req.body;
+    
+    if (!goal) {
+      return res.status(400).json({ error: 'Goal is required' });
+    }
+    
+    if (isInappropriateGoal(goal)) {
+      return res.status(400).json({ 
+        error: 'inappropriate',
+        message: "I can't help with goals that could cause harm."
+      });
+    }
+    
+    if (!ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: 'API key not configured on server' });
+    }
+
+    // Set up SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    const userContext = profile?.name 
+      ? `User: ${profile.name}${profile.age ? ', ' + profile.age : ''}.`
+      : '';
+    
+    const contextFromQuestions = additionalContext ? `Context: ${additionalContext}` : '';
+    const locationContext = location ? `Location: ${location.display}.` : '';
+    const categoriesList = categories || 'Health & Fitness, Career, Education, Finance, Creative, Personal Growth, Relationships, Travel, Home & Living, Technology';
+
+    const systemPrompt = SYSTEM_PROMPTS.PLAN;
+    const userMessage = `Goal: "${goal}"
+${userContext}${contextFromQuestions}${locationContext}
+
+Return JSON: {"category":"<${categoriesList}>","steps":[{"id":1,"title":"<action>","description":"<how>","duration":"<time>"},...]}
+8-12 steps. Specific tools/apps. No obvious steps.`;
+
+    console.log(`   📡 [${opId}] Starting streaming plan generation...`);
+    const streamStart = Date.now();
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: MODELS.SONNET,
+        max_tokens: 4000,
+        temperature: 0.7,
+        stream: true,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'API Error');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullContent = '';
+    let firstChunk = true;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+              if (firstChunk) {
+                console.log(`   ⚡ [${opId}] First chunk in ${formatDuration(Date.now() - streamStart)}`);
+                firstChunk = false;
+              }
+              fullContent += parsed.delta.text;
+              res.write(`data: ${JSON.stringify({ chunk: parsed.delta.text })}\n\n`);
+            }
+          } catch (e) {}
+        }
+      }
+    }
+
+    // Parse and send final result
+    let cleanContent = fullContent.trim();
+    if (cleanContent.startsWith('```')) {
+      cleanContent = cleanContent.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    }
+
+    try {
+      const result = JSON.parse(cleanContent);
+      res.write(`data: ${JSON.stringify({ done: true, result })}\n\n`);
+      console.log(`   ✅ [${opId}] Stream complete in ${formatDuration(Date.now() - streamStart)}`);
+    } catch (e) {
+      res.write(`data: ${JSON.stringify({ done: true, raw: cleanContent })}\n\n`);
+    }
+    
+    res.end();
+    
+  } catch (error) {
+    console.error(`   ❌ [${opId}] Stream error:`, error);
+    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+    res.end();
+  }
+});
+
+// Generate context questions for a goal (Uses Haiku for speed)
 app.post('/api/generate-questions', async (req, res) => {
   try {
     const { goal } = req.body;
