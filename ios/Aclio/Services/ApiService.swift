@@ -35,7 +35,8 @@ actor ApiService {
     private func request<T: Decodable>(
         endpoint: String,
         method: String = "GET",
-        body: [String: Any]? = nil
+        body: [String: Any]? = nil,
+        timeout: TimeInterval = 120 // 2 minutes for AI endpoints
     ) async throws -> T {
         guard let url = URL(string: "\(ApiConfig.baseURL)/\(endpoint)") else {
             print("❌ API: Invalid URL for endpoint: \(endpoint)")
@@ -47,7 +48,7 @@ actor ApiService {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 60 // Increase timeout for AI responses
+        request.timeoutInterval = timeout
         
         if let body = body {
             guard JSONSerialization.isValidJSONObject(body) else {
@@ -256,6 +257,7 @@ actor ApiService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 120 // 2 minutes for AI streaming
         
         guard JSONSerialization.isValidJSONObject(body) else {
             throw ApiError.serverError("Invalid request body")
