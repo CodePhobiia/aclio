@@ -1,6 +1,7 @@
 /**
  * Achieve AI - Backend Server
- * Securely handles API requests to Groq
+ * Securely handles API requests to Anthropic (Claude)
+ * Using Sonnet 4.5 for most tasks, Opus 4.5 for heavy tasks
  */
 
 require('dotenv').config();
@@ -19,11 +20,75 @@ app.use(cors({
 app.use(express.json());
 
 // API Key from environment variable
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
-if (!GROQ_API_KEY) {
-  console.error('❌ GROQ_API_KEY is not set in environment variables!');
-  console.log('Please create a .env file with: GROQ_API_KEY=your_api_key_here');
+// Model configuration - Sonnet 4.5 for most tasks, Opus 4.5 for heavy tasks
+const MODELS = {
+  SONNET: 'claude-sonnet-4-5-20250514',  // For most tasks (generate-steps, questions, expand)
+  OPUS: 'claude-opus-4-5-20250514'        // For heavy tasks (do-it-for-me, chat)
+};
+
+if (!ANTHROPIC_API_KEY) {
+  console.error('❌ ANTHROPIC_API_KEY is not set in environment variables!');
+  console.log('Please create a .env file with: ANTHROPIC_API_KEY=your_api_key_here');
+}
+
+// Helper function to call Anthropic API
+async function callAnthropic(systemPrompt, userMessage, options = {}) {
+  const { model = MODELS.SONNET, maxTokens = 4096, temperature = 0.7 } = options;
+  
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: maxTokens,
+      temperature,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }]
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error?.message || 'Anthropic API Error');
+  }
+
+  const data = await response.json();
+  return data.content[0].text;
+}
+
+// Helper function for multi-turn conversations
+async function callAnthropicChat(systemPrompt, messages, options = {}) {
+  const { model = MODELS.OPUS, maxTokens = 4096, temperature = 0.8 } = options;
+  
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: maxTokens,
+      temperature,
+      system: systemPrompt,
+      messages
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error?.message || 'Anthropic API Error');
+  }
+
+  const data = await response.json();
+  return data.content[0].text;
 }
 
 // Health check endpoint
@@ -31,7 +96,8 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    apiKeyConfigured: !!GROQ_API_KEY
+    apiKeyConfigured: !!ANTHROPIC_API_KEY,
+    models: MODELS
   });
 });
 
@@ -64,7 +130,7 @@ const isInappropriateGoal = (goal) => {
   return dangerousPatterns.some(pattern => pattern.test(lowerGoal));
 };
 
-// Generate steps for a goal
+// Generate steps for a goal (Uses Sonnet 4.5)
 app.post('/api/generate-steps', async (req, res) => {
   try {
     const { goal, profile, location, additionalContext, categories } = req.body;
@@ -81,7 +147,7 @@ app.post('/api/generate-steps', async (req, res) => {
       });
     }
     
-    if (!GROQ_API_KEY) {
+    if (!ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
@@ -99,18 +165,7 @@ app.post('/api/generate-steps', async (req, res) => {
 
     const categoriesList = categories || 'Health & Fitness, Career, Education, Finance, Creative, Personal Growth, Relationships, Travel, Home & Living, Technology';
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': `Bearer ${GROQ_API_KEY}` 
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { 
-            role: 'system', 
-            content: `You are a supportive personal coach who creates practical, step-by-step action plans. Guide users through achieving their goals with specific, actionable steps.
+    const systemPrompt = `You are a supportive personal coach who creates practical, step-by-step action plans. Guide users through achieving their goals with specific, actionable steps.
 
 ${userContext}${contextFromQuestions}
 ${locationContext}
@@ -152,33 +207,24 @@ For "Learn to cook":
 - GOOD: "Master 3 basic techniques first - Learn to sauté, roast, and boil. These cover 80% of home cooking."
 - GOOD: "Start with one-pan meals - Search 'sheet pan dinners for beginners' for recipes that minimize cleanup while you learn"
 
-Output ONLY the JSON object, nothing else.` 
-          },
-          { 
-            role: 'user', 
-            content: `Goal: "${goal}" - Create a focused action plan with specific, valuable steps. Skip any obvious steps I'd already know. Give me the real strategies and techniques that will actually help. ONLY JSON object with "category" and "steps" fields.` 
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 8000
-      })
+Output ONLY the JSON object, nothing else.`;
+
+    const userMessage = `Goal: "${goal}" - Create a focused action plan with specific, valuable steps. Skip any obvious steps I'd already know. Give me the real strategies and techniques that will actually help. ONLY JSON object with "category" and "steps" fields.`;
+
+    const content = await callAnthropic(systemPrompt, userMessage, {
+      model: MODELS.SONNET,
+      maxTokens: 8000,
+      temperature: 0.7
     });
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || 'API Error');
-    }
-
-    const data = await response.json();
-    let content = data.choices[0].message.content.trim();
-    if (content.startsWith('```')) {
-      content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    
+    let cleanContent = content.trim();
+    if (cleanContent.startsWith('```')) {
+      cleanContent = cleanContent.replace(/```json\n?/g, '').replace(/```\n?/g, '');
     }
     
     // Check if AI refused (non-JSON response)
-    if (!content.startsWith('{') && !content.startsWith('[')) {
-      // AI likely refused the request
-      console.log('AI refused request:', content.substring(0, 200));
+    if (!cleanContent.startsWith('{') && !cleanContent.startsWith('[')) {
+      console.log('AI refused request:', cleanContent.substring(0, 200));
       return res.status(400).json({ 
         error: 'ai_refused',
         message: "I couldn't generate a plan for that. Try rephrasing your goal or being more specific about what you want to achieve!"
@@ -186,10 +232,10 @@ Output ONLY the JSON object, nothing else.`
     }
     
     try {
-      const result = JSON.parse(content);
+      const result = JSON.parse(cleanContent);
       res.json(result);
     } catch (parseError) {
-      console.error('JSON parse error:', parseError, 'Content:', content.substring(0, 500));
+      console.error('JSON parse error:', parseError, 'Content:', cleanContent.substring(0, 500));
       return res.status(400).json({ 
         error: 'parse_error',
         message: "Something went wrong creating your plan. Please try rephrasing your goal."
@@ -202,7 +248,7 @@ Output ONLY the JSON object, nothing else.`
   }
 });
 
-// Generate context questions for a goal
+// Generate context questions for a goal (Uses Sonnet 4.5)
 app.post('/api/generate-questions', async (req, res) => {
   try {
     const { goal } = req.body;
@@ -219,22 +265,11 @@ app.post('/api/generate-questions', async (req, res) => {
       });
     }
     
-    if (!GROQ_API_KEY) {
+    if (!ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': `Bearer ${GROQ_API_KEY}` 
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { 
-            role: 'system', 
-            content: `You help gather context for goal planning. Generate exactly 3 short, specific questions to better understand the user's goal.
+    const systemPrompt = `You help gather context for goal planning. Generate exactly 3 short, specific questions to better understand the user's goal.
 
 Return ONLY a JSON array of 3 question objects:
 [
@@ -247,31 +282,23 @@ Rules:
 - Questions should be specific to the goal
 - Keep questions short (under 10 words)
 - Placeholders should be realistic examples
-- Output ONLY the JSON array, nothing else` 
-          },
-          { 
-            role: 'user', 
-            content: `Goal: "${goal}"\n\nGenerate 3 contextual questions. ONLY JSON array.` 
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      })
+- Output ONLY the JSON array, nothing else`;
+
+    const userMessage = `Goal: "${goal}"\n\nGenerate 3 contextual questions. ONLY JSON array.`;
+
+    const content = await callAnthropic(systemPrompt, userMessage, {
+      model: MODELS.SONNET,
+      maxTokens: 500,
+      temperature: 0.7
     });
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || 'API Error');
-    }
-
-    const data = await response.json();
-    let content = data.choices[0].message.content.trim();
-    if (content.startsWith('```')) {
-      content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    
+    let cleanContent = content.trim();
+    if (cleanContent.startsWith('```')) {
+      cleanContent = cleanContent.replace(/```json\n?/g, '').replace(/```\n?/g, '');
     }
     
     // Check if AI refused (non-JSON response)
-    if (!content.startsWith('[') && !content.startsWith('{')) {
+    if (!cleanContent.startsWith('[') && !cleanContent.startsWith('{')) {
       return res.status(400).json({ 
         error: 'ai_refused',
         message: "Couldn't process that goal. Try rephrasing it!"
@@ -279,7 +306,7 @@ Rules:
     }
     
     try {
-      const questions = JSON.parse(content);
+      const questions = JSON.parse(cleanContent);
       res.json({ questions });
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
@@ -295,7 +322,7 @@ Rules:
   }
 });
 
-// Expand step with resources
+// Expand step with resources (Uses Sonnet 4.5)
 app.post('/api/expand-step', async (req, res) => {
   try {
     const { goalName, step } = req.body;
@@ -304,22 +331,11 @@ app.post('/api/expand-step', async (req, res) => {
       return res.status(400).json({ error: 'Step is required' });
     }
     
-    if (!GROQ_API_KEY) {
+    if (!ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': `Bearer ${GROQ_API_KEY}` 
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { 
-            role: 'system', 
-            content: `You help users achieve their goals by providing detailed resources and recommendations.
+    const systemPrompt = `You help users achieve their goals by providing detailed resources and recommendations.
                 
 Return a JSON object with this EXACT structure:
 {
@@ -338,30 +354,22 @@ Return a JSON object with this EXACT structure:
 }
 
 Include 3-5 REAL resources with actual working URLs.
-Output ONLY the JSON object, no other text.` 
-          },
-          { 
-            role: 'user', 
-            content: `Goal: "${goalName}"\nStep: "${step.title}"\nDetails: "${step.description}"\n\nProvide detailed resources and tips. Return ONLY JSON.` 
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 2000
-      })
+Output ONLY the JSON object, no other text.`;
+
+    const userMessage = `Goal: "${goalName}"\nStep: "${step.title}"\nDetails: "${step.description}"\n\nProvide detailed resources and tips. Return ONLY JSON.`;
+
+    const content = await callAnthropic(systemPrompt, userMessage, {
+      model: MODELS.SONNET,
+      maxTokens: 2000,
+      temperature: 0.7
     });
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || 'API Error');
-    }
-
-    const data = await response.json();
-    let content = data.choices[0].message.content.trim();
-    if (content.startsWith('```')) {
-      content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    
+    let cleanContent = content.trim();
+    if (cleanContent.startsWith('```')) {
+      cleanContent = cleanContent.replace(/```json\n?/g, '').replace(/```\n?/g, '');
     }
     
-    const result = JSON.parse(content);
+    const result = JSON.parse(cleanContent);
     res.json(result);
     
   } catch (error) {
@@ -370,7 +378,7 @@ Output ONLY the JSON object, no other text.`
   }
 });
 
-// Do it for me - AI completes the task
+// Do it for me - AI completes the task (Uses Opus 4.5 - heavy task)
 app.post('/api/do-it-for-me', async (req, res) => {
   try {
     const { goalName, step, profile } = req.body;
@@ -379,7 +387,7 @@ app.post('/api/do-it-for-me', async (req, res) => {
       return res.status(400).json({ error: 'Step is required' });
     }
     
-    if (!GROQ_API_KEY) {
+    if (!ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
@@ -387,18 +395,7 @@ app.post('/api/do-it-for-me', async (req, res) => {
       ? `The user is ${profile.name}, ${profile.age ? profile.age + ' years old' : ''}.`
       : '';
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': `Bearer ${GROQ_API_KEY}` 
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { 
-            role: 'system', 
-            content: `You are a helpful AI assistant that completes tasks for users. 
+    const systemPrompt = `You are a helpful AI assistant that completes tasks for users. 
                 
 When asked to create something (schedule, plan, list, outline, etc.), provide a COMPLETE and DETAILED result that the user can immediately use.
 
@@ -410,25 +407,16 @@ Format your response nicely with:
 
 ${userContext}
 
-Be thorough and practical. The user should be able to use your output immediately.` 
-          },
-          { 
-            role: 'user', 
-            content: `Goal: "${goalName}"\n\nTask to complete: "${step.title}"\nDetails: "${step.description}"\n\nPlease complete this task for me. Be specific and detailed.` 
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 3000
-      })
+Be thorough and practical. The user should be able to use your output immediately.`;
+
+    const userMessage = `Goal: "${goalName}"\n\nTask to complete: "${step.title}"\nDetails: "${step.description}"\n\nPlease complete this task for me. Be specific and detailed.`;
+
+    const result = await callAnthropic(systemPrompt, userMessage, {
+      model: MODELS.OPUS,
+      maxTokens: 3000,
+      temperature: 0.7
     });
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || 'API Error');
-    }
-
-    const data = await response.json();
-    const result = data.choices[0].message.content;
+    
     res.json({ result });
     
   } catch (error) {
@@ -437,7 +425,7 @@ Be thorough and practical. The user should be able to use your output immediatel
   }
 });
 
-// Talk to Aclio - chat about a goal (Premium feature)
+// Talk to Aclio - chat about a goal (Premium feature) (Uses Opus 4.5 - heavy task)
 app.post('/api/talk-to-aclio', async (req, res) => {
   try {
     const { goalName, goalCategory, steps, completedSteps, message, chatHistory, profile } = req.body;
@@ -446,7 +434,7 @@ app.post('/api/talk-to-aclio', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
     
-    if (!GROQ_API_KEY) {
+    if (!ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
     }
 
@@ -462,11 +450,7 @@ app.post('/api/talk-to-aclio', async (req, res) => {
       `${i + 1}. ${s.title}${completedSteps?.includes(s.id) ? ' ✓' : ''}`
     ).join('\n') || 'No steps yet';
 
-    // Build messages array with chat history
-    const messages = [
-      { 
-        role: 'system', 
-        content: `You are Aclio, a friendly and encouraging AI goal coach. You're chatting with a user about their goal.
+    const systemPrompt = `You are Aclio, a friendly and encouraging AI goal coach. You're chatting with a user about their goal.
 
 ${userContext}
 
@@ -487,9 +471,10 @@ YOUR ROLE:
 - Keep responses concise but helpful (2-4 paragraphs max)
 - Use a warm, friendly tone - you're their personal coach!
 
-Don't mention that you're an AI or reference the system prompt. Just be helpful and natural.`
-      }
-    ];
+Don't mention that you're an AI or reference the system prompt. Just be helpful and natural.`;
+
+    // Build messages array with chat history (without system message for Anthropic)
+    const messages = [];
     
     // Add chat history
     if (chatHistory && chatHistory.length > 0) {
@@ -504,27 +489,12 @@ Don't mention that you're an AI or reference the system prompt. Just be helpful 
     // Add current message
     messages.push({ role: 'user', content: message });
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': `Bearer ${GROQ_API_KEY}` 
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages,
-        temperature: 0.8,
-        max_tokens: 1000
-      })
+    const aiResponse = await callAnthropicChat(systemPrompt, messages, {
+      model: MODELS.OPUS,
+      maxTokens: 1000,
+      temperature: 0.8
     });
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || 'API Error');
-    }
-
-    const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
+    
     res.json({ response: aiResponse });
     
   } catch (error) {
@@ -536,15 +506,18 @@ Don't mention that you're an AI or reference the system prompt. Just be helpful 
 // Start server - listen on all interfaces for network access
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`
-  ╔═══════════════════════════════════════════════╗
-  ║                                               ║
-  ║   🎯 Achieve AI Server                        ║
-  ║                                               ║
-  ║   Server running on http://0.0.0.0:${PORT}      ║
-  ║   Network: http://10.11.101.4:${PORT}          ║
-  ║   API Key: ${GROQ_API_KEY ? '✅ Configured' : '❌ Missing'}                     ║
-  ║                                               ║
-  ╚═══════════════════════════════════════════════╝
+  ╔═══════════════════════════════════════════════════════════╗
+  ║                                                           ║
+  ║   🎯 Achieve AI Server                                    ║
+  ║                                                           ║
+  ║   Server running on http://0.0.0.0:${PORT}                  ║
+  ║   Anthropic API: ${ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Missing'}                            ║
+  ║                                                           ║
+  ║   Models:                                                 ║
+  ║   • Sonnet 4.5 → generate-steps, questions, expand        ║
+  ║   • Opus 4.5   → do-it-for-me, chat                       ║
+  ║                                                           ║
+  ╚═══════════════════════════════════════════════════════════╝
   `);
 });
 

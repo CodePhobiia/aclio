@@ -159,7 +159,7 @@
     
     body { 
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
+      background: var(--bg); 
       color: var(--text); 
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
@@ -238,7 +238,7 @@
     .header-icon svg { width: 20px; height: 20px; }
     
     /* ============ DASHBOARD - REFINED ============ */
-    .dashboard { 
+    .dashboard {
       padding-bottom: calc(var(--safe-bottom) + 90px); 
       background: var(--page-bg);
       min-height: 100vh;
@@ -3547,7 +3547,7 @@
     .onboarding-cta { 
       width: 100%;
       padding: var(--space-4); 
-      background: var(--accent);
+      background: var(--accent); 
       border: none; 
       border-radius: var(--radius-md); 
       color: #fff; 
@@ -3889,7 +3889,7 @@
         body: JSON.stringify({ goal, profile, location, additionalContext, categories: CATEGORIES.join(', ') })
       });
       if (!response.ok) { 
-        const err = await response.json();
+        const err = await response.json(); 
         // Handle inappropriate goal or parse errors with user-friendly message
         if (err.message) {
           throw new Error(err.message);
@@ -5112,13 +5112,13 @@
                 <div className={`pull-refresh-indicator ${pullDistance > 20 || isRefreshing ? 'visible' : ''} ${isRefreshing ? 'refreshing' : ''}`} style={{color: '#fff'}}>
                   <Icons.refreshCw className="pull-refresh-icon" />
                   <span>{isRefreshing ? 'Refreshing...' : pullDistance > 60 ? 'Release to refresh' : 'Pull to refresh'}</span>
-                </div>
+              </div>
                 
-                <div className="greeting-section">
+              <div className="greeting-section">
                   <p className="greeting-text">{getGreeting()},</p>
                   <p className="greeting-name">{userProfile?.name || 'Achiever'}</p>
                   <p className="greeting-subtitle">Let's make progress on your goals today.</p>
-                </div>
+                    </div>
                 
                 <button className="hero-cta" onClick={() => handlePremiumFeature('goal', () => setView('new'))}>
                   <Icons.plus style={{width: '20px', height: '20px'}} /> Create New Goal
@@ -5133,39 +5133,39 @@
               
               {/* Dashboard Content */}
               <div className="dashboard-content">
-                {/* Premium Banner - Only show for free users */}
-                {!isPremium && (
-                  <div className="premium-banner" onClick={() => setShowPaywall(true)}>
-                    <div className="premium-banner-content">
-                      <div className="premium-banner-header">
-                        <div className="premium-banner-icon"><Icons.crown /></div>
-                        <span className="premium-banner-title">Go Premium</span>
-                      </div>
-                      <p className="premium-banner-desc">
-                        Unlock unlimited goals, AI assistance, and achievement sharing!
-                      </p>
-                      <button className="premium-banner-btn" onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}>
-                        Try Free for 3 Days
-                      </button>
+              {/* Premium Banner - Only show for free users */}
+              {!isPremium && (
+                <div className="premium-banner" onClick={() => setShowPaywall(true)}>
+                  <div className="premium-banner-content">
+                    <div className="premium-banner-header">
+                      <div className="premium-banner-icon"><Icons.crown /></div>
+                      <span className="premium-banner-title">Go Premium</span>
                     </div>
-                  </div>
-                )}
-                
-                {/* Search Bar */}
-                <div className="search-bar">
-                  <Icons.search />
-                  <input 
-                    className="search-input" 
-                    placeholder="Search goals..." 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  {searchQuery && (
-                    <button className="search-clear" onClick={() => setSearchQuery('')}>
-                      <Icons.x />
+                    <p className="premium-banner-desc">
+                      Unlock unlimited goals, AI assistance, and achievement sharing!
+                    </p>
+                    <button className="premium-banner-btn" onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}>
+                      Try Free for 3 Days
                     </button>
-                  )}
+                  </div>
                 </div>
+              )}
+              
+              {/* Search Bar */}
+              <div className="search-bar">
+                <Icons.search />
+                <input 
+                  className="search-input" 
+                  placeholder="Search goals..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button className="search-clear" onClick={() => setSearchQuery('')}>
+                    <Icons.x />
+                  </button>
+                )}
+              </div>
 
               {todayTasks.length > 0 && (
                 <div className="section">
@@ -5217,33 +5217,33 @@
                         onTouchMove={(e) => handleSwipeMove(e, goal.id)}
                         onTouchEnd={() => handleSwipeEnd(goal.id)}
                       >
-                        <div className="goal-header">
-                          <div className="goal-icon-wrap" style={{background: iconBg, color: iconColor}}>
-                            <IconComponent />
-                          </div>
-                          <div className="goal-info">
-                            <h3 className="goal-name">{goal.name}</h3>
-                            <p className="goal-category">{goal.category || 'Personal Goal'}</p>
-                            {dueDateInfo && (
-                              <div className={`due-date-badge ${dueDateInfo.status}`}>
-                                <Icons.calendar /> {dueDateInfo.text}
-                              </div>
-                            )}
-                          </div>
+                      <div className="goal-header">
+                        <div className="goal-icon-wrap" style={{background: iconBg, color: iconColor}}>
+                          <IconComponent />
                         </div>
-                        <div className="goal-progress-row">
-                          <span className="goal-progress-label">Progress</span>
-                          <span className="goal-progress-value">{progress}%</span>
+                        <div className="goal-info">
+                          <h3 className="goal-name">{goal.name}</h3>
+                          <p className="goal-category">{goal.category || 'Personal Goal'}</p>
+                          {dueDateInfo && (
+                            <div className={`due-date-badge ${dueDateInfo.status}`}>
+                              <Icons.calendar /> {dueDateInfo.text}
+                            </div>
+                          )}
                         </div>
-                        <div className="goal-progress-bar">
-                          <div className="goal-progress-fill" style={{width: `${progress}%`}} />
+                      </div>
+                      <div className="goal-progress-row">
+                        <span className="goal-progress-label">Progress</span>
+                        <span className="goal-progress-value">{progress}%</span>
+                      </div>
+                      <div className="goal-progress-bar">
+                        <div className="goal-progress-fill" style={{width: `${progress}%`}} />
+                      </div>
+                      {next && (
+                        <div className="goal-next">
+                          <span className="goal-next-arrow"><Icons.arrowRight /></span>
+                          <span className="goal-next-text">{next.title}</span>
                         </div>
-                        {next && (
-                          <div className="goal-next">
-                            <span className="goal-next-arrow"><Icons.arrowRight /></span>
-                            <span className="goal-next-text">{next.title}</span>
-                          </div>
-                        )}
+                      )}
                       </div>
                     </div>
                   );
@@ -5350,11 +5350,11 @@
                     <div className="progress-badge streak">
                       <span>🔥</span>
                       <span>{streakData.current}-day streak</span>
-                    </div>
+                  </div>
                     <div className="progress-badge level">
                       <span>⭐</span>
                       <span>Level {getLevel(userPoints).level} Achiever</span>
-                    </div>
+                        </div>
                   </div>
                 </div>
               )}
@@ -5662,18 +5662,18 @@
                   <div className="goal-summary-info">
                     <h2 className="goal-summary-title">{goal.name}</h2>
                     <p className="goal-summary-meta">{goal.category || 'Personal Goal'} • {goal.dueDate || goal.createdAt || 'Recently'}</p>
+                      </div>
                   </div>
-                </div>
                 
                 <div className="goal-summary-progress">
                   <div className="goal-progress-row">
                     <span className="goal-progress-label">{goal.completedSteps.length} of {goal.steps.length} steps completed</span>
                     <span className="goal-progress-value">{progress}%</span>
-                  </div>
+                </div>
                   <div className="goal-progress-bar">
                     <div className="goal-progress-fill" style={{width: `${progress}%`}} />
                   </div>
-                </div>
+                  </div>
                 
                 <button 
                   className="talk-to-aclio-btn"
@@ -5696,56 +5696,56 @@
                             <span className="step-title-prefix">STEP {step.id}: </span>
                             {step.title}
                           </h4>
-                          <p className="step-desc">{step.description}</p>
+                        <p className="step-desc">{step.description}</p>
                         </div>
                         <div className="step-meta-row">
                           <span className="step-dur"><Icons.clock /> {step.duration}</span>
                         </div>
                         {!isDone && (
                           <div className="step-actions-row">
-                            <button
+                          <button
                               className={`step-action-btn expand ${expandedSteps[`${goal.id}-${step.id}`] ? 'done' : ''}`}
-                              onClick={(e) => { 
-                                e.stopPropagation(); 
-                                if (expandedSteps[`${goal.id}-${step.id}`]) {
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              if (expandedSteps[`${goal.id}-${step.id}`]) {
+                                expandStep(goal.id, step, goal.name);
+                              } else {
+                                handlePremiumFeature('expand', () => {
+                                  trackExpandUse();
                                   expandStep(goal.id, step, goal.name);
-                                } else {
-                                  handlePremiumFeature('expand', () => {
-                                    trackExpandUse();
-                                    expandStep(goal.id, step, goal.name);
-                                  });
-                                }
-                              }}
-                            >
+                                });
+                              }
+                            }}
+                          >
                               <Icons.sparkles /> 
                               {expandedSteps[`${goal.id}-${step.id}`] ? 'View details' : `Expand`}
                               {!isPremium && !expandedSteps[`${goal.id}-${step.id}`] && (
                                 <span className="step-action-count">({PREMIUM_CONFIG.FREE_EXPAND_DAILY - expandUsesToday})</span>
-                              )}
-                            </button>
-                            {canDoItForMe(step.title, step.description) && (
-                              <button
+                            )}
+                          </button>
+                          {canDoItForMe(step.title, step.description) && (
+                            <button
                                 className={`step-action-btn doitforme ${savedDoItForMe[`${goal.id}-${step.id}`] ? 'done' : ''}`}
-                                onClick={(e) => { 
-                                  e.stopPropagation(); 
-                                  if (savedDoItForMe[`${goal.id}-${step.id}`]) {
+                              onClick={(e) => { 
+                                e.stopPropagation(); 
+                                if (savedDoItForMe[`${goal.id}-${step.id}`]) {
+                                  doItForMe(goal.id, step, goal.name);
+                                } else {
+                                  handlePremiumFeature('doitforme', () => {
+                                    trackDoItForMeUse();
                                     doItForMe(goal.id, step, goal.name);
-                                  } else {
-                                    handlePremiumFeature('doitforme', () => {
-                                      trackDoItForMeUse();
-                                      doItForMe(goal.id, step, goal.name);
-                                    });
-                                  }
-                                }}
-                              >
+                                  });
+                                }
+                              }}
+                            >
                                 <Icons.wand /> 
                                 {savedDoItForMe[`${goal.id}-${step.id}`] ? 'View result' : 'Do it for me'}
                                 {!isPremium && !savedDoItForMe[`${goal.id}-${step.id}`] && (
                                   <span className="step-action-count">({PREMIUM_CONFIG.FREE_DOITFORME_DAILY - doItForMeUsesToday})</span>
-                                )}
-                              </button>
-                            )}
-                          </div>
+                              )}
+                            </button>
+                          )}
+                        </div>
                         )}
                       </div>
                       {isDone && (

@@ -131,3 +131,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 **Build errors**: Try `npx cap sync ios` again, or delete the `ios` folder and run `npx cap add ios` again.
 
+
+
