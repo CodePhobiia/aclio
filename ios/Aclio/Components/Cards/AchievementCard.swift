@@ -5,16 +5,26 @@ struct AchievementCard: View {
     let achievement: Achievement
     let isUnlocked: Bool
     
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var colors: AclioColors {
+        AclioColors(colorScheme)
+    }
+    
+    private var iconGradient: LinearGradient {
+        isUnlocked ? AclioGradients.forAchievement(achievement.gradientId) : LinearGradient(colors: [Color.clear], startPoint: .top, endPoint: .bottom)
+    }
+    
     var body: some View {
         VStack(spacing: AclioSpacing.space2) {
             // Icon
             ZStack {
                 Circle()
-                    .fill(isUnlocked ? .clear : Color.gray.opacity(0.2))
+                    .fill(isUnlocked ? Color.clear : Color.gray.opacity(0.2))
                     .frame(width: 44, height: 44)
                     .overlay(
                         Circle()
-                            .fill(isUnlocked ? AclioGradients.forAchievement(achievement.gradientId) : LinearGradient(colors: [.clear], startPoint: .top, endPoint: .bottom))
+                            .fill(iconGradient)
                     )
                 
                 Image(systemName: achievement.systemIcon)
@@ -25,13 +35,13 @@ struct AchievementCard: View {
             // Name
             Text(achievement.name)
                 .font(AclioFont.achievementTitle)
-                .foregroundColor(isUnlocked ? .primary : .secondary)
+                .foregroundColor(isUnlocked ? colors.textPrimary : colors.textMuted)
                 .lineLimit(1)
             
             // Description
             Text(achievement.desc)
                 .font(AclioFont.achievementDesc)
-                .foregroundColor(.secondary)
+                .foregroundColor(colors.textMuted)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
         }
@@ -39,7 +49,7 @@ struct AchievementCard: View {
         .padding(AclioSpacing.space3)
         .background(
             RoundedRectangle(cornerRadius: AclioRadius.medium)
-                .fill(isUnlocked ? AclioGradients.forAchievement(achievement.gradientId).opacity(0.1) : Color.gray.opacity(0.05))
+                .fill(isUnlocked ? colors.accent.opacity(0.1) : Color.gray.opacity(0.05))
         )
         .overlay(
             RoundedRectangle(cornerRadius: AclioRadius.medium)
