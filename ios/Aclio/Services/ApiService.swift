@@ -329,7 +329,42 @@ struct GenerateQuestionsResponse: Codable {
 }
 
 struct ExpandStepResponse: Codable {
-    let content: String
+    let detailedGuide: String?
+    let resources: [ExpandResource]?
+    let tips: [String]?
+    let searchQuery: String?
+    
+    // Convenience to get formatted content
+    var content: String {
+        var result = detailedGuide ?? ""
+        
+        if let tips = tips, !tips.isEmpty {
+            result += "\n\n**Tips:**\n"
+            for tip in tips {
+                result += "• \(tip)\n"
+            }
+        }
+        
+        if let resources = resources, !resources.isEmpty {
+            result += "\n**Resources:**\n"
+            for resource in resources {
+                result += "• \(resource.name)"
+                if let cost = resource.cost {
+                    result += " (\(cost))"
+                }
+                result += "\n"
+            }
+        }
+        
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+struct ExpandResource: Codable {
+    let name: String
+    let type: String?
+    let url: String?
+    let cost: String?
 }
 
 struct DoItForMeResponse: Codable {
