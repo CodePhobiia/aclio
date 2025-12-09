@@ -2036,12 +2036,17 @@
       padding: 20px;
       padding-bottom: calc(var(--safe-bottom) + 24px);
     }
+    /* Backward compatibility for previous class names */
+    .settings-page,
+    .settings-content {
+      padding: 0;
+    }
     .settings-section {
       margin-bottom: 28px;
     }
     .settings-section-title {
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-dim);
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -2052,6 +2057,7 @@
       border-radius: 16px;
       border: 1px solid var(--border);
       overflow: hidden;
+      box-shadow: var(--shadow-md);
     }
     .settings-item {
       display: flex;
@@ -2061,6 +2067,7 @@
       border-bottom: 1px solid var(--border);
       cursor: pointer;
       transition: background 0.2s;
+      background: var(--bg-card);
     }
     .settings-item:last-child { border-bottom: none; }
     .settings-item:active { background: var(--bg); }
@@ -2071,9 +2078,11 @@
       flex-shrink: 0;
     }
     .settings-item-icon svg { width: 20px; height: 20px; }
-    .settings-item-content { flex: 1; }
-    .settings-item-title { font-size: 15px; font-weight: 500; color: var(--text); }
+    .settings-item-content { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .settings-item-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
     .settings-item-desc { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+    .settings-item-label { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+    .settings-item-value { font-size: 13px; color: var(--text-secondary); }
     .settings-item-arrow { color: var(--text-dimmer); }
     .settings-item-arrow svg { width: 18px; height: 18px; }
     .settings-item-toggle {
@@ -2100,6 +2109,27 @@
       color: var(--red);
     }
     .settings-danger .settings-item-title { color: var(--red); }
+
+    /* Logout button */
+    .logout-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 88, 88, 0.45);
+      background: var(--card-red, #ff4d4f);
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.15s, opacity 0.15s;
+      box-shadow: var(--shadow-lg);
+    }
+    .logout-btn:hover { opacity: 0.92; }
+    .logout-btn:active { transform: translateY(1px) scale(0.995); }
     
     /* Edit Modal */
     .edit-modal {

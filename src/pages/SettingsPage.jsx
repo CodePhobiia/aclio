@@ -18,7 +18,7 @@ export function SettingsPage({
 }) {
   return (
     <div className="app">
-      <div className="settings-page fade-in">
+      <div className="settings-view fade-in">
         {/* Header */}
         <div className="page-header">
           <button className="header-back" onClick={() => onNavigate('dashboard')}>
