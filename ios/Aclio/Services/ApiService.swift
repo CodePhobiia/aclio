@@ -322,7 +322,7 @@ struct GenerateQuestionsResponse: Codable {
     let questions: [ApiQuestion]
     
     struct ApiQuestion: Codable {
-        let id: String?
+        let id: Int?
         let question: String
         let placeholder: String?
     }
