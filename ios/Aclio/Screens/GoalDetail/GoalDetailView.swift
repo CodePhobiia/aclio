@@ -69,6 +69,15 @@ struct GoalDetailView: View {
             if viewModel.showCelebration {
                 celebrationModal
             }
+            
+            // AI Loading Overlays
+            if viewModel.expandingStepId != nil {
+                AILoadingOverlay.expandingStep
+            }
+            
+            if viewModel.doingItForMeStepId != nil {
+                AILoadingOverlay.doingItForMe
+            }
         }
         .sheet(isPresented: $viewModel.showPaywall) {
             PaywallView(onDismiss: { viewModel.dismissPaywall() })

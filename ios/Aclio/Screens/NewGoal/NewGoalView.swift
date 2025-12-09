@@ -88,6 +88,11 @@ struct NewGoalView: View {
             if viewModel.isLoading {
                 generationOverlay
             }
+            
+            // Questions Loading Overlay
+            if viewModel.isQuestionsLoading {
+                AILoadingOverlay.generatingQuestions
+            }
         }
         .onTapGesture {
             isGoalInputFocused = false
@@ -480,6 +485,23 @@ struct NewGoalView: View {
                     }
                 }
                 .padding(.horizontal, AclioSpacing.space8)
+                
+                // Helpful tip
+                VStack(spacing: AclioSpacing.space2) {
+                    HStack(spacing: AclioSpacing.space2) {
+                        Image(systemName: "lightbulb.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.yellow)
+                        Text("Did you know?")
+                            .font(AclioFont.captionMedium)
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                    Text("Breaking goals into small steps makes them 2x more achievable!")
+                        .font(AclioFont.body)
+                        .foregroundColor(.white.opacity(0.7))
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, AclioSpacing.space6)
             }
             .padding(AclioSpacing.space8)
         }
