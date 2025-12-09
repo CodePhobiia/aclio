@@ -43,6 +43,20 @@ struct GoalDetailView: View {
                         // Steps Section
                         stepsSection
                         
+                        // Error Message
+                        if let error = viewModel.error {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                Text(error)
+                                    .font(AclioFont.caption)
+                                    .foregroundColor(colors.textSecondary)
+                            }
+                            .padding()
+                            .background(Color.orange.opacity(0.1))
+                            .cornerRadius(AclioRadius.medium)
+                        }
+                        
                         // Delete Button
                         deleteButton
                     }

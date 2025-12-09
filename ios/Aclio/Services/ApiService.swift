@@ -38,27 +38,41 @@ actor ApiService {
         body: [String: Any]? = nil
     ) async throws -> T {
         guard let url = URL(string: "\(ApiConfig.baseURL)/\(endpoint)") else {
+            print("❌ API: Invalid URL for endpoint: \(endpoint)")
             throw ApiError.invalidURL
         }
+        
+        print("📡 API: \(method) \(endpoint)")
         
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 60 // Increase timeout for AI responses
         
         if let body = body {
             guard JSONSerialization.isValidJSONObject(body) else {
+                print("❌ API: Invalid JSON body")
                 throw ApiError.serverError("Invalid request body")
             }
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
+            if let bodyString = String(data: request.httpBody!, encoding: .utf8) {
+                print("📤 API Body: \(bodyString.prefix(200))...")
+            }
         }
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ API: No HTTP response")
             throw ApiError.noData
         }
         
+        print("📥 API Status: \(httpResponse.statusCode)")
+        
         if httpResponse.statusCode >= 400 {
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("❌ API Error Response: \(responseString)")
+            }
             if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
                 throw ApiError.serverError(errorResponse.error ?? errorResponse.message ?? "Server error")
             }
@@ -66,8 +80,14 @@ actor ApiService {
         }
         
         do {
-            return try JSONDecoder().decode(T.self, from: data)
-        } catch {
+            let decoded = try JSONDecoder().decode(T.self, from: data)
+            print("✅ API: Successfully decoded response")
+            return decoded
+        } catch let decodingError {
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("❌ API Decoding error: \(decodingError)")
+                print("📥 API Raw response: \(responseString.prefix(500))")
+            }
             throw ApiError.decodingError
         }
     }

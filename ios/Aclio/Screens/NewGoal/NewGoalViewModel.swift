@@ -85,12 +85,21 @@ final class NewGoalViewModel: ObservableObject {
         
         isQuestionsLoading = true
         showQuestions = true
+        error = nil
         
         do {
             let response = try await apiService.generateQuestions(goal: goalText, profile: profile)
             questions = response.questions
-        } catch {
-            print("Failed to generate questions: \(error)")
+            
+            // If no questions returned, show a message
+            if questions.isEmpty {
+                error = "Couldn't generate questions. Try creating your goal directly!"
+                showQuestions = false
+            }
+        } catch let apiError {
+            print("Failed to generate questions: \(apiError)")
+            error = "Failed to connect: \(apiError.localizedDescription)"
+            showQuestions = false
         }
         
         isQuestionsLoading = false

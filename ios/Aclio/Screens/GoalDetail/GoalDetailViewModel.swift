@@ -73,24 +73,30 @@ final class GoalDetailViewModel: ObservableObject {
     // MARK: - Expand Step
     func expandStep(_ step: Step) async {
         // Check premium
-        guard premium.usePremiumFeature(.expandStep) else { return }
+        guard premium.usePremiumFeature(.expandStep) else {
+            print("⚠️ Expand blocked by premium check")
+            return
+        }
         
         expandingStepId = step.id
         error = nil
         
         do {
+            print("📡 Calling expand API for step: \(step.title)")
             let response = try await apiService.expandStep(
                 step: step,
                 goalName: goal.name,
                 profile: profile
             )
             
+            print("✅ Expand response: \(response.content.prefix(50))...")
             let key = "\(goal.id)-\(step.id)"
             expandedSteps[key] = response.content
             storage.saveExpandedStep(goalId: goal.id, stepId: step.id, content: response.content)
             
-        } catch {
-            self.error = error.localizedDescription
+        } catch let apiError {
+            print("❌ Expand failed: \(apiError)")
+            self.error = "Failed to expand: \(apiError.localizedDescription)"
         }
         
         expandingStepId = nil
@@ -99,23 +105,29 @@ final class GoalDetailViewModel: ObservableObject {
     // MARK: - Do It For Me
     func doItForMe(_ step: Step) async {
         // Check premium
-        guard premium.usePremiumFeature(.doItForMe) else { return }
+        guard premium.usePremiumFeature(.doItForMe) else {
+            print("⚠️ DoItForMe blocked by premium check")
+            return
+        }
         
         doingItForMeStepId = step.id
         error = nil
         
         do {
-            let _ = try await apiService.doItForMe(
+            print("📡 Calling doItForMe API for step: \(step.title)")
+            let response = try await apiService.doItForMe(
                 step: step,
                 goalName: goal.name,
                 profile: profile
             )
             
+            print("✅ DoItForMe response: \(response.displayContent.prefix(50))...")
             // Mark step as completed
             toggleStep(step.id)
             
-        } catch {
-            self.error = error.localizedDescription
+        } catch let apiError {
+            print("❌ DoItForMe failed: \(apiError)")
+            self.error = "Failed: \(apiError.localizedDescription)"
         }
         
         doingItForMeStepId = nil
