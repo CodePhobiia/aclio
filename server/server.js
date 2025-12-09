@@ -22,10 +22,10 @@ app.use(express.json());
 // API Key from environment variable
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
-// Model configuration - Sonnet 4 for most tasks, Opus 4 for heavy tasks
+// Model configuration - Sonnet 4.5 for most tasks, Opus 4 for heavy tasks
 const MODELS = {
-  SONNET: 'claude-sonnet-4-20250514',  // For most tasks (generate-steps, questions, expand)
-  OPUS: 'claude-opus-4-20250514'        // For heavy tasks (do-it-for-me, chat)
+  SONNET: 'claude-sonnet-4-5-20250929',  // For most tasks (generate-steps, questions, expand)
+  OPUS: 'claude-opus-4-20250514'          // For heavy tasks (do-it-for-me, chat)
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
