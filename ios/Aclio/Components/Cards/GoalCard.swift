@@ -33,7 +33,8 @@ struct GoalCard: View {
                         Image(systemName: "trash.fill")
                             .font(.system(size: 20))
                             .foregroundColor(.white)
-                            .frame(width: 60, height: .infinity)
+                            .frame(width: 60)
+                            .frame(maxHeight: .infinity)
                     }
                 }
                 .background(colors.destructive)
