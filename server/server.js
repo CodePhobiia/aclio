@@ -90,13 +90,10 @@ app.use(requestLogger);
 // API Key from environment variable
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
-// Model configuration - Use fastest available models
-// claude-3-5-sonnet is fast and high quality
-// claude-3-5-haiku is fastest for simple tasks
+// Model configuration - Sonnet 4.5 for quality goal planning
 const MODELS = {
-  FAST: 'claude-3-5-haiku-20241022',      // Fastest - for questions, simple tasks
-  SONNET: 'claude-3-5-sonnet-20241022',   // Fast + high quality - for plans, expand
-  OPUS: 'claude-3-5-sonnet-20241022'      // Using Sonnet instead of Opus for speed (Opus is slower)
+  SONNET: 'claude-sonnet-4-5-20250929',   // High quality for plans, expand, chat
+  HAIKU: 'claude-3-5-haiku-20241022'      // Fast model for simple tasks (questions)
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -222,7 +219,7 @@ async function callAnthropic(systemPrompt, userMessage, options = {}, opId = 'N/
 
 // Helper function for multi-turn conversations
 async function callAnthropicChat(systemPrompt, messages, options = {}, opId = 'N/A') {
-  const { model = MODELS.OPUS, maxTokens = 4096, temperature = 0.8 } = options;
+  const { model = MODELS.SONNET, maxTokens = 4096, temperature = 0.8 } = options;
   
   const modelShort = model.includes('opus') ? 'OPUS' : 'SONNET';
   console.log(`   📡 [${opId}] Calling Anthropic Chat API (${modelShort})...`);
@@ -451,7 +448,7 @@ Output ONLY valid JSON array, nothing else.`;
     const userMessage = `Goal: "${goal}"\n\nGenerate 3 contextual questions. ONLY JSON array.`;
 
     const content = await callAnthropic(systemPrompt, userMessage, {
-      model: MODELS.FAST,  // Use Haiku for simple question generation
+      model: MODELS.HAIKU,  // Use Haiku for simple question generation
       maxTokens: 500,
       temperature: 0.7
     }, req.opId);
@@ -613,7 +610,7 @@ FORMAT GUIDELINES:
     const userMessage = `Goal: "${goalName}"\n\nTask to complete: "${step.title}"\nDetails: "${step.description}"\n\nPlease complete this task for me. Be specific and detailed.`;
 
     const result = await callAnthropic(systemPrompt, userMessage, {
-      model: MODELS.OPUS,
+      model: MODELS.SONNET,
       maxTokens: 3000,
       temperature: 0.7
     }, req.opId);
@@ -707,7 +704,7 @@ Remember: You ARE Aclio. Speak naturally as their personal coach, not as "an AI 
     messages.push({ role: 'user', content: message });
 
     const aiResponse = await callAnthropicChat(systemPrompt, messages, {
-      model: MODELS.OPUS,
+      model: MODELS.SONNET,
       maxTokens: 1000,
       temperature: 0.8
     }, req.opId);
@@ -717,6 +714,139 @@ Remember: You ARE Aclio. Speak naturally as their personal coach, not as "an AI 
   } catch (error) {
     console.error('Talk to Aclio error:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Talk to Aclio - STREAMING version for instant response feel
+app.post('/api/talk-to-aclio-stream', async (req, res) => {
+  const opId = req.opId || generateOpId();
+  
+  try {
+    const { goalName, goalCategory, steps, completedSteps, message, chatHistory, profile } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+    
+    if (!ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: 'API key not configured on server' });
+    }
+
+    // Set up SSE headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    const userContext = profile?.name 
+      ? `The user is ${profile.name}${profile.age ? ', ' + profile.age + ' years old' : ''}.`
+      : '';
+    
+    const completedCount = completedSteps?.length || 0;
+    const totalSteps = steps?.length || 0;
+    const progress = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
+    
+    const stepsSummary = steps?.slice(0, 10).map((s, i) => 
+      `${i + 1}. ${s.title}${completedSteps?.includes(s.id) ? ' ✓' : ''}`
+    ).join('\n') || 'No steps yet';
+
+    // Shorter system prompt for faster streaming
+    const systemPrompt = `You are Aclio, a warm and action-focused personal goal coach. Be encouraging but direct.
+
+USER CONTEXT: ${userContext}
+GOAL: "${goalName}" (${goalCategory || 'Personal'})
+Progress: ${progress}% (${completedCount}/${totalSteps} steps)
+
+Current plan:
+${stepsSummary}
+
+Keep responses focused (2-3 paragraphs). Be conversational and valuable. Don't be generic - give specific advice.`;
+
+    // Build messages
+    const messages = [];
+    if (chatHistory && chatHistory.length > 0) {
+      chatHistory.slice(-4).forEach(msg => {  // Only last 4 messages for speed
+        messages.push({
+          role: msg.role === 'assistant' ? 'assistant' : 'user',
+          content: msg.content
+        });
+      });
+    }
+    messages.push({ role: 'user', content: message });
+
+    console.log(`   📡 [${opId}] Starting streaming response (SONNET)...`);
+    const streamStart = Date.now();
+
+    // Call Anthropic with streaming
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: MODELS.SONNET,
+        max_tokens: 800,  // Reduced for faster response
+        temperature: 0.7,
+        stream: true,
+        system: systemPrompt,
+        messages
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'Anthropic API Error');
+    }
+
+    // Stream the response
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullResponse = '';
+    let firstChunkTime = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+              if (!firstChunkTime) {
+                firstChunkTime = Date.now();
+                console.log(`   ⚡ [${opId}] First chunk in ${formatDuration(firstChunkTime - streamStart)}`);
+              }
+              fullResponse += parsed.delta.text;
+              // Send chunk to client
+              res.write(`data: ${JSON.stringify({ text: parsed.delta.text })}\n\n`);
+            }
+          } catch (e) {
+            // Skip non-JSON lines
+          }
+        }
+      }
+    }
+
+    const streamDuration = Date.now() - streamStart;
+    console.log(`   ✅ [${opId}] Stream complete in ${formatDuration(streamDuration)} (${fullResponse.length} chars)`);
+
+    // Send done signal
+    res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+    res.end();
+    
+  } catch (error) {
+    console.error(`   ❌ [${opId}] Stream error:`, error);
+    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+    res.end();
   }
 });
 
@@ -731,8 +861,8 @@ app.listen(PORT, '0.0.0.0', () => {
   ║   Anthropic API: ${ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Missing'}                            ║
   ║                                                           ║
   ║   Models:                                                 ║
-  ║   • Sonnet 4.5 → generate-steps, questions, expand        ║
-  ║   • Opus 4.5   → do-it-for-me, chat                       ║
+  ║   • Sonnet 4.5 → all tasks (streaming for chat)           ║
+  ║   • Haiku 3.5  → questions (fast)                         ║
   ║                                                           ║
   ╚═══════════════════════════════════════════════════════════╝
   `);

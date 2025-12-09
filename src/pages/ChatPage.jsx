@@ -54,15 +54,25 @@ export function ChatPage({
     setInputText('');
     setIsLoading(true);
 
+    // Create placeholder for streaming response
+    const assistantMessageId = Date.now() + 1;
+    setMessages(prev => [...prev, {
+      id: assistantMessageId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isStreaming: true,
+    }]);
+
     try {
-      // Build chat history (exclude welcome message and current message)
+      // Build chat history (exclude welcome message)
       const chatHistory = messages.slice(1).map(m => ({
         role: m.role,
         content: m.content,
       }));
 
-      // Call the talk-to-aclio API endpoint
-      const response = await fetch(`${API_URL}/talk-to-aclio`, {
+      // Use streaming endpoint for instant response feel
+      const response = await fetch(`${API_URL}/talk-to-aclio-stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -71,29 +81,71 @@ export function ChatPage({
           steps: goal?.steps || [],
           completedSteps: goal?.completedSteps || [],
           message: userMessage.content,
-          chatHistory: chatHistory.slice(-6), // Last 6 messages for context
+          chatHistory: chatHistory.slice(-4), // Last 4 messages for speed
           profile: profile || null,
         }),
       });
 
       if (!response.ok) throw new Error('Failed to get response');
 
-      const data = await response.json();
-      
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        role: 'assistant',
-        content: data.response || "I'm here to help! Could you tell me more about what you need?",
-        timestamp: new Date(),
-      }]);
+      // Read the stream
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.text) {
+                fullContent += data.text;
+                // Update the streaming message
+                setMessages(prev => prev.map(m => 
+                  m.id === assistantMessageId 
+                    ? { ...m, content: fullContent }
+                    : m
+                ));
+              }
+              if (data.done) {
+                // Mark streaming as complete
+                setMessages(prev => prev.map(m => 
+                  m.id === assistantMessageId 
+                    ? { ...m, isStreaming: false }
+                    : m
+                ));
+              }
+              if (data.error) {
+                throw new Error(data.error);
+              }
+            } catch (e) {
+              // Skip non-JSON lines
+            }
+          }
+        }
+      }
+
+      // Ensure we have content
+      if (!fullContent) {
+        setMessages(prev => prev.map(m => 
+          m.id === assistantMessageId 
+            ? { ...m, content: "I'm here to help! Could you tell me more?", isStreaming: false }
+            : m
+        ));
+      }
     } catch (error) {
       console.error('Chat error:', error);
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        role: 'assistant',
-        content: "I'm having trouble connecting right now. Please try again in a moment! 🐰",
-        timestamp: new Date(),
-      }]);
+      setMessages(prev => prev.map(m => 
+        m.id === assistantMessageId 
+          ? { ...m, content: "I'm having trouble connecting right now. Please try again in a moment! 🐰", isStreaming: false }
+          : m
+      ));
     } finally {
       setIsLoading(false);
     }
