@@ -21,17 +21,17 @@ targets:
     type: application
     platform: iOS
     sources:
-      - path: .
-        excludes:
-          - project.yml
-          - "*.xcodeproj"
-          - "*.xcworkspace"
-          - Pods
-          - Podfile
-          - Podfile.lock
+      - path: Theme
+      - path: Models
+      - path: Services
+      - path: Utils
+      - path: Components
+      - path: Screens
+      - path: AclioApp.swift
+      - path: Assets.xcassets
     settings:
       base:
-        INFOPLIST_FILE: Info.plist
+        INFOPLIST_FILE: Aclio/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.ahmed.aclio
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor

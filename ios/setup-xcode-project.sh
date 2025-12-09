@@ -22,28 +22,25 @@ else
     echo "✅ XcodeGen is already installed"
 fi
 
-# Navigate to the Aclio directory
+# Navigate to the ios directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR/Aclio"
+cd "$SCRIPT_DIR"
 
 echo "📁 Working directory: $(pwd)"
 
-# Generate the Xcode project
+# Generate the Xcode project from the Aclio subfolder's project.yml
 echo "🔨 Generating Xcode project..."
-xcodegen generate
+xcodegen generate --spec Aclio/project.yml
 
 # Check if project was created
 if [ -d "Aclio.xcodeproj" ]; then
     echo "✅ Xcode project created successfully!"
     
-    # Move project to parent ios/ directory
-    mv Aclio.xcodeproj ../
-    
     echo ""
     echo "🎉 Setup complete!"
     echo ""
     echo "Next steps:"
-    echo "  1. Open the project:  open ../Aclio.xcodeproj"
+    echo "  1. Open the project:  open Aclio.xcodeproj"
     echo "  2. Select your Team in Signing & Capabilities"
     echo "  3. Add RevenueCat: File → Add Package Dependencies"
     echo "     URL: https://github.com/RevenueCat/purchases-ios.git"
@@ -54,7 +51,7 @@ if [ -d "Aclio.xcodeproj" ]; then
     read -p "Open Xcode project now? (y/n) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        open ../Aclio.xcodeproj
+        open Aclio.xcodeproj
     fi
 else
     echo "❌ Failed to create Xcode project"
