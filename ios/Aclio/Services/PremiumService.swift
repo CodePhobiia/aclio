@@ -3,7 +3,7 @@ import Combine
 import RevenueCat
 
 // MARK: - Premium Service
-final class PremiumService: ObservableObject {
+final class PremiumService: NSObject, ObservableObject {
     static let shared = PremiumService()
     
     private let storage = LocalStorageService.shared
@@ -28,7 +28,8 @@ final class PremiumService: ObservableObject {
     @Published private(set) var error: String?
     
     // MARK: - Initialization
-    private init() {
+    private override init() {
+        super.init()
         isPremium = storage.isPremium
     }
     
