@@ -16,10 +16,18 @@ struct DashboardView: View {
     }
     
     var body: some View {
-        ZStack {
-            // Background
+        ZStack(alignment: .top) {
+            // Page Background
             colors.background
                 .ignoresSafeArea()
+            
+            // Hero background that extends to top
+            VStack(spacing: 0) {
+                Color.aclioHeaderBg
+                    .frame(height: ScreenSize.safeTop + 250)
+                Spacer()
+            }
+            .ignoresSafeArea(edges: .top)
             
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
