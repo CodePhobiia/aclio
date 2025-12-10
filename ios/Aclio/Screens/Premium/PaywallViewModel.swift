@@ -148,7 +148,3 @@ final class PaywallViewModel: ObservableObject {
     }
 }
 
-// MARK: - Package Display Extension
-extension Package: Identifiable {
-    public var id: String { identifier }
-}
