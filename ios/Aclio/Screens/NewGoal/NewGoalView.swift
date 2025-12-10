@@ -73,7 +73,7 @@ struct NewGoalView: View {
                         .padding(.horizontal, AclioSpacing.screenHorizontal)
                         .padding(.bottom, 160) // Space for CTA
                     }
-                    .scrollDismissesKeyboard(.interactively)
+                    .scrollDismissesKeyboard(.immediately)
                     .onChange(of: viewModel.questions.count) { _ in
                         // Auto-scroll to questions when they appear
                         if !viewModel.questions.isEmpty {
@@ -98,9 +98,12 @@ struct NewGoalView: View {
                 AILoadingOverlay.generatingQuestions
             }
         }
-        .onTapGesture {
-            isGoalInputFocused = false
-        }
+        .simultaneousGesture(
+            TapGesture()
+                .onEnded { _ in
+                    isGoalInputFocused = false
+                }
+        )
     }
     
     // MARK: - Mascot Header
