@@ -170,6 +170,8 @@ struct NewGoalView: View {
     }
     
     // MARK: - Due Date Section
+    @State private var showDatePicker = false
+    
     private var dueDateSection: some View {
         VStack(alignment: .leading, spacing: AclioSpacing.space2) {
             HStack(spacing: 6) {
@@ -182,21 +184,72 @@ struct NewGoalView: View {
                     .foregroundColor(colors.textSecondary)
             }
             
-            DatePicker(
-                "",
-                selection: Binding(
-                    get: { viewModel.dueDate ?? Date() },
-                    set: { viewModel.dueDate = $0 }
-                ),
-                in: Date()...,
-                displayedComponents: .date
-            )
-            .datePickerStyle(.compact)
-            .labelsHidden()
-            .padding(.horizontal, AclioSpacing.space4)
-            .padding(.vertical, AclioSpacing.space3)
-            .background(colors.inputBackground)
-            .cornerRadius(AclioRadius.input)
+            if viewModel.dueDate != nil || showDatePicker {
+                // Date picker with clear button
+                HStack {
+                    DatePicker(
+                        "",
+                        selection: Binding(
+                            get: { viewModel.dueDate ?? Calendar.current.date(byAdding: .day, value: 7, to: Date())! },
+                            set: { viewModel.dueDate = $0 }
+                        ),
+                        in: Date()...,
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .onAppear {
+                        // Set a default date when picker appears (1 week from now)
+                        if viewModel.dueDate == nil {
+                            viewModel.dueDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Clear button
+                    Button(action: {
+                        AclioHaptics.light()
+                        withAnimation {
+                            viewModel.dueDate = nil
+                            showDatePicker = false
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(colors.textMuted)
+                    }
+                }
+                .padding(.horizontal, AclioSpacing.space4)
+                .padding(.vertical, AclioSpacing.space3)
+                .background(colors.inputBackground)
+                .cornerRadius(AclioRadius.input)
+            } else {
+                // Add date button
+                Button(action: {
+                    AclioHaptics.light()
+                    withAnimation {
+                        showDatePicker = true
+                    }
+                }) {
+                    HStack(spacing: AclioSpacing.space3) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 18))
+                            .foregroundColor(colors.accent)
+                        
+                        Text("Add a target date")
+                            .font(AclioFont.body)
+                            .foregroundColor(colors.textSecondary)
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, AclioSpacing.space4)
+                    .padding(.vertical, AclioSpacing.space3)
+                    .background(colors.inputBackground)
+                    .cornerRadius(AclioRadius.input)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
         }
     }
     
