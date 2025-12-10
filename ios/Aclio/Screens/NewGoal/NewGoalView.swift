@@ -9,6 +9,7 @@ struct NewGoalView: View {
     
     @Environment(\.colorScheme) private var colorScheme
     @FocusState private var isGoalInputFocused: Bool
+    @State private var isKeyboardVisible: Bool = false
     
     private var colors: AclioColors {
         AclioColors(colorScheme)
@@ -71,7 +72,7 @@ struct NewGoalView: View {
                             }
                         }
                         .padding(.horizontal, AclioSpacing.screenHorizontal)
-                        .padding(.bottom, 140) // Space for CTA
+                        .padding(.bottom, isKeyboardVisible ? 20 : 140) // Less padding when keyboard visible
                     }
                     .scrollDismissesKeyboard(.immediately)
                     .onChange(of: viewModel.questions.count) { _ in
@@ -85,8 +86,11 @@ struct NewGoalView: View {
                 }
             }
             
-            // CTA Footer
-            ctaFooter
+            // CTA Footer - Hide when keyboard is visible
+            if !isKeyboardVisible {
+                ctaFooter
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
             
             // Generation Overlay
             if viewModel.isLoading {
@@ -104,6 +108,16 @@ struct NewGoalView: View {
                     isGoalInputFocused = false
                 }
         )
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            withAnimation(.easeInOut(duration: 0.25)) {
+                isKeyboardVisible = true
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            withAnimation(.easeInOut(duration: 0.25)) {
+                isKeyboardVisible = false
+            }
+        }
     }
     
     // MARK: - Mascot Header
