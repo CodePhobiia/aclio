@@ -106,13 +106,23 @@ final class PaywallViewModel: ObservableObject {
     }
     
     func purchase() async -> Bool {
+        print("🛒 PaywallViewModel: Purchase initiated")
+        print("🛒 PaywallViewModel: useStaticPlans = \(useStaticPlans)")
+        print("🛒 PaywallViewModel: packages count = \(packages.count)")
+        print("🛒 PaywallViewModel: selectedPackage = \(selectedPackage?.identifier ?? "nil")")
+        
         if useStaticPlans {
             // Use static plan ID to find package, or just grant premium for testing
             let productId = "aclio_premium_\(selectedStaticPlan.id)"
+            print("🛒 PaywallViewModel: Using static plan with productId = \(productId)")
             return await premium.handlePurchase(planId: productId)
         }
         
-        guard let package = selectedPackage else { return false }
+        guard let package = selectedPackage else {
+            print("❌ PaywallViewModel: No package selected!")
+            return false
+        }
+        print("🛒 PaywallViewModel: Purchasing package: \(package.identifier)")
         return await premium.purchase(package: package)
     }
     
