@@ -203,32 +203,11 @@ struct PaywallView: View {
                     AclioHaptics.selection()
                     viewModel.selectPackage(package)
                 }) {
-                    VStack(spacing: 4) {
-                        Text(package.periodName)
-                            .font(AclioFont.buttonSmall)
-                            .foregroundColor(isSelected ? .white : colors.textPrimary)
-                        
-                        Text(package.localizedPriceString)
-                            .font(AclioFont.caption)
-                            .foregroundColor(isSelected ? .white.opacity(0.8) : colors.textSecondary)
-                        
-                        if package.isBestValue {
-                            Text("Best")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.aclioSuccess)
-                                .cornerRadius(4)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, AclioSpacing.space3)
-                    .background(isSelected ? colors.accent : colors.pillBackground)
-                    .cornerRadius(AclioRadius.button)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AclioRadius.button)
-                            .stroke(isSelected ? colors.accent : colors.border, lineWidth: 1)
+                    glassyPlanButtonContent(
+                        title: package.periodName,
+                        price: package.localizedPriceString,
+                        isBestValue: package.isBestValue,
+                        isSelected: isSelected
                     )
                 }
             }
@@ -279,36 +258,116 @@ struct PaywallView: View {
                     AclioHaptics.selection()
                     viewModel.selectStaticPlan(plan)
                 }) {
-                    VStack(spacing: 4) {
-                        Text(plan.period)
-                            .font(AclioFont.buttonSmall)
-                            .foregroundColor(isSelected ? .white : colors.textPrimary)
-                        
-                        Text(plan.price)
-                            .font(AclioFont.caption)
-                            .foregroundColor(isSelected ? .white.opacity(0.8) : colors.textSecondary)
-                        
-                        if plan.isBestValue {
-                            Text("Best")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.aclioSuccess)
-                                .cornerRadius(4)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, AclioSpacing.space3)
-                    .background(isSelected ? colors.accent : colors.pillBackground)
-                    .cornerRadius(AclioRadius.button)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AclioRadius.button)
-                            .stroke(isSelected ? colors.accent : colors.border, lineWidth: 1)
+                    glassyPlanButtonContent(
+                        title: plan.period,
+                        price: plan.price,
+                        isBestValue: plan.isBestValue,
+                        isSelected: isSelected
                     )
                 }
             }
         }
+    }
+    
+    // MARK: - Glassy Plan Button Content
+    @ViewBuilder
+    private func glassyPlanButtonContent(
+        title: String,
+        price: String,
+        isBestValue: Bool,
+        isSelected: Bool
+    ) -> some View {
+        VStack(spacing: 6) {
+            Text(title)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white)
+            
+            Text(price)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.white.opacity(0.85))
+            
+            if isBestValue {
+                Text("Best Value")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule()
+                            .fill(Color.white.opacity(0.25))
+                    )
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, AclioSpacing.space4)
+        .background(
+            ZStack {
+                // Base gradient
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        isSelected 
+                            ? AclioGradients.glassyPlanButtonSelected
+                            : AclioGradients.glassyPlanButton
+                    )
+                
+                // Glass refraction effect - top highlight
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(isSelected ? 0.35 : 0.25),
+                                Color.white.opacity(0.05),
+                                Color.clear
+                            ],
+                            startPoint: .top,
+                            endPoint: .center
+                        )
+                    )
+                
+                // Inner glow for selected
+                if isSelected {
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.6),
+                                    Color.white.opacity(0.2),
+                                    Color(hex: "A78BFA").opacity(0.3)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                }
+            }
+        )
+        .overlay(
+            // Outer border
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(isSelected ? 0.5 : 0.3),
+                            Color(hex: "8B7ED8").opacity(0.3),
+                            Color.white.opacity(0.15)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .shadow(
+            color: isSelected 
+                ? Color(hex: "8B5CF6").opacity(0.4) 
+                : Color(hex: "6B5DC7").opacity(0.2),
+            radius: isSelected ? 12 : 6,
+            x: 0,
+            y: 4
+        )
+        .scaleEffect(isSelected ? 1.02 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
     }
 }
 

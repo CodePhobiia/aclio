@@ -128,6 +128,29 @@ struct AclioGradients {
         endPoint: .bottomTrailing
     )
     
+    // MARK: - Glassy Plan Button Gradient (Purple/Blue Refracted)
+    static let glassyPlanButton = LinearGradient(
+        colors: [
+            Color(hex: "8B7ED8").opacity(0.9),  // Soft purple
+            Color(hex: "6B5DC7").opacity(0.85), // Medium purple
+            Color(hex: "9B8FE8").opacity(0.7),  // Light purple highlight
+            Color(hex: "7C6DC8").opacity(0.8)   // Purple-blue
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let glassyPlanButtonSelected = LinearGradient(
+        colors: [
+            Color(hex: "A78BFA"),  // Bright violet
+            Color(hex: "8B5CF6"),  // Purple
+            Color(hex: "7C3AED"),  // Deep purple
+            Color(hex: "6D28D9")   // Rich purple
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
     // MARK: - Button Shimmer Effect
     static let buttonShimmer = LinearGradient(
         colors: [
