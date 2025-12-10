@@ -60,7 +60,7 @@ struct DoItForMeResultView: View {
                     Button("Exit") {
                         onDismiss()
                     }
-                    .foregroundColor(colors.accentPrimary)
+                    .foregroundColor(colors.accent)
                 }
                 
                 ToolbarItem(placement: .principal) {
@@ -94,7 +94,7 @@ struct DoItForMeResultView: View {
             HStack(spacing: AclioSpacing.space3) {
                 ZStack {
                     Circle()
-                        .fill(AclioGradients.accentOrange)
+                        .fill(AclioGradients.primaryOrange)
                         .frame(width: 48, height: 48)
                     
                     Image(systemName: "wand.and.stars")
@@ -127,7 +127,7 @@ struct DoItForMeResultView: View {
         VStack(alignment: .leading, spacing: AclioSpacing.space4) {
             HStack {
                 Image(systemName: "doc.text.fill")
-                    .foregroundColor(colors.accentPrimary)
+                    .foregroundColor(colors.accent)
                 Text("What Was Done")
                     .font(AclioFont.sectionTitle)
                     .foregroundColor(colors.textPrimary)
