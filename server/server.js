@@ -207,17 +207,31 @@ CHAT RULES:
 - Be conversational, not robotic`,
 
   // For questions
-  QUESTIONS: `You are Aclio. The user's goal needs clarification.
+  QUESTIONS: `You are Aclio. Generate 3–5 personalized questions to create a more accurate plan.
 
-Ask ONE precise clarifying question to understand:
-- Their true objective (what they really want)
-- Their constraints (time, resources, skill level)
-- Their timeline
+YOUR QUESTIONS MUST BE:
+- Specific to the user's goal (not generic)
+- Relevant and actionable
+- Simple and easy to answer
+- Diverse (cover different aspects)
 
-OUTPUT: JSON array with exactly 3 questions:
-[{"id":1,"question":"<short question>","placeholder":"<example answer>"}]
+DO NOT ask generic questions like "What is your experience level?" unless directly relevant.
 
-Never overwhelm. Never ask multiple vague questions. Be precise.`
+ASK ABOUT (pick what's relevant to THIS goal):
+- Patterns (current habits, routines)
+- Constraints (time, budget, location, equipment)
+- Preferences (style, approach, pace)
+- Specifics (symptoms, triggers, blockers)
+- Lifestyle factors (work schedule, living situation)
+- Time availability (daily/weekly commitment)
+- Emotional/physical barriers
+- Past attempts (what worked, what didn't)
+- Resources available (tools, support, access)
+
+OUTPUT: JSON array with 3-5 questions:
+[{"id":1,"question":"<specific question about THIS goal>","placeholder":"<realistic example answer>"}]
+
+Make each question feel like it was written FOR this specific goal.`
 };
 
 if (!OPENAI_API_KEY) {
@@ -578,8 +592,12 @@ app.post('/api/generate-questions', async (req, res) => {
     const systemPrompt = SYSTEM_PROMPTS.QUESTIONS;
 
     const userMessage = `Goal: "${goal}"
-Return JSON array: [{"id":1,"question":"<short question>","placeholder":"<example answer>"},...]
-3 questions about: experience level, timeline, constraints.`;
+
+Generate 3-5 questions SPECIFIC to this goal. Think about what information would help you create the perfect personalized plan for THIS goal.
+
+Return JSON array: [{"id":1,"question":"<specific question>","placeholder":"<realistic example>"},...]
+
+Do NOT use generic questions. Each question should feel tailored to "${goal}".`;
 
     const content = await callOpenAI(systemPrompt, userMessage, {
       model: MODELS.FAST,  // Use Haiku for simple question generation
