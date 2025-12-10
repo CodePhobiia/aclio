@@ -30,7 +30,10 @@ final class PremiumService: NSObject, ObservableObject {
     // MARK: - Initialization
     private override init() {
         super.init()
-        isPremium = storage.isPremium
+        // Load cached premium status (will be verified with RevenueCat)
+        let cachedPremium = storage.isPremium
+        isPremium = cachedPremium
+        print("📦 PremiumService: Initialized with cached premium = \(cachedPremium)")
     }
     
     // MARK: - Configure RevenueCat
@@ -41,11 +44,19 @@ final class PremiumService: NSObject, ObservableObject {
         // Set delegate
         Purchases.shared.delegate = self
         
-        // Check subscription status on launch
+        print("📦 RevenueCat: Configured with API key")
+        
+        // Check subscription status on launch - this will verify/override cached status
         Task {
             await checkSubscriptionStatus()
             await fetchOfferings()
         }
+    }
+    
+    // MARK: - Clear Premium (for testing)
+    func clearPremiumStatus() {
+        print("📦 PremiumService: Clearing premium status")
+        setPremium(false)
     }
     
     // MARK: - Fetch Offerings
@@ -72,14 +83,28 @@ final class PremiumService: NSObject, ObservableObject {
     // MARK: - Check Subscription Status
     @MainActor
     func checkSubscriptionStatus() async {
+        print("📦 RevenueCat: Checking subscription status...")
+        
         do {
             let customerInfo = try await Purchases.shared.customerInfo()
-            let isActive = customerInfo.entitlements[Config.entitlementId]?.isActive ?? false
             
-            print("📦 RevenueCat: Premium status = \(isActive)")
-            setPremium(isActive)
+            // Log all entitlements for debugging
+            print("📦 RevenueCat: Customer entitlements: \(customerInfo.entitlements.all.keys)")
+            
+            if let premiumEntitlement = customerInfo.entitlements[Config.entitlementId] {
+                print("📦 RevenueCat: Entitlement '\(Config.entitlementId)' found")
+                print("📦 RevenueCat: - isActive: \(premiumEntitlement.isActive)")
+                print("📦 RevenueCat: - productIdentifier: \(premiumEntitlement.productIdentifier)")
+                print("📦 RevenueCat: - expirationDate: \(premiumEntitlement.expirationDate?.description ?? "nil")")
+                
+                setPremium(premiumEntitlement.isActive)
+            } else {
+                print("📦 RevenueCat: No '\(Config.entitlementId)' entitlement found - setting premium to false")
+                setPremium(false)
+            }
         } catch {
             print("❌ RevenueCat: Failed to check subscription - \(error.localizedDescription)")
+            // Don't change premium status on error - keep cached value
         }
     }
     
@@ -89,16 +114,29 @@ final class PremiumService: NSObject, ObservableObject {
         isLoading = true
         error = nil
         
+        print("📦 RevenueCat: Starting purchase for package: \(package.identifier)")
+        print("📦 RevenueCat: Product ID: \(package.storeProduct.productIdentifier)")
+        
         do {
             let result = try await Purchases.shared.purchase(package: package)
             
+            print("📦 RevenueCat: Purchase completed - userCancelled: \(result.userCancelled)")
+            
             if !result.userCancelled {
                 let isActive = result.customerInfo.entitlements[Config.entitlementId]?.isActive ?? false
-                setPremium(isActive)
-                showPaywall = false
-                print("✅ RevenueCat: Purchase successful - Premium = \(isActive)")
-                isLoading = false
-                return true
+                print("📦 RevenueCat: Entitlement '\(Config.entitlementId)' isActive: \(isActive)")
+                
+                // Only grant premium if entitlement is actually active
+                if isActive {
+                    setPremium(true)
+                    showPaywall = false
+                    print("✅ RevenueCat: Purchase successful - Premium granted")
+                    isLoading = false
+                    return true
+                } else {
+                    print("⚠️ RevenueCat: Purchase completed but entitlement not active")
+                    self.error = "Purchase completed but subscription not activated. Please try again."
+                }
             } else {
                 print("📦 RevenueCat: Purchase cancelled by user")
             }
