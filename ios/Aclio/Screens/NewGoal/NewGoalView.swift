@@ -414,43 +414,93 @@ struct NewGoalView: View {
                     .background(colors.accentSoft)
                     .cornerRadius(AclioRadius.card)
                 }
-                // Personalize button
+                // Personalize button - More prominent with Recommended badge
                 else if !viewModel.showQuestions && viewModel.canSubmit && !viewModel.isLoading {
                     Button(action: {
+                        AclioHaptics.medium()
                         Task {
                             await viewModel.generateQuestions()
                         }
                     }) {
-                        HStack(spacing: AclioSpacing.space3) {
-                            ZStack {
-                                Circle()
-                                    .fill(colors.accentSoft)
-                                    .frame(width: 36, height: 36)
-                                
-                                Image(systemName: "sparkles")
-                                    .font(.system(size: 16))
-                                    .foregroundColor(colors.accent)
+                        VStack(spacing: 0) {
+                            // Recommended banner
+                            HStack(spacing: 6) {
+                                Image(systemName: "star.fill")
+                                    .font(.system(size: 10, weight: .bold))
+                                Text("RECOMMENDED")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .tracking(0.5)
                             }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color(hex: "FF9F3A"), Color(hex: "FF7A3D")],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
                             
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Personalize with questions")
-                                    .font(AclioFont.cardTitle)
-                                    .foregroundColor(colors.textPrimary)
+                            // Main content
+                            HStack(spacing: AclioSpacing.space3) {
+                                ZStack {
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [Color(hex: "FF9F3A").opacity(0.2), Color(hex: "FF7A3D").opacity(0.3)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 44, height: 44)
+                                    
+                                    Image(systemName: "sparkles")
+                                        .font(.system(size: 20, weight: .semibold))
+                                        .foregroundColor(colors.accent)
+                                }
                                 
-                                Text("Get a more tailored action plan")
-                                    .font(AclioFont.caption)
-                                    .foregroundColor(colors.textSecondary)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Personalize with AI Questions")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(colors.textPrimary)
+                                    
+                                    Text("Answer 3 quick questions for a tailored plan")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(colors.textSecondary)
+                                }
+                                
+                                Spacer()
+                                
+                                ZStack {
+                                    Circle()
+                                        .fill(colors.accent)
+                                        .frame(width: 28, height: 28)
+                                    
+                                    Image(systemName: "arrow.right")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
                             }
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(colors.textMuted)
+                            .padding(AclioSpacing.space4)
                         }
-                        .padding(AclioSpacing.space4)
                         .background(colors.cardBackground)
                         .cornerRadius(AclioRadius.card)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AclioRadius.card)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [Color(hex: "FF9F3A").opacity(0.5), Color(hex: "FF7A3D").opacity(0.3)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 2
+                                )
+                        )
+                        .shadow(color: Color(hex: "FF9F3A").opacity(0.2), radius: 8, x: 0, y: 4)
                     }
+                    .buttonStyle(PlainButtonStyle())
                 }
                 
                 // Main CTA
