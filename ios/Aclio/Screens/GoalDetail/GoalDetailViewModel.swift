@@ -252,7 +252,7 @@ final class GoalDetailViewModel: ObservableObject {
                     id: maxExistingId + index + 1,
                     title: stepData.title,
                     description: stepData.description,
-                    estimatedDuration: stepData.estimatedDuration
+                    duration: stepData.duration
                 )
             }
             
