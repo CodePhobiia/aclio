@@ -38,6 +38,7 @@ targets:
         group: Screens
       - path: Aclio/AclioApp.swift
       - path: Aclio/Assets.xcassets
+      - path: Aclio/StoreKitConfig.storekit
     dependencies:
       - package: RevenueCat
         product: RevenueCat
