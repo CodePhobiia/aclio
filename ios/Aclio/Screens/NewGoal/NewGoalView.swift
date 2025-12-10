@@ -71,7 +71,7 @@ struct NewGoalView: View {
                             }
                         }
                         .padding(.horizontal, AclioSpacing.screenHorizontal)
-                        .padding(.bottom, 160) // Space for CTA
+                        .padding(.bottom, 140) // Space for CTA
                     }
                     .scrollDismissesKeyboard(.immediately)
                     .onChange(of: viewModel.questions.count) { _ in
@@ -572,10 +572,11 @@ struct NewGoalView: View {
                 }
             }
             .padding(.horizontal, AclioSpacing.screenHorizontal)
-            .padding(.bottom, ScreenSize.safeBottom + AclioSpacing.space4)
+            .padding(.bottom, ScreenSize.safeBottom + AclioSpacing.space6)
             .padding(.top, AclioSpacing.space4)
             .background(
                 colors.background
+                    .ignoresSafeArea(edges: .bottom)
                     .shadow(color: .black.opacity(0.1), radius: 10, y: -5)
             )
         }
