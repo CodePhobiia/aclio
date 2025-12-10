@@ -10,6 +10,7 @@ struct ExtendGoalSheet: View {
     @State private var extensionText: String = ""
     @State private var isGenerating: Bool = false
     @FocusState private var isTextFocused: Bool
+    @StateObject private var keyboardObserver = KeyboardObserver()
     
     private var colors: AclioColors {
         AclioColors(colorScheme)
@@ -24,35 +25,53 @@ struct ExtendGoalSheet: View {
     
     var body: some View {
         NavigationView {
-            ZStack {
-                colors.background
-                    .ignoresSafeArea()
-                
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: AclioSpacing.space5) {
-                        // Header
-                        headerSection
-                        
-                        // Goal context
-                        goalContextCard
-                        
-                        // Input section
-                        inputSection
-                        
-                        // Suggestions
-                        suggestionsSection
-                        
-                        Spacer(minLength: 100)
+            GeometryReader { geometry in
+                ZStack {
+                    colors.background
+                        .ignoresSafeArea()
+                    
+                    ScrollViewReader { scrollProxy in
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: AclioSpacing.space5) {
+                                // Header
+                                headerSection
+                                
+                                // Goal context
+                                goalContextCard
+                                
+                                // Input section
+                                inputSection
+                                    .id("inputSection")
+                                
+                                // Suggestions
+                                if !keyboardObserver.isKeyboardVisible {
+                                    suggestionsSection
+                                }
+                                
+                                Spacer(minLength: keyboardObserver.isKeyboardVisible ? 20 : 100)
+                            }
+                            .padding(.horizontal, AclioSpacing.screenHorizontal)
+                            .padding(.top, AclioSpacing.space4)
+                        }
+                        .scrollDismissesKeyboard(.interactively)
+                        .onChange(of: isTextFocused) { focused in
+                            if focused {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    withAnimation {
+                                        scrollProxy.scrollTo("inputSection", anchor: .center)
+                                    }
+                                }
+                            }
+                        }
                     }
-                    .padding(.horizontal, AclioSpacing.screenHorizontal)
-                    .padding(.top, AclioSpacing.space4)
-                }
-                .scrollDismissesKeyboard(.immediately)
-                
-                // Bottom CTA
-                VStack {
-                    Spacer()
-                    bottomCTA
+                    
+                    // Bottom CTA - hide when keyboard is visible
+                    if !keyboardObserver.isKeyboardVisible {
+                        VStack {
+                            Spacer()
+                            bottomCTA
+                        }
+                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -70,6 +89,16 @@ struct ExtendGoalSheet: View {
                     Text("Extend Goal")
                         .font(AclioFont.navTitle)
                         .foregroundColor(colors.textPrimary)
+                }
+                
+                // Add Done button when keyboard is visible
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if keyboardObserver.isKeyboardVisible {
+                        Button("Done") {
+                            isTextFocused = false
+                        }
+                        .foregroundColor(colors.accent)
+                    }
                 }
             }
             .interactiveDismissDisabled(isGenerating)

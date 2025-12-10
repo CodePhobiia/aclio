@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Chat View
 struct ChatView: View {
     @StateObject private var viewModel: ChatViewModel
+    @StateObject private var keyboardObserver = KeyboardObserver()
     
     let onBack: () -> Void
     
@@ -19,49 +20,64 @@ struct ChatView: View {
     }
     
     var body: some View {
-        ZStack {
-            // Background
-            colors.background
-                .ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // Header
-                chatHeader
+        GeometryReader { geometry in
+            ZStack {
+                // Background
+                colors.background
+                    .ignoresSafeArea()
                 
-                // Messages
-                ScrollViewReader { proxy in
-                    ScrollView(showsIndicators: false) {
-                        LazyVStack(spacing: AclioSpacing.space3) {
-                            ForEach(viewModel.messages) { message in
-                                ChatBubble(message: message)
-                                    .id(message.id)
+                VStack(spacing: 0) {
+                    // Header
+                    chatHeader
+                    
+                    // Messages
+                    ScrollViewReader { proxy in
+                        ScrollView(showsIndicators: false) {
+                            LazyVStack(spacing: AclioSpacing.space3) {
+                                ForEach(viewModel.messages) { message in
+                                    ChatBubble(message: message)
+                                        .id(message.id)
+                                }
+                                
+                                // Typing indicator
+                                if viewModel.isLoading && (viewModel.messages.last?.content.isEmpty ?? true) {
+                                    typingIndicator
+                                }
                             }
-                            
-                            // Typing indicator
-                            if viewModel.isLoading && (viewModel.messages.last?.content.isEmpty ?? true) {
-                                typingIndicator
+                            .padding(.horizontal, AclioSpacing.screenHorizontal)
+                            .padding(.vertical, AclioSpacing.space4)
+                        }
+                        .scrollDismissesKeyboard(.interactively)
+                        .onChange(of: viewModel.messages.count) { _ in
+                            if let lastId = viewModel.messages.last?.id {
+                                withAnimation {
+                                    proxy.scrollTo(lastId, anchor: .bottom)
+                                }
                             }
                         }
-                        .padding(.horizontal, AclioSpacing.screenHorizontal)
-                        .padding(.vertical, AclioSpacing.space4)
-                    }
-                    .onChange(of: viewModel.messages.count) { _ in
-                        if let lastId = viewModel.messages.last?.id {
-                            withAnimation {
-                                proxy.scrollTo(lastId, anchor: .bottom)
+                        .onChange(of: keyboardObserver.isKeyboardVisible) { isVisible in
+                            if isVisible, let lastId = viewModel.messages.last?.id {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    withAnimation {
+                                        proxy.scrollTo(lastId, anchor: .bottom)
+                                    }
+                                }
                             }
                         }
                     }
+                    
+                    // Quick prompts
+                    if viewModel.messages.count <= 1 && !keyboardObserver.isKeyboardVisible {
+                        quickPrompts
+                    }
+                    
+                    // Input area
+                    inputArea
                 }
-                
-                // Quick prompts
-                if viewModel.messages.count <= 1 {
-                    quickPrompts
-                }
-                
-                // Input area
-                inputArea
             }
+            .ignoresSafeArea(.keyboard)
+            .padding(.bottom, keyboardObserver.keyboardHeight > 0 ? keyboardObserver.keyboardHeight - geometry.safeAreaInsets.bottom : 0)
+            .animation(.easeOut(duration: 0.25), value: keyboardObserver.keyboardHeight)
         }
         .sheet(isPresented: $viewModel.showPaywall) {
             PaywallView(onDismiss: { viewModel.dismissPaywall() })
@@ -171,7 +187,7 @@ struct ChatView: View {
         }
         .padding(.horizontal, AclioSpacing.screenHorizontal)
         .padding(.vertical, AclioSpacing.space3)
-        .padding(.bottom, ScreenSize.safeBottom)
+        .padding(.bottom, keyboardObserver.isKeyboardVisible ? AclioSpacing.space2 : ScreenSize.safeBottom)
         .background(colors.cardBackground)
     }
 }

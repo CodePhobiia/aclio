@@ -3,123 +3,213 @@ import SwiftUI
 // MARK: - New Goal View
 struct NewGoalView: View {
     @StateObject private var viewModel = NewGoalViewModel()
+    @StateObject private var keyboardObserver = KeyboardObserver()
     
     let onBack: () -> Void
     let onGoalCreated: (Goal) -> Void
     
     @Environment(\.colorScheme) private var colorScheme
     @FocusState private var isGoalInputFocused: Bool
-    @State private var isKeyboardVisible: Bool = false
+    @FocusState private var focusedQuestionIndex: Int?
     
     private var colors: AclioColors {
         AclioColors(colorScheme)
     }
     
     var body: some View {
-        ZStack {
-            // Background
-            colors.background
-                .ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // Header
-                HeaderView(title: "New Goal", onBack: {
-                    viewModel.reset()
-                    onBack()
-                })
+        GeometryReader { geometry in
+            ZStack {
+                // Background
+                colors.background
+                    .ignoresSafeArea()
                 
-                ScrollViewReader { proxy in
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: AclioSpacing.space6) {
-                            // Mascot header
-                            mascotHeader
-                            
-                            // Question title
-                            Text("What do you want to achieve?")
-                                .font(AclioFont.title3)
-                                .foregroundColor(colors.textPrimary)
-                                .multilineTextAlignment(.center)
-                            
-                            // Goal input
-                            goalInputCard
-                            
-                            // Quick suggestions
-                            if viewModel.goalText.isEmpty {
-                                quickSuggestions
+                VStack(spacing: 0) {
+                    // Header with Done button when keyboard visible
+                    HStack {
+                        HeaderView(title: "New Goal", onBack: {
+                            viewModel.reset()
+                            onBack()
+                        })
+                        
+                        Spacer()
+                        
+                        if keyboardObserver.isKeyboardVisible {
+                            Button("Done") {
+                                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                             }
-                            
-                            // Due date
-                            dueDateSection
-                            
-                            // Icon selection
-                            iconSelection
-                            
-                            // Color selection
-                            colorSelection
-                            
-                            // Plan frequency selection
-                            planFrequencySelection
-                                .id("frequencySection")
-                            
-                            // AI Questions
-                            if viewModel.showQuestions && !viewModel.questions.isEmpty {
-                                questionsCard
-                                    .id("questionsSection")
+                            .font(AclioFont.bodyMedium)
+                            .foregroundColor(colors.accent)
+                            .padding(.trailing, AclioSpacing.screenHorizontal)
+                            .padding(.top, ScreenSize.safeTop + AclioSpacing.space3)
+                        }
+                    }
+                    
+                    ScrollViewReader { proxy in
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: AclioSpacing.space6) {
+                                // Mascot header - hide when keyboard visible to save space
+                                if !keyboardObserver.isKeyboardVisible {
+                                    mascotHeader
+                                }
+                                
+                                // Question title
+                                Text("What do you want to achieve?")
+                                    .font(AclioFont.title3)
+                                    .foregroundColor(colors.textPrimary)
+                                    .multilineTextAlignment(.center)
+                                
+                                // Goal input
+                                goalInputCard
+                                    .id("goalInput")
+                                
+                                // Quick suggestions
+                                if viewModel.goalText.isEmpty && !keyboardObserver.isKeyboardVisible {
+                                    quickSuggestions
+                                }
+                                
+                                // Due date
+                                dueDateSection
+                                
+                                // Icon selection
+                                iconSelection
+                                
+                                // Color selection
+                                colorSelection
+                                
+                                // Plan frequency selection
+                                planFrequencySelection
+                                    .id("frequencySection")
+                                
+                                // AI Questions
+                                if viewModel.showQuestions && !viewModel.questions.isEmpty {
+                                    questionsCardWithScrolling(proxy: proxy)
+                                        .id("questionsSection")
+                                }
+                                
+                                // Error
+                                if let error = viewModel.error {
+                                    errorMessage(error)
+                                }
+                                
+                                // Extra spacing at bottom for keyboard
+                                Spacer()
+                                    .frame(height: keyboardObserver.isKeyboardVisible ? 20 : 140)
                             }
-                            
-                            // Error
-                            if let error = viewModel.error {
-                                errorMessage(error)
+                            .padding(.horizontal, AclioSpacing.screenHorizontal)
+                        }
+                        .scrollDismissesKeyboard(.interactively)
+                        .onChange(of: viewModel.questions.count) { _ in
+                            // Auto-scroll to show frequency options AND questions
+                            if !viewModel.questions.isEmpty {
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    // Scroll to frequency section so users see both options
+                                    proxy.scrollTo("frequencySection", anchor: .top)
+                                }
                             }
                         }
-                        .padding(.horizontal, AclioSpacing.screenHorizontal)
-                        .padding(.bottom, isKeyboardVisible ? 20 : 140) // Less padding when keyboard visible
-                    }
-                    .scrollDismissesKeyboard(.immediately)
-                    .onChange(of: viewModel.questions.count) { _ in
-                        // Auto-scroll to show frequency options AND questions
-                        if !viewModel.questions.isEmpty {
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                // Scroll to frequency section so users see both options
-                                proxy.scrollTo("frequencySection", anchor: .top)
+                        .onChange(of: focusedQuestionIndex) { index in
+                            if let index = index {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    withAnimation {
+                                        proxy.scrollTo("question_\(index)", anchor: .center)
+                                    }
+                                }
+                            }
+                        }
+                        .onChange(of: isGoalInputFocused) { focused in
+                            if focused {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    withAnimation {
+                                        proxy.scrollTo("goalInput", anchor: .center)
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-            
-            // CTA Footer - Hide when keyboard is visible
-            if !isKeyboardVisible {
-                ctaFooter
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
-            
-            // Generation Overlay
-            if viewModel.isLoading {
-                generationOverlay
-            }
-            
-            // Questions Loading Overlay
-            if viewModel.isQuestionsLoading {
-                AILoadingOverlay.generatingQuestions
+                
+                // CTA Footer - Hide when keyboard is visible
+                if !keyboardObserver.isKeyboardVisible {
+                    ctaFooter
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                
+                // Generation Overlay
+                if viewModel.isLoading {
+                    generationOverlay
+                }
+                
+                // Questions Loading Overlay
+                if viewModel.isQuestionsLoading {
+                    AILoadingOverlay.generatingQuestions
+                }
             }
         }
         .simultaneousGesture(
             TapGesture()
                 .onEnded { _ in
                     isGoalInputFocused = false
+                    focusedQuestionIndex = nil
                 }
         )
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-            withAnimation(.easeInOut(duration: 0.25)) {
-                isKeyboardVisible = true
+    }
+    
+    // MARK: - Questions Card With Scrolling
+    private func questionsCardWithScrolling(proxy: ScrollViewProxy) -> some View {
+        VStack(alignment: .leading, spacing: AclioSpacing.space4) {
+            HStack(spacing: AclioSpacing.space3) {
+                ZStack {
+                    Circle()
+                        .fill(colors.accentSoft)
+                        .frame(width: 36, height: 36)
+                    
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(colors.accent)
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Tell us more")
+                        .font(AclioFont.cardTitle)
+                        .foregroundColor(colors.textPrimary)
+                    
+                    Text("Answer these to get a more personalized plan")
+                        .font(AclioFont.caption)
+                        .foregroundColor(colors.textSecondary)
+                }
+            }
+            
+            ForEach(Array(viewModel.questions.enumerated()), id: \.offset) { index, question in
+                VStack(alignment: .leading, spacing: AclioSpacing.space2) {
+                    HStack(spacing: AclioSpacing.space2) {
+                        Text("\(index + 1)")
+                            .font(AclioFont.captionMedium)
+                            .foregroundColor(.white)
+                            .frame(width: 20, height: 20)
+                            .background(colors.accent)
+                            .clipShape(Circle())
+                        
+                        Text(question.question)
+                            .font(AclioFont.body)
+                            .foregroundColor(colors.textPrimary)
+                    }
+                    
+                    TextField(question.placeholder ?? "Your answer...", text: Binding(
+                        get: { viewModel.answers[question.question] ?? "" },
+                        set: { viewModel.updateAnswer(for: question.question, answer: $0) }
+                    ))
+                    .font(AclioFont.input)
+                    .padding(AclioSpacing.space3)
+                    .background(colors.inputBackground)
+                    .cornerRadius(AclioRadius.input)
+                    .focused($focusedQuestionIndex, equals: index)
+                    .id("question_\(index)")
+                }
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-            withAnimation(.easeInOut(duration: 0.25)) {
-                isKeyboardVisible = false
-            }
-        }
+        .padding(AclioSpacing.cardPadding)
+        .background(colors.cardBackground)
+        .cornerRadius(AclioRadius.card)
     }
     
     // MARK: - Mascot Header
@@ -391,60 +481,6 @@ struct NewGoalView: View {
     }
     
     // MARK: - Questions Card
-    private var questionsCard: some View {
-        VStack(alignment: .leading, spacing: AclioSpacing.space4) {
-            HStack(spacing: AclioSpacing.space3) {
-                ZStack {
-                    Circle()
-                        .fill(colors.accentSoft)
-                        .frame(width: 36, height: 36)
-                    
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(colors.accent)
-                }
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Tell us more")
-                        .font(AclioFont.cardTitle)
-                        .foregroundColor(colors.textPrimary)
-                    
-                    Text("Answer these to get a more personalized plan")
-                        .font(AclioFont.caption)
-                        .foregroundColor(colors.textSecondary)
-                }
-            }
-            
-            ForEach(Array(viewModel.questions.enumerated()), id: \.offset) { index, question in
-                VStack(alignment: .leading, spacing: AclioSpacing.space2) {
-                    HStack(spacing: AclioSpacing.space2) {
-                        Text("\(index + 1)")
-                            .font(AclioFont.captionMedium)
-                            .foregroundColor(.white)
-                            .frame(width: 20, height: 20)
-                            .background(colors.accent)
-                            .clipShape(Circle())
-                        
-                        Text(question.question)
-                            .font(AclioFont.body)
-                            .foregroundColor(colors.textPrimary)
-                    }
-                    
-                    TextField(question.placeholder ?? "Your answer...", text: Binding(
-                        get: { viewModel.answers[question.question] ?? "" },
-                        set: { viewModel.updateAnswer(for: question.question, answer: $0) }
-                    ))
-                    .font(AclioFont.input)
-                    .padding(AclioSpacing.space3)
-                    .background(colors.inputBackground)
-                    .cornerRadius(AclioRadius.input)
-                }
-            }
-        }
-        .padding(AclioSpacing.cardPadding)
-        .background(colors.cardBackground)
-        .cornerRadius(AclioRadius.card)
-    }
     
     // MARK: - Error Message
     private func errorMessage(_ error: String) -> some View {
