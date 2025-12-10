@@ -6,6 +6,11 @@ options:
   xcodeVersion: "15.0"
   generateEmptyDirectories: true
 
+packages:
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios
+    from: "5.0.0"
+
 settings:
   base:
     MARKETING_VERSION: "2.0.0"
@@ -33,6 +38,9 @@ targets:
         group: Screens
       - path: Aclio/AclioApp.swift
       - path: Aclio/Assets.xcassets
+    dependencies:
+      - package: RevenueCat
+        product: RevenueCat
     settings:
       base:
         INFOPLIST_FILE: Aclio/Info.plist
