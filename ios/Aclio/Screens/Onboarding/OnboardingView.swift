@@ -24,7 +24,7 @@ struct OnboardingView: View {
             isChecklistSlide: true
         ),
         OnboardingSlideData(
-            mascotImage: "mascot", // Regular mascot for now
+            mascotImage: "mascot-trophy", // Mascot with trophy and confetti
             title: "Achieve more with smart motivation",
             subtitle: "Streaks, progress insights, and reminders keep you moving forward.",
             features: [
@@ -33,7 +33,7 @@ struct OnboardingView: View {
                 OnboardingFeatureData(icon: "trophy.fill", iconColor: Color(hex: "6366F1"), text: "Achievement badges")
             ],
             buttonText: "Finish Setup",
-            isChecklistSlide: false
+            isTrophySlide: true
         )
     ]
     
@@ -123,6 +123,7 @@ struct OnboardingSlideData {
     let features: [OnboardingFeatureData]
     let buttonText: String
     var isChecklistSlide: Bool = false
+    var isTrophySlide: Bool = false
 }
 
 struct OnboardingFeatureData {
@@ -141,17 +142,14 @@ struct OnboardingSlideView2: View {
             
             // Mascot area with illustration
             ZStack {
-                // Mascot image (checklist version already includes the checklist)
+                // Mascot image (images already include their decorations)
                 Image(slide.mascotImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: slide.isChecklistSlide ? 220 : 180, height: slide.isChecklistSlide ? 220 : 180)
-                
-                // Confetti for celebration slide
-                if slide.title.contains("motivation") {
-                    ConfettiView()
-                        .offset(y: -40)
-                }
+                    .frame(
+                        width: slide.isChecklistSlide || slide.isTrophySlide ? 220 : 180,
+                        height: slide.isChecklistSlide || slide.isTrophySlide ? 220 : 180
+                    )
             }
             .frame(height: 240)
             
@@ -227,51 +225,6 @@ struct OnboardingFeatureCard2: View {
         .background(Color.white)
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 2)
-    }
-}
-
-// MARK: - Confetti View
-struct ConfettiView: View {
-    var body: some View {
-        ZStack {
-            ForEach(0..<20, id: \.self) { index in
-                ConfettiPiece(
-                    color: confettiColors[index % confettiColors.count],
-                    offset: CGSize(
-                        width: CGFloat.random(in: -80...80),
-                        height: CGFloat.random(in: -60...40)
-                    ),
-                    rotation: Double.random(in: 0...360),
-                    scale: CGFloat.random(in: 0.3...0.8)
-                )
-            }
-        }
-    }
-    
-    private let confettiColors: [Color] = [
-        Color(hex: "FF6B6B"),
-        Color(hex: "4ECDC4"),
-        Color(hex: "FFE66D"),
-        Color(hex: "95E1D3"),
-        Color(hex: "F38181"),
-        Color(hex: "AA96DA"),
-        Color(hex: "6BCB77")
-    ]
-}
-
-struct ConfettiPiece: View {
-    let color: Color
-    let offset: CGSize
-    let rotation: Double
-    let scale: CGFloat
-    
-    var body: some View {
-        RoundedRectangle(cornerRadius: 2)
-            .fill(color)
-            .frame(width: 8, height: 14)
-            .rotationEffect(.degrees(rotation))
-            .scaleEffect(scale)
-            .offset(offset)
     }
 }
 
