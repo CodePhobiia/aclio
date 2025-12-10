@@ -8,6 +8,7 @@ struct ExtendGoalSheet: View {
     
     @Environment(\.colorScheme) private var colorScheme
     @State private var extensionText: String = ""
+    @State private var isGenerating: Bool = false
     @FocusState private var isTextFocused: Bool
     
     private var colors: AclioColors {
@@ -61,6 +62,8 @@ struct ExtendGoalSheet: View {
                         onDismiss()
                     }
                     .foregroundColor(colors.textSecondary)
+                    .disabled(isGenerating)
+                    .opacity(isGenerating ? 0.5 : 1)
                 }
                 
                 ToolbarItem(placement: .principal) {
@@ -69,6 +72,7 @@ struct ExtendGoalSheet: View {
                         .foregroundColor(colors.textPrimary)
                 }
             }
+            .interactiveDismissDisabled(isGenerating)
         }
     }
     
@@ -143,6 +147,7 @@ struct ExtendGoalSheet: View {
                     .padding(AclioSpacing.space3)
                     .focused($isTextFocused)
                     .scrollContentBackground(.hidden)
+                    .disabled(isGenerating)
                 
                 if extensionText.isEmpty {
                     Text("e.g., Add steps for maintaining my progress long-term...")
@@ -183,6 +188,8 @@ struct ExtendGoalSheet: View {
                             .background(colors.pillBackground)
                             .cornerRadius(AclioRadius.full)
                     }
+                    .disabled(isGenerating)
+                    .opacity(isGenerating ? 0.5 : 1)
                 }
             }
         }
@@ -194,16 +201,33 @@ struct ExtendGoalSheet: View {
             Divider()
             
             VStack(spacing: AclioSpacing.space3) {
-                PrimaryButton(
-                    "Generate New Steps",
-                    icon: "sparkles",
-                    isDisabled: extensionText.trimmingCharacters(in: .whitespaces).isEmpty
-                ) {
-                    AclioHaptics.medium()
-                    onExtend(extensionText)
+                if isGenerating {
+                    // Loading state
+                    HStack(spacing: AclioSpacing.space3) {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: colors.accent))
+                        
+                        Text("Aclio is generating new steps...")
+                            .font(AclioFont.body)
+                            .foregroundColor(colors.textSecondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(colors.accentSoft)
+                    .cornerRadius(AclioRadius.button)
+                } else {
+                    PrimaryButton(
+                        "Generate New Steps",
+                        icon: "sparkles",
+                        isDisabled: extensionText.trimmingCharacters(in: .whitespaces).isEmpty
+                    ) {
+                        AclioHaptics.medium()
+                        isGenerating = true
+                        onExtend(extensionText)
+                    }
                 }
                 
-                Text("AI will create additional steps based on your request")
+                Text(isGenerating ? "This may take a moment..." : "AI will create additional steps based on your request")
                     .font(AclioFont.caption)
                     .foregroundColor(colors.textMuted)
                     .multilineTextAlignment(.center)
