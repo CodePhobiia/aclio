@@ -35,92 +35,95 @@ struct PaywallView: View {
                 .padding(.horizontal, AclioSpacing.screenHorizontal)
                 .padding(.top, AclioSpacing.space4)
                 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: AclioSpacing.space6) {
-                        // Mascot
-                        MascotView(size: .medium, showGlow: true, faceOnly: true)
-                        
-                        // Title
-                        Text("Unlock Aclio Premium")
-                            .font(AclioFont.paywallTitle)
-                            .foregroundColor(colors.textPrimary)
-                        
-                        // Features
-                        featuresSection
-                        
-                        // Price Card
-                        priceCard
-                        
-                        // Plan Selection
-                        if viewModel.useStaticPlans {
-                            staticPlanButtons
-                        } else if !viewModel.packages.isEmpty {
-                            planButtons
-                        } else if viewModel.isLoading {
-                            ProgressView()
-                                .frame(height: 60)
-                        } else {
-                            // Fallback if nothing loaded
-                            staticPlanButtons
-                        }
-                        
-                        // 3-Day Trial Banner
-                        trialBanner
-                        
-                        // CTA
-                        PrimaryButton(
-                            "Start Free Trial",
-                            isLoading: viewModel.isLoading
-                        ) {
-                            Task {
-                                let success = await viewModel.purchase()
-                                if success {
-                                    onDismiss()
+                ScrollViewReader { proxy in
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: AclioSpacing.space6) {
+                            // Mascot
+                            MascotView(size: .medium, showGlow: true, faceOnly: true)
+                            
+                            // Title
+                            Text("Unlock Aclio Premium")
+                                .font(AclioFont.paywallTitle)
+                                .foregroundColor(colors.textPrimary)
+                            
+                            // Features
+                            featuresSection
+                            
+                            // Price Card
+                            priceCard
+                            
+                            // Plan Selection
+                            if viewModel.useStaticPlans {
+                                staticPlanButtonsWithScroll(proxy: proxy)
+                            } else if !viewModel.packages.isEmpty {
+                                planButtonsWithScroll(proxy: proxy)
+                            } else if viewModel.isLoading {
+                                ProgressView()
+                                    .frame(height: 60)
+                            } else {
+                                // Fallback if nothing loaded
+                                staticPlanButtonsWithScroll(proxy: proxy)
+                            }
+                            
+                            // 3-Day Trial Banner
+                            trialBanner
+                            
+                            // CTA
+                            PrimaryButton(
+                                "Start Free Trial",
+                                isLoading: viewModel.isLoading
+                            ) {
+                                Task {
+                                    let success = await viewModel.purchase()
+                                    if success {
+                                        onDismiss()
+                                    }
                                 }
                             }
-                        }
-                        
-                        // Terms
-                        VStack(spacing: AclioSpacing.space2) {
-                            Text("3-day free trial, then \(viewModel.selectedPrice)/\(viewModel.selectedPeriodLabel)")
-                                .font(AclioFont.caption)
-                                .foregroundColor(colors.textMuted)
+                            .id("ctaButton")
                             
-                            Text("No charge until trial ends. Cancel anytime.")
-                                .font(AclioFont.caption)
-                                .foregroundColor(colors.textMuted)
-                        }
-                        
-                        // Restore
-                        Button(action: {
-                            Task {
-                                let restored = await viewModel.restore()
-                                if restored {
-                                    onDismiss()
-                                }
+                            // Terms
+                            VStack(spacing: AclioSpacing.space2) {
+                                Text("3-day free trial, then \(viewModel.selectedPrice)/\(viewModel.selectedPeriodLabel)")
+                                    .font(AclioFont.caption)
+                                    .foregroundColor(colors.textMuted)
+                                
+                                Text("No charge until trial ends. Cancel anytime.")
+                                    .font(AclioFont.caption)
+                                    .foregroundColor(colors.textMuted)
                             }
-                        }) {
-                            Text("Restore Purchases")
-                                .font(AclioFont.captionMedium)
-                                .foregroundColor(colors.textSecondary)
-                        }
-                        
-                        // Legal Links
-                        HStack(spacing: AclioSpacing.space4) {
-                            Link("Privacy Policy", destination: URL(string: "https://thecribbusiness.github.io/aclio/privacy")!)
-                                .font(AclioFont.caption)
-                                .foregroundColor(colors.textMuted)
                             
-                            Text("•")
-                                .foregroundColor(colors.textMuted)
+                            // Restore
+                            Button(action: {
+                                Task {
+                                    let restored = await viewModel.restore()
+                                    if restored {
+                                        onDismiss()
+                                    }
+                                }
+                            }) {
+                                Text("Restore Purchases")
+                                    .font(AclioFont.captionMedium)
+                                    .foregroundColor(colors.textSecondary)
+                            }
                             
-                            Link("Terms of Use", destination: URL(string: "https://thecribbusiness.github.io/aclio/terms")!)
-                                .font(AclioFont.caption)
-                                .foregroundColor(colors.textMuted)
+                            // Legal Links
+                            HStack(spacing: AclioSpacing.space4) {
+                                Link("Privacy Policy", destination: URL(string: "https://thecribbusiness.github.io/aclio/privacy")!)
+                                    .font(AclioFont.caption)
+                                    .foregroundColor(colors.textMuted)
+                                
+                                Text("•")
+                                    .foregroundColor(colors.textMuted)
+                                
+                                Link("Terms of Use", destination: URL(string: "https://thecribbusiness.github.io/aclio/terms")!)
+                                    .font(AclioFont.caption)
+                                    .foregroundColor(colors.textMuted)
+                            }
                         }
+                        .padding(.horizontal, AclioSpacing.screenHorizontal)
+                        .padding(.bottom, ScreenSize.safeBottom + AclioSpacing.space8)
                     }
-                    .padding(.horizontal, AclioSpacing.screenHorizontal)
-                    .padding(.bottom, ScreenSize.safeBottom + AclioSpacing.space8)
                 }
             }
         }
@@ -194,7 +197,7 @@ struct PaywallView: View {
     }
     
     // MARK: - Plan Buttons (RevenueCat)
-    private var planButtons: some View {
+    private func planButtonsWithScroll(proxy: ScrollViewProxy) -> some View {
         HStack(spacing: AclioSpacing.space3) {
             ForEach(viewModel.packages) { package in
                 let isSelected = viewModel.selectedPackage?.id == package.id
@@ -202,6 +205,11 @@ struct PaywallView: View {
                 Button(action: {
                     AclioHaptics.selection()
                     viewModel.selectPackage(package)
+                    
+                    // Scroll to CTA button
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        proxy.scrollTo("ctaButton", anchor: .center)
+                    }
                 }) {
                     glassyPlanButtonContent(
                         title: package.periodName,
@@ -249,7 +257,7 @@ struct PaywallView: View {
     }
     
     // MARK: - Static Plan Buttons (Fallback)
-    private var staticPlanButtons: some View {
+    private func staticPlanButtonsWithScroll(proxy: ScrollViewProxy) -> some View {
         HStack(spacing: AclioSpacing.space3) {
             ForEach(viewModel.staticPlans, id: \.id) { plan in
                 let isSelected = viewModel.selectedStaticPlan.id == plan.id
@@ -257,6 +265,11 @@ struct PaywallView: View {
                 Button(action: {
                     AclioHaptics.selection()
                     viewModel.selectStaticPlan(plan)
+                    
+                    // Scroll to CTA button
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        proxy.scrollTo("ctaButton", anchor: .center)
+                    }
                 }) {
                     glassyPlanButtonContent(
                         title: plan.period,
