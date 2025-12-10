@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import RevenueCat
 
 // MARK: - Premium Service
 final class PremiumService: ObservableObject {
@@ -7,17 +8,137 @@ final class PremiumService: ObservableObject {
     
     private let storage = LocalStorageService.shared
     
+    // MARK: - RevenueCat Configuration
+    struct Config {
+        static let apiKey = "appl_bDbfydrvxEqoWAvaZPwQeWoWCtY"
+        static let entitlementId = "premium"
+        
+        // Product IDs
+        static let weeklyId = "aclio_premium_weekly"
+        static let monthlyId = "aclio_premium_monthly"
+        static let yearlyId = "aclio_premium_yearly"
+    }
+    
     // MARK: - Published State
     @Published private(set) var isPremium: Bool = false
     @Published var showPaywall: Bool = false
+    @Published private(set) var offerings: Offerings?
+    @Published private(set) var currentOffering: Offering?
+    @Published private(set) var isLoading: Bool = false
+    @Published private(set) var error: String?
     
     // MARK: - Initialization
     private init() {
         isPremium = storage.isPremium
     }
     
-    // MARK: - Premium Status
+    // MARK: - Configure RevenueCat
+    func configure() {
+        Purchases.logLevel = .debug
+        Purchases.configure(withAPIKey: Config.apiKey)
+        
+        // Set delegate
+        Purchases.shared.delegate = self
+        
+        // Check subscription status on launch
+        Task {
+            await checkSubscriptionStatus()
+            await fetchOfferings()
+        }
+    }
     
+    // MARK: - Fetch Offerings
+    @MainActor
+    func fetchOfferings() async {
+        isLoading = true
+        error = nil
+        
+        do {
+            offerings = try await Purchases.shared.offerings()
+            currentOffering = offerings?.current
+            print("📦 RevenueCat: Fetched offerings - \(offerings?.all.count ?? 0) available")
+            if let current = currentOffering {
+                print("📦 RevenueCat: Current offering has \(current.availablePackages.count) packages")
+            }
+        } catch {
+            print("❌ RevenueCat: Failed to fetch offerings - \(error.localizedDescription)")
+            self.error = error.localizedDescription
+        }
+        
+        isLoading = false
+    }
+    
+    // MARK: - Check Subscription Status
+    @MainActor
+    func checkSubscriptionStatus() async {
+        do {
+            let customerInfo = try await Purchases.shared.customerInfo()
+            let isActive = customerInfo.entitlements[Config.entitlementId]?.isActive ?? false
+            
+            print("📦 RevenueCat: Premium status = \(isActive)")
+            setPremium(isActive)
+        } catch {
+            print("❌ RevenueCat: Failed to check subscription - \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Purchase
+    @MainActor
+    func purchase(package: Package) async -> Bool {
+        isLoading = true
+        error = nil
+        
+        do {
+            let result = try await Purchases.shared.purchase(package: package)
+            
+            if !result.userCancelled {
+                let isActive = result.customerInfo.entitlements[Config.entitlementId]?.isActive ?? false
+                setPremium(isActive)
+                showPaywall = false
+                print("✅ RevenueCat: Purchase successful - Premium = \(isActive)")
+                isLoading = false
+                return true
+            } else {
+                print("📦 RevenueCat: Purchase cancelled by user")
+            }
+        } catch {
+            print("❌ RevenueCat: Purchase failed - \(error.localizedDescription)")
+            self.error = error.localizedDescription
+        }
+        
+        isLoading = false
+        return false
+    }
+    
+    // MARK: - Restore Purchases
+    @MainActor
+    func restorePurchases() async -> Bool {
+        isLoading = true
+        error = nil
+        
+        do {
+            let customerInfo = try await Purchases.shared.restorePurchases()
+            let isActive = customerInfo.entitlements[Config.entitlementId]?.isActive ?? false
+            
+            setPremium(isActive)
+            print("✅ RevenueCat: Restore complete - Premium = \(isActive)")
+            
+            if isActive {
+                showPaywall = false
+            }
+            
+            isLoading = false
+            return isActive
+        } catch {
+            print("❌ RevenueCat: Restore failed - \(error.localizedDescription)")
+            self.error = error.localizedDescription
+        }
+        
+        isLoading = false
+        return false
+    }
+    
+    // MARK: - Premium Status
     func setPremium(_ value: Bool) {
         isPremium = value
         storage.isPremium = value
@@ -47,7 +168,6 @@ final class PremiumService: ObservableObject {
         
         switch feature {
         case .createGoal:
-            // Note: This is checked with current goal count in canCreateGoal
             canUse = isPremium
         case .doItForMe:
             canUse = canUseDoItForMe()
@@ -60,7 +180,7 @@ final class PremiumService: ObservableObject {
                 _ = storage.incrementDailyUses(for: .expandStep)
             }
         case .chat:
-            canUse = true // Chat is always available
+            canUse = true
         }
         
         if !canUse {
@@ -93,50 +213,63 @@ final class PremiumService: ObservableObject {
         return max(0, PremiumConfig.freeGoalLimit - currentCount)
     }
     
-    // MARK: - Purchase Handling
+    // MARK: - Legacy Support (for backward compatibility)
     
     func handlePurchase(planId: String) async -> Bool {
-        // TODO: Integrate with RevenueCat
-        // For now, just set premium to true
-        
-        await MainActor.run {
-            setPremium(true)
-            showPaywall = false
+        // Find the package by product ID
+        guard let offering = currentOffering else {
+            await fetchOfferings()
+            guard let offering = currentOffering else { return false }
+            
+            if let package = offering.availablePackages.first(where: { $0.storeProduct.productIdentifier == planId }) {
+                return await purchase(package: package)
+            }
+            return false
         }
         
-        return true
-    }
-    
-    func restorePurchases() async -> Bool {
-        // TODO: Integrate with RevenueCat restore
+        if let package = offering.availablePackages.first(where: { $0.storeProduct.productIdentifier == planId }) {
+            return await purchase(package: package)
+        }
         
-        // For now, check if premium was previously set
-        return isPremium
+        return false
     }
 }
 
-// MARK: - RevenueCat Integration (Placeholder)
-extension PremiumService {
-    
-    // RevenueCat product IDs from memory
-    struct RevenueCatConfig {
-        static let apiKey = "appl_bDbfydrvxEqoWAvaZPwQeWoWCtY"
-        static let weeklyId = "aclio_premium_weekly"
-        static let monthlyId = "aclio_premium_monthly"
-        static let yearlyId = "aclio_premium_yearly"
-    }
-    
-    func configureRevenueCat() {
-        // TODO: Initialize RevenueCat SDK
-        // Purchases.configure(withAPIKey: RevenueCatConfig.apiKey)
-    }
-    
-    func checkSubscriptionStatus() async {
-        // TODO: Check RevenueCat entitlements
-        // let customerInfo = try await Purchases.shared.customerInfo()
-        // let isActive = customerInfo.entitlements["premium"]?.isActive ?? false
-        // await MainActor.run { setPremium(isActive) }
+// MARK: - RevenueCat Delegate
+extension PremiumService: PurchasesDelegate {
+    func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
+        Task { @MainActor in
+            let isActive = customerInfo.entitlements[Config.entitlementId]?.isActive ?? false
+            print("📦 RevenueCat: Customer info updated - Premium = \(isActive)")
+            setPremium(isActive)
+        }
     }
 }
 
+// MARK: - Package Helpers
+extension Package {
+    var periodName: String {
+        switch packageType {
+        case .weekly: return "Weekly"
+        case .monthly: return "Monthly"
+        case .annual: return "Yearly"
+        default: return storeProduct.subscriptionPeriod?.periodTitle ?? "Unknown"
+        }
+    }
+    
+    var isBestValue: Bool {
+        packageType == .annual
+    }
+}
 
+extension SubscriptionPeriod {
+    var periodTitle: String {
+        switch unit {
+        case .day: return value == 7 ? "Weekly" : "\(value) Days"
+        case .week: return value == 1 ? "Weekly" : "\(value) Weeks"
+        case .month: return value == 1 ? "Monthly" : "\(value) Months"
+        case .year: return value == 1 ? "Yearly" : "\(value) Years"
+        @unknown default: return "Unknown"
+        }
+    }
+}

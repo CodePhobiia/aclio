@@ -6,6 +6,11 @@ struct AclioApp: App {
     
     @StateObject private var appState = AppState()
     
+    init() {
+        // Configure RevenueCat
+        PremiumService.shared.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

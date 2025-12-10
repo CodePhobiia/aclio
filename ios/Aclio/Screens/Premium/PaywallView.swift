@@ -1,4 +1,5 @@
 import SwiftUI
+import RevenueCat
 
 // MARK: - Paywall View
 struct PaywallView: View {
@@ -51,15 +52,26 @@ struct PaywallView: View {
                         priceCard
                         
                         // Plan Selection
-                        planButtons
+                        if !viewModel.packages.isEmpty {
+                            planButtons
+                        } else if viewModel.isLoading {
+                            ProgressView()
+                                .frame(height: 60)
+                        }
                         
-                        // Trial Toggle
-                        trialToggle
+                        // Error Message
+                        if let error = viewModel.error {
+                            Text(error)
+                                .font(AclioFont.caption)
+                                .foregroundColor(colors.destructive)
+                                .multilineTextAlignment(.center)
+                        }
                         
                         // CTA
                         PrimaryButton(
                             "Continue",
-                            isLoading: viewModel.isLoading
+                            isLoading: viewModel.isLoading,
+                            isDisabled: viewModel.selectedPackage == nil
                         ) {
                             Task {
                                 let success = await viewModel.purchase()
@@ -70,19 +82,46 @@ struct PaywallView: View {
                         }
                         
                         // Terms
-                        Text("No commitments. Cancel anytime.")
-                            .font(AclioFont.caption)
-                            .foregroundColor(colors.textMuted)
+                        VStack(spacing: AclioSpacing.space2) {
+                            Text("No commitments. Cancel anytime.")
+                                .font(AclioFont.caption)
+                                .foregroundColor(colors.textMuted)
+                            
+                            if let package = viewModel.selectedPackage {
+                                Text(package.storeProduct.subscriptionPeriod != nil 
+                                     ? "Auto-renews. Cancel in Settings." 
+                                     : "")
+                                    .font(AclioFont.caption)
+                                    .foregroundColor(colors.textMuted)
+                            }
+                        }
                         
                         // Restore
                         Button(action: {
                             Task {
-                                let _ = await viewModel.restore()
+                                let restored = await viewModel.restore()
+                                if restored {
+                                    onDismiss()
+                                }
                             }
                         }) {
                             Text("Restore Purchases")
                                 .font(AclioFont.captionMedium)
                                 .foregroundColor(colors.textSecondary)
+                        }
+                        
+                        // Legal Links
+                        HStack(spacing: AclioSpacing.space4) {
+                            Link("Privacy Policy", destination: URL(string: "https://thecribbusiness.github.io/aclio/privacy")!)
+                                .font(AclioFont.caption)
+                                .foregroundColor(colors.textMuted)
+                            
+                            Text("•")
+                                .foregroundColor(colors.textMuted)
+                            
+                            Link("Terms of Use", destination: URL(string: "https://thecribbusiness.github.io/aclio/terms")!)
+                                .font(AclioFont.caption)
+                                .foregroundColor(colors.textMuted)
                         }
                     }
                     .padding(.horizontal, AclioSpacing.screenHorizontal)
@@ -126,18 +165,33 @@ struct PaywallView: View {
     // MARK: - Price Card
     private var priceCard: some View {
         VStack(spacing: AclioSpacing.space2) {
-            Text("\(viewModel.selectedPlan.period) Plan")
+            Text("\(viewModel.selectedPeriod) Plan")
                 .font(AclioFont.captionMedium)
                 .foregroundColor(.white.opacity(0.8))
             
             HStack(alignment: .lastTextBaseline, spacing: 2) {
-                Text(viewModel.selectedPlan.price)
+                Text(viewModel.selectedPrice)
                     .font(AclioFont.paywallPrice)
                     .foregroundColor(.white)
                 
-                Text("/ \(viewModel.selectedPlan.periodLabel)")
+                Text("/ \(viewModel.selectedPeriodLabel)")
                     .font(AclioFont.paywallPeriod)
                     .foregroundColor(.white.opacity(0.7))
+            }
+            
+            // Show savings for yearly
+            if viewModel.selectedPackage?.packageType == .annual,
+               let monthlyPackage = viewModel.packages.first(where: { $0.packageType == .monthly }) {
+                let yearlyPrice = viewModel.selectedPackage?.storeProduct.price ?? 0
+                let monthlyPrice = monthlyPackage.storeProduct.price * 12
+                let savings = monthlyPrice - yearlyPrice
+                
+                if savings > 0 {
+                    Text("Save \(savings.formatted(.currency(code: monthlyPackage.storeProduct.currencyCode ?? "USD"))) per year")
+                        .font(AclioFont.captionMedium)
+                        .foregroundColor(.white.opacity(0.9))
+                        .padding(.top, 4)
+                }
             }
         }
         .frame(maxWidth: .infinity)
@@ -149,17 +203,23 @@ struct PaywallView: View {
     // MARK: - Plan Buttons
     private var planButtons: some View {
         HStack(spacing: AclioSpacing.space3) {
-            ForEach(viewModel.plans) { plan in
+            ForEach(viewModel.packages) { package in
+                let isSelected = viewModel.selectedPackage?.id == package.id
+                
                 Button(action: {
                     AclioHaptics.selection()
-                    viewModel.selectPlan(plan)
+                    viewModel.selectPackage(package)
                 }) {
                     VStack(spacing: 4) {
-                        Text(plan.period)
+                        Text(package.periodName)
                             .font(AclioFont.buttonSmall)
-                            .foregroundColor(viewModel.selectedPlan.id == plan.id ? .white : colors.textPrimary)
+                            .foregroundColor(isSelected ? .white : colors.textPrimary)
                         
-                        if plan.isBestValue {
+                        Text(package.localizedPriceString)
+                            .font(AclioFont.caption)
+                            .foregroundColor(isSelected ? .white.opacity(0.8) : colors.textSecondary)
+                        
+                        if package.isBestValue {
                             Text("Best")
                                 .font(.system(size: 9, weight: .bold))
                                 .foregroundColor(.white)
@@ -171,42 +231,15 @@ struct PaywallView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, AclioSpacing.space3)
-                    .background(
-                        viewModel.selectedPlan.id == plan.id
-                        ? colors.accent
-                        : colors.pillBackground
-                    )
+                    .background(isSelected ? colors.accent : colors.pillBackground)
                     .cornerRadius(AclioRadius.button)
                     .overlay(
                         RoundedRectangle(cornerRadius: AclioRadius.button)
-                            .stroke(
-                                viewModel.selectedPlan.id == plan.id
-                                ? colors.accent
-                                : colors.border,
-                                lineWidth: 1
-                            )
+                            .stroke(isSelected ? colors.accent : colors.border, lineWidth: 1)
                     )
                 }
             }
         }
-    }
-    
-    // MARK: - Trial Toggle
-    private var trialToggle: some View {
-        HStack {
-            Text("3-day free trial")
-                .font(AclioFont.body)
-                .foregroundColor(colors.textPrimary)
-            
-            Spacer()
-            
-            Toggle("", isOn: $viewModel.trialEnabled)
-                .labelsHidden()
-                .tint(colors.accent)
-        }
-        .padding(AclioSpacing.space4)
-        .background(colors.cardBackground)
-        .cornerRadius(AclioRadius.medium)
     }
 }
 
@@ -214,5 +247,3 @@ struct PaywallView: View {
 #Preview {
     PaywallView(onDismiss: {})
 }
-
-
