@@ -136,11 +136,15 @@ final class NewGoalViewModel: ObservableObject {
             // Create the goal
             let isFirstGoal = storage.loadGoals().isEmpty
             
+            // Safe index access for icon and color
+            let safeIconIndex = min(selectedIconIndex, GoalIcons.keys.count - 1)
+            let safeColorIndex = min(selectedColorIndex, IconColor.options.count - 1)
+            
             let newGoal = Goal(
                 name: goalText,
                 category: response.category,
-                iconKey: GoalIcons.keys[selectedIconIndex],
-                iconColor: IconColor.options[selectedColorIndex],
+                iconKey: GoalIcons.keys[max(0, safeIconIndex)],
+                iconColor: IconColor.options[max(0, safeColorIndex)],
                 dueDate: dueDate,
                 steps: response.toSteps()
             )

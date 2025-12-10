@@ -270,4 +270,8 @@ extension UIApplication {
     }
 }
 
-
+// MARK: - Notification Names
+extension Notification.Name {
+    static let themeChanged = Notification.Name("themeChanged")
+    static let goalsUpdated = Notification.Name("goalsUpdated")
+}

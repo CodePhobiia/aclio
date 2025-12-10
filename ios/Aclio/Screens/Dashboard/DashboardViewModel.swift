@@ -182,6 +182,8 @@ final class DashboardViewModel: ObservableObject {
     func toggleTheme() {
         isDarkMode.toggle()
         storage.saveTheme(isDarkMode)
+        // Post notification for app-wide theme change
+        NotificationCenter.default.post(name: .themeChanged, object: isDarkMode)
     }
     
     // MARK: - Daily Bonus

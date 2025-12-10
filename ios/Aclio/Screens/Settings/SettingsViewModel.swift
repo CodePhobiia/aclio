@@ -70,7 +70,8 @@ final class SettingsViewModel: NSObject, ObservableObject {
     
     // MARK: - Theme
     func toggleTheme() {
-        isDarkMode.toggle()
+        // Note: isDarkMode is already changed by the binding
+        // We just need to save the new value
         storage.saveTheme(isDarkMode)
     }
     

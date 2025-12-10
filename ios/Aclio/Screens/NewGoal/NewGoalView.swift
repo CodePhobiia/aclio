@@ -70,6 +70,7 @@ struct NewGoalView: View {
                         .padding(.horizontal, AclioSpacing.screenHorizontal)
                         .padding(.bottom, 160) // Space for CTA
                     }
+                    .scrollDismissesKeyboard(.interactively)
                     .onChange(of: viewModel.questions.count) { _ in
                         // Auto-scroll to questions when they appear
                         if !viewModel.questions.isEmpty {
@@ -413,7 +414,7 @@ struct NewGoalView: View {
     // MARK: - Generation Overlay
     private var generationOverlay: some View {
         ZStack {
-            Color.black.opacity(0.7)
+            Color(red: 0.04, green: 0.09, blue: 0.16) // Solid dark background matching app theme
                 .ignoresSafeArea()
             
             VStack(spacing: AclioSpacing.space6) {

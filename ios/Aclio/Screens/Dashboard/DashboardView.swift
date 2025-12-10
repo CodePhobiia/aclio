@@ -84,6 +84,9 @@ struct DashboardView: View {
             PaywallView(onDismiss: { viewModel.dismissPaywall() })
         }
         .preferredColorScheme(viewModel.isDarkMode ? .dark : .light)
+        .onAppear {
+            viewModel.loadData()
+        }
     }
     
     // MARK: - Hero Section
