@@ -34,6 +34,21 @@ final class AppState: ObservableObject {
     // MARK: - Initialization
     init() {
         loadInitialState()
+        observeThemeChanges()
+    }
+    
+    private func observeThemeChanges() {
+        NotificationCenter.default.addObserver(
+            forName: .themeChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            if let isDark = notification.object as? Bool {
+                self?.isDarkMode = isDark
+            } else {
+                self?.refreshTheme()
+            }
+        }
     }
     
     private func loadInitialState() {
