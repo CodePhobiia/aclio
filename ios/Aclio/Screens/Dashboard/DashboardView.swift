@@ -16,23 +16,22 @@ struct DashboardView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack {
             // Page Background
             colors.background
                 .ignoresSafeArea()
             
-            // Hero background that extends to top
-            VStack(spacing: 0) {
-                Color.aclioHeaderBg
-                    .frame(height: ScreenSize.safeTop + 250)
-                Spacer()
-            }
-            .ignoresSafeArea(edges: .top)
-            
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
-                    // Hero Header
+                    // Hero Header (extends into safe area)
                     heroSection
+                        .background(
+                            GeometryReader { geo in
+                                Color.aclioHeaderBg
+                                    .frame(height: geo.frame(in: .global).minY > 0 ? geo.frame(in: .global).minY + geo.size.height : geo.size.height)
+                                    .offset(y: geo.frame(in: .global).minY > 0 ? -geo.frame(in: .global).minY : 0)
+                            }
+                        )
                     
                     // Content
                     VStack(spacing: AclioSpacing.sectionGap) {
@@ -118,7 +117,7 @@ struct DashboardView: View {
                     }
                 }
             }
-            .padding(.top, ScreenSize.safeTop + AclioSpacing.space3)
+            .padding(.top, AclioSpacing.space3)
             
             // Greeting
             VStack(alignment: .leading, spacing: AclioSpacing.space1) {
@@ -154,10 +153,7 @@ struct DashboardView: View {
         }
         .padding(.horizontal, AclioSpacing.screenHorizontal)
         .padding(.bottom, AclioSpacing.space6)
-        .background(
-            Color.aclioHeaderBg
-                .ignoresSafeArea(edges: .top)
-        )
+        .padding(.top, ScreenSize.safeTop)
     }
     
     // MARK: - Goals Section
