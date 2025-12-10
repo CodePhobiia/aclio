@@ -255,21 +255,37 @@ final class PremiumService: NSObject, ObservableObject {
     // MARK: - Legacy Support (for backward compatibility)
     
     func handlePurchase(planId: String) async -> Bool {
+        print("📦 PremiumService: handlePurchase called with planId = \(planId)")
+        print("📦 PremiumService: currentOffering = \(currentOffering?.identifier ?? "nil")")
+        
         // Find the package by product ID
         guard let offering = currentOffering else {
+            print("📦 PremiumService: No current offering, fetching...")
             await fetchOfferings()
-            guard let offering = currentOffering else { return false }
+            
+            guard let offering = currentOffering else {
+                print("❌ PremiumService: Still no offering after fetch - products not available!")
+                print("❌ PremiumService: Make sure you're signed into a Sandbox account on your device")
+                self.error = "Products not available. Please sign into a Sandbox account in Settings → App Store."
+                return false
+            }
+            
+            print("📦 PremiumService: Available packages: \(offering.availablePackages.map { $0.storeProduct.productIdentifier })")
             
             if let package = offering.availablePackages.first(where: { $0.storeProduct.productIdentifier == planId }) {
                 return await purchase(package: package)
             }
+            print("❌ PremiumService: Package with ID '\(planId)' not found")
             return false
         }
+        
+        print("📦 PremiumService: Available packages: \(offering.availablePackages.map { $0.storeProduct.productIdentifier })")
         
         if let package = offering.availablePackages.first(where: { $0.storeProduct.productIdentifier == planId }) {
             return await purchase(package: package)
         }
         
+        print("❌ PremiumService: Package with ID '\(planId)' not found in offering")
         return false
     }
 }
