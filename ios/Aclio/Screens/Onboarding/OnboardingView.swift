@@ -154,7 +154,7 @@ struct OnboardingSlideView2: View {
             .frame(height: 240)
             
             Spacer()
-                .frame(height: 24)
+                .frame(height: 8)
             
             // Title
             Text(slide.title)
@@ -178,7 +178,7 @@ struct OnboardingSlideView2: View {
                 .padding(.horizontal, 40)
             
             Spacer()
-                .frame(height: 28)
+                .frame(height: 16)
             
             // Feature cards
             VStack(spacing: 12) {
