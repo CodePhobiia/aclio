@@ -5,7 +5,8 @@ struct WelcomeView: View {
     let onGetStarted: () -> Void
     let onSkip: () -> Void
     
-    @State private var mascotScale: CGFloat = 0.8
+    @State private var hasAppeared: Bool = false
+    @State private var mascotScale: CGFloat = 0.5
     @State private var mascotOpacity: Double = 0
     @State private var contentOpacity: Double = 0
     @State private var buttonsOpacity: Double = 0
@@ -39,7 +40,7 @@ struct WelcomeView: View {
                 
                 // Main content
                 VStack(spacing: 24) {
-                    // Mascot with glow
+                    // Mascot with glow - Fixed frame to prevent layout jumps
                     ZStack {
                         // Soft glow beneath mascot
                         Ellipse()
@@ -53,15 +54,17 @@ struct WelcomeView: View {
                             )
                             .frame(width: 200, height: 60)
                             .offset(y: 80)
+                            .opacity(mascotOpacity)
                         
                         // Mascot image
                         Image("mascot")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 180, height: 180)
+                            .scaleEffect(mascotScale)
+                            .opacity(mascotOpacity)
                     }
-                    .scaleEffect(mascotScale)
-                    .opacity(mascotOpacity)
+                    .frame(width: 200, height: 200) // Fixed frame prevents layout shift
                     
                     // Title
                     HStack(spacing: 8) {
@@ -149,21 +152,33 @@ struct WelcomeView: View {
             }
         }
         .onAppear {
-            animateIn()
+            // Delay animation slightly to ensure layout is complete
+            guard !hasAppeared else { return }
+            hasAppeared = true
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                animateIn()
+            }
         }
     }
     
     private func animateIn() {
-        withAnimation(.spring(response: 0.8, dampingFraction: 0.7).delay(0.2)) {
-            mascotScale = 1.0
+        // Mascot appears with bounce
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
             mascotOpacity = 1.0
         }
         
-        withAnimation(.easeOut(duration: 0.5).delay(0.4)) {
+        withAnimation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.1)) {
+            mascotScale = 1.0
+        }
+        
+        // Content fades in
+        withAnimation(.easeOut(duration: 0.4).delay(0.3)) {
             contentOpacity = 1.0
         }
         
-        withAnimation(.easeOut(duration: 0.5).delay(0.6)) {
+        // Buttons fade in last
+        withAnimation(.easeOut(duration: 0.4).delay(0.5)) {
             buttonsOpacity = 1.0
         }
     }
@@ -200,3 +215,4 @@ struct OnboardingFeatureCard: View {
 #Preview {
     WelcomeView(onGetStarted: {}, onSkip: {})
 }
+
