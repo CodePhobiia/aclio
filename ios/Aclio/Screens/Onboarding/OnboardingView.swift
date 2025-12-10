@@ -138,7 +138,9 @@ struct OnboardingSlideView2: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            // Small top spacing
             Spacer()
+                .frame(height: 8)
             
             // Mascot area with illustration
             ZStack {
@@ -147,41 +149,33 @@ struct OnboardingSlideView2: View {
                     .resizable()
                     .scaledToFit()
                     .frame(
-                        width: slide.isChecklistSlide || slide.isTrophySlide ? 220 : 180,
-                        height: slide.isChecklistSlide || slide.isTrophySlide ? 220 : 180
+                        width: slide.isChecklistSlide || slide.isTrophySlide ? 180 : 160,
+                        height: slide.isChecklistSlide || slide.isTrophySlide ? 180 : 160
                     )
             }
-            .frame(height: 240)
-            
-            Spacer()
-                .frame(height: 8)
             
             // Title
             Text(slide.title)
-                .font(.system(size: 26, weight: .bold))
+                .font(.system(size: 24, weight: .bold))
                 .foregroundColor(Color(hex: "0B1C36"))
                 .multilineTextAlignment(.center)
-                .lineSpacing(4)
+                .lineSpacing(2)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 32)
-            
-            Spacer()
-                .frame(height: 12)
+                .padding(.top, 8)
             
             // Subtitle
             Text(slide.subtitle)
-                .font(.system(size: 15, weight: .regular))
+                .font(.system(size: 14, weight: .regular))
                 .foregroundColor(Color(hex: "6B7280"))
                 .multilineTextAlignment(.center)
-                .lineSpacing(4)
+                .lineSpacing(2)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 40)
-            
-            Spacer()
-                .frame(height: 16)
+                .padding(.top, 8)
             
             // Feature cards
-            VStack(spacing: 12) {
+            VStack(spacing: 8) {
                 ForEach(Array(slide.features.enumerated()), id: \.offset) { _, feature in
                     OnboardingFeatureCard2(
                         icon: feature.icon,
@@ -191,6 +185,7 @@ struct OnboardingSlideView2: View {
                 }
             }
             .padding(.horizontal, 24)
+            .padding(.top, 12)
             
             Spacer()
         }
@@ -204,29 +199,29 @@ struct OnboardingFeatureCard2: View {
     let text: String
     
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             // Icon container
             ZStack {
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 8)
                     .fill(iconColor.opacity(0.12))
-                    .frame(width: 40, height: 40)
+                    .frame(width: 36, height: 36)
                 
                 Image(systemName: icon)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(iconColor)
             }
             
             Text(text)
-                .font(.system(size: 15, weight: .medium))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundColor(Color(hex: "1F2937"))
             
             Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
         .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 2)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 2)
     }
 }
 
