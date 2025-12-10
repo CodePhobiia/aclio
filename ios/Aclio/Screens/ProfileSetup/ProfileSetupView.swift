@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - Profile Setup View
+// MARK: - Profile Setup View (Screen 4)
 struct ProfileSetupView: View {
     @Binding var profile: UserProfile
     let onComplete: () -> Void
@@ -10,16 +10,14 @@ struct ProfileSetupView: View {
     @State private var localAge: String = ""
     @State private var localGender: Gender?
     
-    @Environment(\.colorScheme) private var colorScheme
     @FocusState private var focusedField: Field?
     
     enum Field {
         case name, age
     }
     
-    private var colors: AclioColors {
-        AclioColors(colorScheme)
-    }
+    // Light blue/gray background color
+    private let backgroundColor = Color(hex: "E8EDF5")
     
     private var canContinue: Bool {
         !localName.trimmingCharacters(in: .whitespaces).isEmpty
@@ -27,123 +25,217 @@ struct ProfileSetupView: View {
     
     var body: some View {
         ZStack {
-            // Background
-            colors.background
+            // Light background
+            backgroundColor
                 .ignoresSafeArea()
+            
+            // Ambient glow at bottom
+            VStack {
+                Spacer()
+                Ellipse()
+                    .fill(
+                        RadialGradient(
+                            colors: [Color(hex: "FF9F3A").opacity(0.2), Color.clear],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: 200
+                        )
+                    )
+                    .frame(width: 400, height: 200)
+                    .offset(y: 50)
+            }
+            .ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Skip button
                 HStack {
                     Spacer()
-                    
                     Button(action: {
                         AclioHaptics.light()
                         onSkip()
                     }) {
                         Text("Skip")
-                            .font(AclioFont.bodyMedium)
-                            .foregroundColor(colors.textSecondary)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(Color(hex: "1F2937"))
                     }
                 }
-                .padding(.horizontal, AclioSpacing.screenHorizontal)
-                .padding(.top, ScreenSize.safeTop + AclioSpacing.space3)
+                .padding(.horizontal, 24)
+                .padding(.top, ScreenSize.safeTop + 16)
                 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: AclioSpacing.space8) {
-                        // Header
-                        VStack(spacing: AclioSpacing.space2) {
-                            Text("Tell us about yourself")
-                                .font(AclioFont.title2)
-                                .foregroundColor(colors.textPrimary)
-                            
-                            Text("This helps us personalize your experience")
-                                .font(AclioFont.body)
-                                .foregroundColor(colors.textSecondary)
-                        }
+                Spacer()
+                    .frame(height: 40)
+                
+                // Header
+                VStack(spacing: 12) {
+                    Text("Tell us about yourself")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(Color(hex: "0B1C36"))
+                    
+                    Text("This step is optional — but sharing a bit about yourself helps Aclio personalize your goals and plans just for you.")
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundColor(Color(hex: "6B7280"))
                         .multilineTextAlignment(.center)
-                        .padding(.top, AclioSpacing.space6)
+                        .lineSpacing(4)
+                        .padding(.horizontal, 24)
+                }
+                
+                Spacer()
+                    .frame(height: 24)
+                
+                // Progress indicators
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(Color(hex: "FF9F3A"))
+                        .frame(width: 8, height: 8)
+                    
+                    Circle()
+                        .fill(Color(hex: "D1D5DB"))
+                        .frame(width: 8, height: 8)
+                    
+                    Circle()
+                        .fill(Color(hex: "D1D5DB"))
+                        .frame(width: 8, height: 8)
+                }
+                
+                Spacer()
+                    .frame(height: 32)
+                
+                // Form card
+                VStack(spacing: 20) {
+                    // Name field
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 4) {
+                            Text("Your Name")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Color(hex: "374151"))
+                            
+                            Text("*")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Color(hex: "FF9F3A"))
+                        }
                         
-                        // Form
-                        VStack(spacing: AclioSpacing.space5) {
-                            // Name field
-                            VStack(alignment: .leading, spacing: AclioSpacing.space2) {
-                                Text("Your Name *")
-                                    .font(AclioFont.inputLabel)
-                                    .foregroundColor(colors.textSecondary)
-                                
-                                TextField("e.g., Theyab", text: $localName)
-                                    .font(AclioFont.input)
-                                    .foregroundColor(colors.textPrimary)
-                                    .padding(.horizontal, AclioSpacing.inputPaddingH)
-                                    .padding(.vertical, AclioSpacing.inputPaddingV)
-                                    .background(colors.inputBackground)
-                                    .cornerRadius(AclioRadius.input)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: AclioRadius.input)
-                                            .stroke(focusedField == .name ? colors.accent : .clear, lineWidth: 1.5)
-                                    )
-                                    .focused($focusedField, equals: .name)
-                                    .textInputAutocapitalization(.words)
-                                    .autocorrectionDisabled()
-                            }
-                            
-                            // Age field
-                            VStack(alignment: .leading, spacing: AclioSpacing.space2) {
-                                Text("Your Age")
-                                    .font(AclioFont.inputLabel)
-                                    .foregroundColor(colors.textSecondary)
-                                
-                                TextField("e.g., 22", text: $localAge)
-                                    .font(AclioFont.input)
-                                    .foregroundColor(colors.textPrimary)
-                                    .padding(.horizontal, AclioSpacing.inputPaddingH)
-                                    .padding(.vertical, AclioSpacing.inputPaddingV)
-                                    .background(colors.inputBackground)
-                                    .cornerRadius(AclioRadius.input)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: AclioRadius.input)
-                                            .stroke(focusedField == .age ? colors.accent : .clear, lineWidth: 1.5)
-                                    )
-                                    .focused($focusedField, equals: .age)
-                                    .keyboardType(.numberPad)
-                            }
-                            
-                            // Gender selection
-                            VStack(alignment: .leading, spacing: AclioSpacing.space2) {
-                                Text("Gender")
-                                    .font(AclioFont.inputLabel)
-                                    .foregroundColor(colors.textSecondary)
-                                
-                                HStack(spacing: AclioSpacing.space3) {
-                                    ForEach(Gender.allCases, id: \.self) { gender in
-                                        Button(action: {
-                                            AclioHaptics.selection()
-                                            localGender = gender
-                                        }) {
-                                            Text(gender.displayName)
-                                                .font(AclioFont.buttonMedium)
-                                                .foregroundColor(localGender == gender ? .white : colors.textPrimary)
-                                                .frame(maxWidth: .infinity)
-                                                .padding(.vertical, AclioSpacing.space3)
-                                                .background(localGender == gender ? colors.accent : colors.inputBackground)
-                                                .cornerRadius(AclioRadius.button)
-                                        }
-                                    }
+                        TextField("e.g., Theyab", text: $localName)
+                            .font(.system(size: 16))
+                            .foregroundColor(Color(hex: "1F2937"))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 14)
+                            .background(Color(hex: "F3F4F6"))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(focusedField == .name ? Color(hex: "FF9F3A") : Color.clear, lineWidth: 2)
+                            )
+                            .focused($focusedField, equals: .name)
+                            .textInputAutocapitalization(.words)
+                            .autocorrectionDisabled()
+                    }
+                    
+                    // Age field
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Your Age")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(Color(hex: "374151"))
+                        
+                        TextField("e.g., 22", text: $localAge)
+                            .font(.system(size: 16))
+                            .foregroundColor(Color(hex: "1F2937"))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 14)
+                            .background(Color(hex: "F3F4F6"))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(focusedField == .age ? Color(hex: "FF9F3A") : Color.clear, lineWidth: 2)
+                            )
+                            .focused($focusedField, equals: .age)
+                            .keyboardType(.numberPad)
+                    }
+                    
+                    // Gender selection
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Gender")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(Color(hex: "374151"))
+                        
+                        HStack(spacing: 0) {
+                            ForEach(Gender.allCases, id: \.self) { gender in
+                                Button(action: {
+                                    AclioHaptics.selection()
+                                    localGender = gender
+                                }) {
+                                    Text(gender.displayName)
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundColor(localGender == gender ? .white : Color(hex: "1F2937"))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .background(
+                                            localGender == gender 
+                                                ? LinearGradient(
+                                                    colors: [Color(hex: "FFA63E"), Color(hex: "FF8A3D")],
+                                                    startPoint: .leading,
+                                                    endPoint: .trailing
+                                                  )
+                                                : LinearGradient(
+                                                    colors: [Color(hex: "E5E7EB"), Color(hex: "E5E7EB")],
+                                                    startPoint: .leading,
+                                                    endPoint: .trailing
+                                                  )
+                                        )
                                 }
                             }
                         }
-                        .padding(.horizontal, AclioSpacing.screenHorizontal)
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color(hex: "E5E7EB"), lineWidth: 1)
+                        )
                     }
                 }
+                .padding(24)
+                .background(Color.white)
+                .cornerRadius(20)
+                .shadow(color: Color.black.opacity(0.06), radius: 16, x: 0, y: 4)
+                .padding(.horizontal, 24)
+                
+                Spacer()
+                    .frame(height: 20)
+                
+                // Privacy notice
+                Text("We never share your details. Aclio only uses this info to personalize your experience.")
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundColor(Color(hex: "9CA3AF"))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal: 40)
+                
+                Spacer()
                 
                 // Continue button
-                VStack {
-                    PrimaryButton("Continue", isDisabled: !canContinue) {
-                        saveAndContinue()
-                    }
+                Button(action: {
+                    saveAndContinue()
+                }) {
+                    Text("Continue")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(
+                            LinearGradient(
+                                colors: canContinue 
+                                    ? [Color(hex: "FFA63E"), Color(hex: "FF8A3D"), Color(hex: "FFB85C")]
+                                    : [Color(hex: "D1D5DB"), Color(hex: "D1D5DB")],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(28)
+                        .shadow(
+                            color: canContinue ? Color(hex: "FF9F3A").opacity(0.3) : Color.clear,
+                            radius: 12, x: 0, y: 6
+                        )
                 }
-                .padding(.horizontal, AclioSpacing.screenHorizontal)
-                .padding(.bottom, ScreenSize.safeBottom + AclioSpacing.space6)
+                .disabled(!canContinue)
+                .padding(.horizontal, 24)
+                .padding(.bottom, ScreenSize.safeBottom + 24)
             }
         }
         .onAppear {
@@ -154,6 +246,7 @@ struct ProfileSetupView: View {
         .onTapGesture {
             focusedField = nil
         }
+        .scrollDismissesKeyboard(.interactively)
     }
     
     private func saveAndContinue() {
@@ -175,5 +268,3 @@ struct ProfileSetupView: View {
         onSkip: {}
     )
 }
-
-

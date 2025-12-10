@@ -1,91 +1,150 @@
 import SwiftUI
 
-// MARK: - Welcome View
+// MARK: - Welcome View (Screen 1)
 struct WelcomeView: View {
     let onGetStarted: () -> Void
-    let onSignIn: () -> Void
+    let onSkip: () -> Void
     
     @State private var mascotScale: CGFloat = 0.8
     @State private var mascotOpacity: Double = 0
-    @State private var titleOpacity: Double = 0
+    @State private var contentOpacity: Double = 0
     @State private var buttonsOpacity: Double = 0
+    
+    // Light blue/gray background color
+    private let backgroundColor = Color(hex: "E8EDF5")
     
     var body: some View {
         ZStack {
-            // Background gradient
-            AclioGradients.heroBackground
+            // Light background
+            backgroundColor
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
+                // Skip button
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        AclioHaptics.light()
+                        onSkip()
+                    }) {
+                        Text("Skip")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(Color(hex: "FF9F3A"))
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, ScreenSize.safeTop + 16)
+                
                 Spacer()
                 
-                // Content
-                VStack(spacing: AclioSpacing.space6) {
+                // Main content
+                VStack(spacing: 24) {
                     // Mascot with glow
                     ZStack {
-                        // Glow
-                        Circle()
-                            .fill(AclioGradients.mascotGlow)
-                            .frame(width: 280, height: 280)
-                            .blur(radius: 40)
+                        // Soft glow beneath mascot
+                        Ellipse()
+                            .fill(
+                                RadialGradient(
+                                    colors: [Color(hex: "FF9F3A").opacity(0.15), Color.clear],
+                                    center: .center,
+                                    startRadius: 0,
+                                    endRadius: 100
+                                )
+                            )
+                            .frame(width: 200, height: 60)
+                            .offset(y: 80)
                         
-                        // Mascot
+                        // Mascot image
                         Image("mascot")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: AdaptiveLayout.welcomeMascotSize, height: AdaptiveLayout.welcomeMascotSize)
+                            .frame(width: 180, height: 180)
                     }
                     .scaleEffect(mascotScale)
                     .opacity(mascotOpacity)
                     
                     // Title
-                    VStack(spacing: AclioSpacing.space2) {
-                        Text("Aclio")
-                            .font(AclioFont.welcomeTitle)
-                            .foregroundColor(.white)
+                    HStack(spacing: 8) {
+                        Text("Welcome to Aclio")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(Color(hex: "0B1C36"))
                         
-                        Text("Ignite your goals.")
-                            .font(AclioFont.welcomeTagline)
-                            .foregroundColor(.white.opacity(0.7))
+                        Text("🔥")
+                            .font(.system(size: 26))
                     }
-                    .opacity(titleOpacity)
+                    
+                    // Subtitle
+                    Text("The AI that helps you achieve anything\n— step by step.")
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundColor(Color(hex: "6B7280"))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
                 }
+                .opacity(contentOpacity)
+                
+                Spacer()
+                    .frame(height: 32)
+                
+                // Feature cards
+                VStack(spacing: 12) {
+                    OnboardingFeatureCard(
+                        icon: "sparkles",
+                        iconColor: Color(hex: "FF9F3A"),
+                        text: "Turn any goal into a guided plan"
+                    )
+                    
+                    OnboardingFeatureCard(
+                        icon: "bolt.fill",
+                        iconColor: Color(hex: "FF9F3A"),
+                        text: "Smart suggestions tailored to you"
+                    )
+                    
+                    OnboardingFeatureCard(
+                        icon: "magnifyingglass",
+                        iconColor: Color(hex: "FF9F3A"),
+                        text: "Understand your habits & motivation"
+                    )
+                }
+                .padding(.horizontal, 24)
+                .opacity(contentOpacity)
                 
                 Spacer()
                 
                 // Bottom buttons
-                VStack(spacing: AclioSpacing.space4) {
+                VStack(spacing: 16) {
+                    // Get Started button with gradient
                     Button(action: {
                         AclioHaptics.medium()
                         onGetStarted()
                     }) {
                         Text("Get Started")
-                            .font(AclioFont.buttonLarge)
-                            .foregroundColor(.aclioHeaderBg)
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(Color.white)
-                            .cornerRadius(AclioRadius.button)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color(hex: "FFA63E"), Color(hex: "FF8A3D"), Color(hex: "FFB85C")],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .cornerRadius(28)
+                            .shadow(color: Color(hex: "FF9F3A").opacity(0.3), radius: 12, x: 0, y: 6)
                     }
                     
-                    HStack(spacing: 4) {
-                        Text("Already have an account?")
-                            .font(AclioFont.body)
-                            .foregroundColor(.white.opacity(0.6))
-                        
-                        Button(action: {
-                            AclioHaptics.light()
-                            onSignIn()
-                        }) {
-                            Text("Sign in")
-                                .font(AclioFont.bodyMedium)
-                                .foregroundColor(.white)
-                                .underline()
-                        }
+                    // Skip to App link
+                    Button(action: {
+                        AclioHaptics.light()
+                        onSkip()
+                    }) {
+                        Text("Skip to App")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(Color(hex: "9CA3AF"))
                     }
                 }
-                .padding(.horizontal, AclioSpacing.screenHorizontal)
-                .padding(.bottom, ScreenSize.safeBottom + AclioSpacing.space8)
+                .padding(.horizontal, 24)
+                .padding(.bottom, ScreenSize.safeBottom + 24)
                 .opacity(buttonsOpacity)
             }
         }
@@ -95,27 +154,49 @@ struct WelcomeView: View {
     }
     
     private func animateIn() {
-        // Mascot animation
         withAnimation(.spring(response: 0.8, dampingFraction: 0.7).delay(0.2)) {
             mascotScale = 1.0
             mascotOpacity = 1.0
         }
         
-        // Title animation
-        withAnimation(.easeOut(duration: 0.5).delay(0.5)) {
-            titleOpacity = 1.0
+        withAnimation(.easeOut(duration: 0.5).delay(0.4)) {
+            contentOpacity = 1.0
         }
         
-        // Buttons animation
-        withAnimation(.easeOut(duration: 0.5).delay(0.7)) {
+        withAnimation(.easeOut(duration: 0.5).delay(0.6)) {
             buttonsOpacity = 1.0
         }
     }
 }
 
-// MARK: - Preview
-#Preview {
-    WelcomeView(onGetStarted: {}, onSignIn: {})
+// MARK: - Onboarding Feature Card
+struct OnboardingFeatureCard: View {
+    let icon: String
+    let iconColor: Color
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(iconColor)
+                .frame(width: 24)
+            
+            Text(text)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(Color(hex: "1F2937"))
+            
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 18)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 2)
+    }
 }
 
-
+// MARK: - Preview
+#Preview {
+    WelcomeView(onGetStarted: {}, onSkip: {})
+}
