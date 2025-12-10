@@ -146,7 +146,10 @@ struct DashboardView: View {
         }
         .padding(.horizontal, AclioSpacing.screenHorizontal)
         .padding(.bottom, AclioSpacing.space6)
-        .background(Color.aclioHeaderBg)
+        .background(
+            Color.aclioHeaderBg
+                .ignoresSafeArea(edges: .top)
+        )
     }
     
     // MARK: - Goals Section
