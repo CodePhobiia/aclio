@@ -59,6 +59,7 @@ struct NewGoalView: View {
                             
                             // Plan frequency selection
                             planFrequencySelection
+                                .id("frequencySection")
                             
                             // AI Questions
                             if viewModel.showQuestions && !viewModel.questions.isEmpty {
@@ -76,10 +77,11 @@ struct NewGoalView: View {
                     }
                     .scrollDismissesKeyboard(.immediately)
                     .onChange(of: viewModel.questions.count) { _ in
-                        // Auto-scroll to questions when they appear
+                        // Auto-scroll to show frequency options AND questions
                         if !viewModel.questions.isEmpty {
                             withAnimation(.easeInOut(duration: 0.5)) {
-                                proxy.scrollTo("questionsSection", anchor: .top)
+                                // Scroll to frequency section so users see both options
+                                proxy.scrollTo("frequencySection", anchor: .top)
                             }
                         }
                     }
