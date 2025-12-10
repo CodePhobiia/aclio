@@ -32,6 +32,9 @@ final class GoalDetailViewModel: ObservableObject {
     @Published var doItForMeResultStep: Step?
     @Published var doItForMeResultContent: String = ""
     
+    // MARK: - Extend Goal State
+    @Published var isExtendingGoal: Bool = false
+    
     // MARK: - Premium State (forwarded from service)
     @Published var isPremium: Bool = false
     @Published var showPaywall: Bool = false
@@ -219,6 +222,54 @@ final class GoalDetailViewModel: ObservableObject {
     func markDoItForMeStepComplete() {
         guard let step = doItForMeResultStep else { return }
         toggleStep(step.id)
+    }
+    
+    // MARK: - Extend Goal
+    func extendGoal(additionalContext: String) async {
+        isExtendingGoal = true
+        error = nil
+        
+        do {
+            // Build context with existing steps and user request
+            var context = "Existing steps completed: \(goal.completedStepsCount) of \(goal.totalStepsCount).\n"
+            context += "Current steps: \(goal.steps.map { $0.title }.joined(separator: ", ")).\n"
+            context += "User request for extension: \(additionalContext)"
+            
+            print("📡 Extending goal: \(goal.name)")
+            let response = try await apiService.generateSteps(
+                goal: goal.name,
+                profile: profile,
+                location: nil,
+                additionalContext: context
+            )
+            
+            print("✅ Extension response received with \(response.steps.count) new steps")
+            
+            // Create new steps with IDs continuing from existing ones
+            let maxExistingId = goal.steps.map { $0.id }.max() ?? 0
+            let newSteps = response.steps.enumerated().map { index, stepData in
+                Step(
+                    id: maxExistingId + index + 1,
+                    title: stepData.title,
+                    description: stepData.description,
+                    estimatedDuration: stepData.estimatedDuration
+                )
+            }
+            
+            // Add new steps to goal
+            goal.steps.append(contentsOf: newSteps)
+            saveGoal()
+            
+            // Award points for extending
+            gamification.awardStepPoints()
+            
+            isExtendingGoal = false
+            
+        } catch let apiError {
+            print("❌ Extend goal failed: \(apiError)")
+            self.error = "Failed to extend goal: \(apiError.localizedDescription)"
+            isExtendingGoal = false
+        }
     }
     
     // MARK: - Delete Goal

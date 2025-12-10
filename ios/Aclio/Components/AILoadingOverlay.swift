@@ -230,6 +230,19 @@ extension AILoadingOverlay {
             ]
         )
     }
+    
+    /// For extending a goal with new steps
+    static var extendingGoal: AILoadingOverlay {
+        AILoadingOverlay(
+            title: "Extending your goal",
+            message: "Creating new steps based on your progress",
+            tips: [
+                "Continuous improvement is the key to mastery",
+                "Adding new challenges keeps you engaged",
+                "Building on success creates momentum"
+            ]
+        )
+    }
 }
 
 // MARK: - Preview

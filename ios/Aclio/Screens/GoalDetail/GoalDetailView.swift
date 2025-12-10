@@ -10,6 +10,7 @@ struct GoalDetailView: View {
     
     @Environment(\.colorScheme) private var colorScheme
     @State private var showDeleteConfirm = false
+    @State private var showExtendGoal = false
     
     init(goal: Goal, onBack: @escaping () -> Void, onNavigateToChat: @escaping (Goal) -> Void, onDeleted: @escaping () -> Void) {
         _viewModel = StateObject(wrappedValue: GoalDetailViewModel(goal: goal))
@@ -57,6 +58,9 @@ struct GoalDetailView: View {
                             .cornerRadius(AclioRadius.medium)
                         }
                         
+                        // Extend Goal Button
+                        extendGoalButton
+                        
                         // Delete Button
                         deleteButton
                     }
@@ -77,6 +81,10 @@ struct GoalDetailView: View {
             
             if viewModel.doingItForMeStepId != nil {
                 AILoadingOverlay.doingItForMe
+            }
+            
+            if viewModel.isExtendingGoal {
+                AILoadingOverlay.extendingGoal
             }
         }
         .sheet(isPresented: $viewModel.showPaywall) {
@@ -113,6 +121,20 @@ struct GoalDetailView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Are you sure you want to delete this goal?")
+        }
+        .sheet(isPresented: $showExtendGoal) {
+            ExtendGoalSheet(
+                goalName: viewModel.goal.name,
+                onExtend: { additionalContext in
+                    Task {
+                        await viewModel.extendGoal(additionalContext: additionalContext)
+                        showExtendGoal = false
+                    }
+                },
+                onDismiss: {
+                    showExtendGoal = false
+                }
+            )
         }
     }
     
@@ -284,6 +306,46 @@ struct GoalDetailView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Extend Goal Button
+    private var extendGoalButton: some View {
+        Button(action: {
+            AclioHaptics.medium()
+            showExtendGoal = true
+        }) {
+            HStack(spacing: AclioSpacing.space3) {
+                ZStack {
+                    Circle()
+                        .fill(colors.accentSoft)
+                        .frame(width: 40, height: 40)
+                    
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(colors.accent)
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Extend Goal")
+                        .font(AclioFont.cardTitle)
+                        .foregroundColor(colors.textPrimary)
+                    
+                    Text("Add more steps to continue your progress")
+                        .font(AclioFont.caption)
+                        .foregroundColor(colors.textSecondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(colors.textMuted)
+            }
+            .padding(AclioSpacing.cardPadding)
+            .background(colors.cardBackground)
+            .cornerRadius(AclioRadius.card)
+            .aclioCardShadow(isDark: colorScheme == .dark)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
     
     // MARK: - Delete Button
