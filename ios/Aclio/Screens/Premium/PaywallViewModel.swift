@@ -16,8 +16,13 @@ final class PaywallViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var error: String?
     
+    // Fallback to static plans when RevenueCat fails
+    @Published var selectedStaticPlan: SubscriptionPlan = .yearly
+    @Published var useStaticPlans: Bool = false
+    
     // MARK: - Static Features
     let features = PremiumFeature.all
+    let staticPlans = SubscriptionPlan.all
     
     // MARK: - Initialization
     init() {
@@ -40,7 +45,14 @@ final class PaywallViewModel: ObservableObject {
         
         premium.$error
             .receive(on: DispatchQueue.main)
-            .assign(to: &$error)
+            .sink { [weak self] error in
+                if error != nil {
+                    // RevenueCat failed, use static plans
+                    self?.useStaticPlans = true
+                }
+                self?.error = error
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Load Packages
@@ -50,12 +62,20 @@ final class PaywallViewModel: ObservableObject {
         } else {
             Task {
                 await premium.fetchOfferings()
+                
+                // If still no packages after fetch, use static plans
+                if packages.isEmpty {
+                    useStaticPlans = true
+                }
             }
         }
     }
     
     private func updatePackages(from offering: Offering?) {
-        guard let offering = offering else { return }
+        guard let offering = offering else {
+            useStaticPlans = true
+            return
+        }
         
         // Sort packages: yearly first (best value), then monthly, then weekly
         packages = offering.availablePackages.sorted { p1, p2 in
@@ -65,9 +85,14 @@ final class PaywallViewModel: ObservableObject {
             return idx1 < idx2
         }
         
-        // Default to yearly (best value)
-        if selectedPackage == nil {
-            selectedPackage = packages.first(where: { $0.packageType == .annual }) ?? packages.first
+        if packages.isEmpty {
+            useStaticPlans = true
+        } else {
+            useStaticPlans = false
+            // Default to yearly (best value)
+            if selectedPackage == nil {
+                selectedPackage = packages.first(where: { $0.packageType == .annual }) ?? packages.first
+            }
         }
     }
     
@@ -76,7 +101,17 @@ final class PaywallViewModel: ObservableObject {
         selectedPackage = package
     }
     
+    func selectStaticPlan(_ plan: SubscriptionPlan) {
+        selectedStaticPlan = plan
+    }
+    
     func purchase() async -> Bool {
+        if useStaticPlans {
+            // Use static plan ID to find package, or just grant premium for testing
+            let productId = "aclio_premium_\(selectedStaticPlan.id)"
+            return await premium.handlePurchase(planId: productId)
+        }
+        
         guard let package = selectedPackage else { return false }
         return await premium.purchase(package: package)
     }
@@ -87,19 +122,28 @@ final class PaywallViewModel: ObservableObject {
     
     // MARK: - Display Helpers
     var selectedPrice: String {
-        selectedPackage?.localizedPriceString ?? "$9.99"
+        if useStaticPlans {
+            return selectedStaticPlan.price
+        }
+        return selectedPackage?.localizedPriceString ?? "$49.99"
     }
     
     var selectedPeriod: String {
-        selectedPackage?.periodName ?? "Yearly"
+        if useStaticPlans {
+            return selectedStaticPlan.period
+        }
+        return selectedPackage?.periodName ?? "Yearly"
     }
     
     var selectedPeriodLabel: String {
+        if useStaticPlans {
+            return selectedStaticPlan.periodLabel
+        }
         switch selectedPackage?.packageType {
         case .weekly: return "week"
         case .monthly: return "month"
         case .annual: return "year"
-        default: return "month"
+        default: return "year"
         }
     }
 }

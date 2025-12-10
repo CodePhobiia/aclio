@@ -52,26 +52,22 @@ struct PaywallView: View {
                         priceCard
                         
                         // Plan Selection
-                        if !viewModel.packages.isEmpty {
+                        if viewModel.useStaticPlans {
+                            staticPlanButtons
+                        } else if !viewModel.packages.isEmpty {
                             planButtons
                         } else if viewModel.isLoading {
                             ProgressView()
                                 .frame(height: 60)
-                        }
-                        
-                        // Error Message
-                        if let error = viewModel.error {
-                            Text(error)
-                                .font(AclioFont.caption)
-                                .foregroundColor(colors.destructive)
-                                .multilineTextAlignment(.center)
+                        } else {
+                            // Fallback if nothing loaded
+                            staticPlanButtons
                         }
                         
                         // CTA
                         PrimaryButton(
                             "Continue",
-                            isLoading: viewModel.isLoading,
-                            isDisabled: viewModel.selectedPackage == nil
+                            isLoading: viewModel.isLoading
                         ) {
                             Task {
                                 let success = await viewModel.purchase()
@@ -87,13 +83,9 @@ struct PaywallView: View {
                                 .font(AclioFont.caption)
                                 .foregroundColor(colors.textMuted)
                             
-                            if let package = viewModel.selectedPackage {
-                                Text(package.storeProduct.subscriptionPeriod != nil 
-                                     ? "Auto-renews. Cancel in Settings." 
-                                     : "")
-                                    .font(AclioFont.caption)
-                                    .foregroundColor(colors.textMuted)
-                            }
+                            Text("Auto-renews. Cancel in Settings.")
+                                .font(AclioFont.caption)
+                                .foregroundColor(colors.textMuted)
                         }
                         
                         // Restore
@@ -180,18 +172,16 @@ struct PaywallView: View {
             }
             
             // Show savings for yearly
-            if viewModel.selectedPackage?.packageType == .annual,
-               let monthlyPackage = viewModel.packages.first(where: { $0.packageType == .monthly }) {
-                let yearlyPrice = viewModel.selectedPackage?.storeProduct.price ?? 0
-                let monthlyPrice = monthlyPackage.storeProduct.price * 12
-                let savings = monthlyPrice - yearlyPrice
-                
-                if savings > 0 {
-                    Text("Save \(savings.formatted(.currency(code: monthlyPackage.storeProduct.currencyCode ?? "USD"))) per year")
-                        .font(AclioFont.captionMedium)
-                        .foregroundColor(.white.opacity(0.9))
-                        .padding(.top, 4)
-                }
+            if viewModel.useStaticPlans && viewModel.selectedStaticPlan.id == "yearly" {
+                Text("Save 50% vs monthly")
+                    .font(AclioFont.captionMedium)
+                    .foregroundColor(.white.opacity(0.9))
+                    .padding(.top, 4)
+            } else if viewModel.selectedPackage?.packageType == .annual {
+                Text("Best Value - Save 50%")
+                    .font(AclioFont.captionMedium)
+                    .foregroundColor(.white.opacity(0.9))
+                    .padding(.top, 4)
             }
         }
         .frame(maxWidth: .infinity)
@@ -200,7 +190,7 @@ struct PaywallView: View {
         .cornerRadius(AclioRadius.large)
     }
     
-    // MARK: - Plan Buttons
+    // MARK: - Plan Buttons (RevenueCat)
     private var planButtons: some View {
         HStack(spacing: AclioSpacing.space3) {
             ForEach(viewModel.packages) { package in
@@ -220,6 +210,48 @@ struct PaywallView: View {
                             .foregroundColor(isSelected ? .white.opacity(0.8) : colors.textSecondary)
                         
                         if package.isBestValue {
+                            Text("Best")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.aclioSuccess)
+                                .cornerRadius(4)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AclioSpacing.space3)
+                    .background(isSelected ? colors.accent : colors.pillBackground)
+                    .cornerRadius(AclioRadius.button)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AclioRadius.button)
+                            .stroke(isSelected ? colors.accent : colors.border, lineWidth: 1)
+                    )
+                }
+            }
+        }
+    }
+    
+    // MARK: - Static Plan Buttons (Fallback)
+    private var staticPlanButtons: some View {
+        HStack(spacing: AclioSpacing.space3) {
+            ForEach(viewModel.staticPlans, id: \.id) { plan in
+                let isSelected = viewModel.selectedStaticPlan.id == plan.id
+                
+                Button(action: {
+                    AclioHaptics.selection()
+                    viewModel.selectStaticPlan(plan)
+                }) {
+                    VStack(spacing: 4) {
+                        Text(plan.period)
+                            .font(AclioFont.buttonSmall)
+                            .foregroundColor(isSelected ? .white : colors.textPrimary)
+                        
+                        Text(plan.price)
+                            .font(AclioFont.caption)
+                            .foregroundColor(isSelected ? .white.opacity(0.8) : colors.textSecondary)
+                        
+                        if plan.isBestValue {
                             Text("Best")
                                 .font(.system(size: 9, weight: .bold))
                                 .foregroundColor(.white)
