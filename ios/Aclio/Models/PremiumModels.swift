@@ -48,6 +48,7 @@ struct SubscriptionPlan: Identifiable, Equatable {
         isBestValue: true
     )
     
+    // Order: smallest to largest (left to right)
     static let all: [SubscriptionPlan] = [weekly, monthly, yearly]
 }
 

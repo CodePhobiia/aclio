@@ -77,9 +77,9 @@ final class PaywallViewModel: ObservableObject {
             return
         }
         
-        // Sort packages: yearly first (best value), then monthly, then weekly
+        // Sort packages: weekly first, then monthly, then yearly (left to right, small to big)
         packages = offering.availablePackages.sorted { p1, p2 in
-            let order: [PackageType] = [.annual, .monthly, .weekly]
+            let order: [PackageType] = [.weekly, .monthly, .annual]
             let idx1 = order.firstIndex(of: p1.packageType) ?? 99
             let idx2 = order.firstIndex(of: p2.packageType) ?? 99
             return idx1 < idx2

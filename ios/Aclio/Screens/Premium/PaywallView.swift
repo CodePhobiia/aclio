@@ -64,9 +64,12 @@ struct PaywallView: View {
                             staticPlanButtons
                         }
                         
+                        // 3-Day Trial Banner
+                        trialBanner
+                        
                         // CTA
                         PrimaryButton(
-                            "Continue",
+                            "Start Free Trial",
                             isLoading: viewModel.isLoading
                         ) {
                             Task {
@@ -79,11 +82,11 @@ struct PaywallView: View {
                         
                         // Terms
                         VStack(spacing: AclioSpacing.space2) {
-                            Text("No commitments. Cancel anytime.")
+                            Text("3-day free trial, then \(viewModel.selectedPrice)/\(viewModel.selectedPeriodLabel)")
                                 .font(AclioFont.caption)
                                 .foregroundColor(colors.textMuted)
                             
-                            Text("Auto-renews. Cancel in Settings.")
+                            Text("No charge until trial ends. Cancel anytime.")
                                 .font(AclioFont.caption)
                                 .foregroundColor(colors.textMuted)
                         }
@@ -230,6 +233,40 @@ struct PaywallView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Trial Banner
+    private var trialBanner: some View {
+        HStack(spacing: AclioSpacing.space3) {
+            ZStack {
+                Circle()
+                    .fill(colors.successSoft)
+                    .frame(width: 40, height: 40)
+                
+                Image(systemName: "gift.fill")
+                    .font(.system(size: 18))
+                    .foregroundColor(colors.success)
+            }
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text("3-Day Free Trial")
+                    .font(AclioFont.cardTitle)
+                    .foregroundColor(colors.textPrimary)
+                
+                Text("Try all premium features free for 3 days")
+                    .font(AclioFont.caption)
+                    .foregroundColor(colors.textSecondary)
+            }
+            
+            Spacer()
+        }
+        .padding(AclioSpacing.space4)
+        .background(colors.cardBackground)
+        .cornerRadius(AclioRadius.card)
+        .overlay(
+            RoundedRectangle(cornerRadius: AclioRadius.card)
+                .stroke(colors.success.opacity(0.3), lineWidth: 1)
+        )
     }
     
     // MARK: - Static Plan Buttons (Fallback)
