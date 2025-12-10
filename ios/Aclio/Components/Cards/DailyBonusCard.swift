@@ -70,3 +70,4 @@ struct DailyBonusCard: View {
         .background(Color.aclioPageBg)
 }
 
+

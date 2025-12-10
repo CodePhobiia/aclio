@@ -118,3 +118,4 @@ struct WelcomeView: View {
     WelcomeView(onGetStarted: {}, onSignIn: {})
 }
 
+

@@ -143,3 +143,4 @@ export const getLevelProgress = (points) => {
   return Math.round((progressInLevel / levelRange) * 100);
 };
 
+

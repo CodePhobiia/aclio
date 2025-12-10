@@ -180,3 +180,4 @@ export const clearAllData = () => {
   keys.forEach(key => localStorage.removeItem(key));
 };
 
+

@@ -222,3 +222,4 @@ struct OnboardingSlideView: View {
     OnboardingView(onComplete: {}, onSkip: {})
 }
 
+

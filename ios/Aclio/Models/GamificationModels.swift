@@ -230,3 +230,4 @@ struct LevelUpData: Equatable {
     let level: Level
 }
 
+

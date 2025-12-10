@@ -93,3 +93,4 @@ struct AnimatedMascot: View {
     .background(Color.aclioHeaderBg)
 }
 
+

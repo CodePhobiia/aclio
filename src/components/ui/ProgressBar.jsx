@@ -24,3 +24,4 @@ export function ProgressBar({ percent, height = 6, showLabel = false, className 
   );
 }
 
+

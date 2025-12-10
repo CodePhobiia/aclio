@@ -195,3 +195,4 @@ extension Goal {
     static let samples: [Goal] = [sample, sampleCompleted]
 }
 
+

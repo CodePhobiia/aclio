@@ -63,3 +63,4 @@ struct SearchBar: View {
     .background(Color.aclioPageBg)
 }
 
+
