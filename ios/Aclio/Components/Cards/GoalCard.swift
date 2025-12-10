@@ -122,20 +122,36 @@ struct GoalCard: View {
             .cornerRadius(AclioRadius.card)
             .aclioCardShadow(isDark: colorScheme == .dark)
             .offset(x: offset)
-            .gesture(
+            .simultaneousGesture(
                 onDelete != nil ?
-                DragGesture()
+                DragGesture(minimumDistance: 20, coordinateSpace: .local)
                     .onChanged { value in
+                        // Only respond to horizontal drags (allow vertical scrolling)
+                        let horizontalAmount = abs(value.translation.width)
+                        let verticalAmount = abs(value.translation.height)
+                        
+                        // If dragging more vertically, don't interfere with scroll
+                        if verticalAmount > horizontalAmount {
+                            return
+                        }
+                        
+                        // Only allow left swipe
                         if value.translation.width < 0 {
                             offset = max(value.translation.width, -80)
                         }
                     }
                     .onEnded { value in
-                        withAnimation(.spring()) {
-                            if value.translation.width < -50 {
+                        // Only act if it was a horizontal swipe
+                        let horizontalAmount = abs(value.translation.width)
+                        let verticalAmount = abs(value.translation.height)
+                        
+                        if horizontalAmount > verticalAmount && value.translation.width < -50 {
+                            withAnimation(.spring()) {
                                 offset = -80
                                 showDelete = true
-                            } else {
+                            }
+                        } else {
+                            withAnimation(.spring()) {
                                 offset = 0
                                 showDelete = false
                             }
