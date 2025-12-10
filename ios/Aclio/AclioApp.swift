@@ -191,7 +191,7 @@ struct ContentView: View {
                 onGetStarted: {
                     appState.navigate(to: .onboarding)
                 },
-                onSignIn: {
+                onSkip: {
                     appState.completeOnboarding()
                 }
             )
