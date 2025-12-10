@@ -56,6 +56,9 @@ struct NewGoalView: View {
                             // Color selection
                             colorSelection
                             
+                            // Plan frequency selection
+                            planFrequencySelection
+                            
                             // AI Questions
                             if viewModel.showQuestions && !viewModel.questions.isEmpty {
                                 questionsCard
@@ -249,6 +252,67 @@ struct NewGoalView: View {
                             )
                             .scaleEffect(isSelected ? 1.1 : 1.0)
                     }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Plan Frequency Selection
+    private var planFrequencySelection: some View {
+        VStack(alignment: .leading, spacing: AclioSpacing.space3) {
+            HStack(spacing: AclioSpacing.space2) {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 14))
+                    .foregroundColor(colors.textMuted)
+                
+                Text("How should Aclio curate your plan?")
+                    .font(AclioFont.inputLabel)
+                    .foregroundColor(colors.textSecondary)
+            }
+            
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: AclioSpacing.space3) {
+                ForEach(PlanFrequency.allCases) { frequency in
+                    let isSelected = viewModel.selectedPlanFrequency == frequency
+                    
+                    Button(action: {
+                        AclioHaptics.selection()
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            viewModel.selectedPlanFrequency = frequency
+                        }
+                    }) {
+                        HStack(spacing: AclioSpacing.space3) {
+                            ZStack {
+                                Circle()
+                                    .fill(isSelected ? colors.accentSoft : colors.pillBackground)
+                                    .frame(width: 36, height: 36)
+                                
+                                Image(systemName: frequency.icon)
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(isSelected ? colors.accent : colors.textMuted)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(frequency.rawValue)
+                                    .font(AclioFont.cardTitle)
+                                    .foregroundColor(isSelected ? colors.textPrimary : colors.textSecondary)
+                                
+                                Text(frequency.description)
+                                    .font(.system(size: 11))
+                                    .foregroundColor(colors.textMuted)
+                                    .lineLimit(1)
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding(AclioSpacing.space3)
+                        .background(isSelected ? colors.accentSoft.opacity(0.3) : colors.cardBackground)
+                        .cornerRadius(AclioRadius.medium)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AclioRadius.medium)
+                                .stroke(isSelected ? colors.accent : colors.border, lineWidth: isSelected ? 2 : 1)
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
         }

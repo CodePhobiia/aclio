@@ -1,6 +1,43 @@
 import Foundation
 import Combine
 
+// MARK: - Plan Frequency
+enum PlanFrequency: String, CaseIterable, Identifiable {
+    case daily = "Daily"
+    case weekly = "Weekly"
+    case monthly = "Monthly"
+    case any = "Any"
+    
+    var id: String { rawValue }
+    
+    var icon: String {
+        switch self {
+        case .daily: return "sun.max.fill"
+        case .weekly: return "calendar.badge.clock"
+        case .monthly: return "calendar"
+        case .any: return "sparkles"
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .daily: return "Small daily tasks"
+        case .weekly: return "Weekly milestones"
+        case .monthly: return "Monthly goals"
+        case .any: return "AI decides best"
+        }
+    }
+    
+    var apiValue: String {
+        switch self {
+        case .daily: return "daily"
+        case .weekly: return "weekly"
+        case .monthly: return "monthly"
+        case .any: return "any"
+        }
+    }
+}
+
 // MARK: - Generation Step
 struct GenerationStep: Identifiable {
     let id: Int
@@ -29,6 +66,7 @@ final class NewGoalViewModel: ObservableObject {
     @Published var dueDate: Date?
     @Published var selectedIconIndex: Int = 0
     @Published var selectedColorIndex: Int = 0
+    @Published var selectedPlanFrequency: PlanFrequency = .any
     
     @Published var isLoading: Bool = false
     @Published var isQuestionsLoading: Bool = false
@@ -116,14 +154,26 @@ final class NewGoalViewModel: ObservableObject {
         error = nil
         startStepAnimation()
         
-        // Build additional context from answers
-        var additionalContext: String?
+        // Build additional context from answers and frequency preference
+        var contextParts: [String] = []
+        
+        // Add plan frequency preference
+        if selectedPlanFrequency != .any {
+            contextParts.append("Plan Frequency Preference: \(selectedPlanFrequency.rawValue) tasks - The user wants their action steps broken down into \(selectedPlanFrequency.rawValue.lowercased()) tasks.")
+        }
+        
+        // Add question answers
         if !answers.isEmpty {
-            additionalContext = answers
+            let answersText = answers
                 .filter { !$0.value.trimmingCharacters(in: .whitespaces).isEmpty }
                 .map { "\($0.key): \($0.value)" }
                 .joined(separator: "\n")
+            if !answersText.isEmpty {
+                contextParts.append(answersText)
+            }
         }
+        
+        let additionalContext: String? = contextParts.isEmpty ? nil : contextParts.joined(separator: "\n\n")
         
         do {
             let response = try await apiService.generateSteps(
@@ -179,6 +229,7 @@ final class NewGoalViewModel: ObservableObject {
         dueDate = nil
         selectedIconIndex = 0
         selectedColorIndex = 0
+        selectedPlanFrequency = .any
         questions = []
         answers = [:]
         showQuestions = false
