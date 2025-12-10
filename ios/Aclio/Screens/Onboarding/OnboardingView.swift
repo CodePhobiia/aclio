@@ -162,6 +162,7 @@ struct OnboardingSlideView2: View {
                 .foregroundColor(Color(hex: "0B1C36"))
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 32)
             
             Spacer()
@@ -173,6 +174,7 @@ struct OnboardingSlideView2: View {
                 .foregroundColor(Color(hex: "6B7280"))
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 40)
             
             Spacer()
