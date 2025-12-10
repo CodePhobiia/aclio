@@ -253,7 +253,7 @@ struct OnboardingFeatureCard2: View {
             Spacer()
         }
         .padding(.horizontal, 16)
-        .padding(.vertical: 14)
+        .padding(.vertical, 14)
         .background(Color.white)
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 2)

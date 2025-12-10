@@ -205,7 +205,7 @@ struct ProfileSetupView: View {
                     .font(.system(size: 13, weight: .regular))
                     .foregroundColor(Color(hex: "9CA3AF"))
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal: 40)
+                    .padding(.horizontal, 40)
                 
                 Spacer()
                 
