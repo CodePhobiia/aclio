@@ -12,7 +12,7 @@ struct OnboardingView: View {
     
     private let slides: [OnboardingSlideData] = [
         OnboardingSlideData(
-            mascotImage: "mascot", // Use checklist pose if available
+            mascotImage: "mascot-checklist", // Mascot with checklist
             title: "Your goals, broken into simple steps",
             subtitle: "Aclio transforms big ambitions into daily, doable actions.",
             features: [
@@ -20,10 +20,11 @@ struct OnboardingView: View {
                 OnboardingFeatureData(icon: "wand.and.stars", iconColor: Color(hex: "6366F1"), text: "\"Do it for me\" detailed tasks"),
                 OnboardingFeatureData(icon: "rocket.fill", iconColor: Color(hex: "6366F1"), text: "Timeline-based progress")
             ],
-            buttonText: "Next →"
+            buttonText: "Next →",
+            isChecklistSlide: true
         ),
         OnboardingSlideData(
-            mascotImage: "mascot", // Use celebration pose if available
+            mascotImage: "mascot", // Regular mascot for now
             title: "Achieve more with smart motivation",
             subtitle: "Streaks, progress insights, and reminders keep you moving forward.",
             features: [
@@ -31,7 +32,8 @@ struct OnboardingView: View {
                 OnboardingFeatureData(icon: "checkmark.seal.fill", iconColor: Color(hex: "6366F1"), text: "Personalized nudges"),
                 OnboardingFeatureData(icon: "trophy.fill", iconColor: Color(hex: "6366F1"), text: "Achievement badges")
             ],
-            buttonText: "Finish Setup"
+            buttonText: "Finish Setup",
+            isChecklistSlide: false
         )
     ]
     
@@ -120,6 +122,7 @@ struct OnboardingSlideData {
     let subtitle: String
     let features: [OnboardingFeatureData]
     let buttonText: String
+    var isChecklistSlide: Bool = false
 }
 
 struct OnboardingFeatureData {
@@ -138,44 +141,11 @@ struct OnboardingSlideView2: View {
             
             // Mascot area with illustration
             ZStack {
-                // Checklist card behind mascot (for slide 1)
-                if slide.title.contains("broken") {
-                    // Checklist illustration
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(0..<3, id: \.self) { index in
-                            HStack(spacing: 10) {
-                                ZStack {
-                                    Circle()
-                                        .stroke(Color(hex: "3B82F6"), lineWidth: 2)
-                                        .frame(width: 18, height: 18)
-                                    
-                                    if index < 2 {
-                                        Image(systemName: "checkmark")
-                                            .font(.system(size: 10, weight: .bold))
-                                            .foregroundColor(Color(hex: "3B82F6"))
-                                    }
-                                }
-                                
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color(hex: "E5E7EB"))
-                                    .frame(width: 80, height: 8)
-                            }
-                        }
-                    }
-                    .padding(16)
-                    .background(Color.white)
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
-                    .rotationEffect(.degrees(-8))
-                    .offset(x: -60, y: -20)
-                }
-                
-                // Mascot
+                // Mascot image (checklist version already includes the checklist)
                 Image(slide.mascotImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 160, height: 160)
-                    .offset(x: slide.title.contains("broken") ? 30 : 0)
+                    .frame(width: slide.isChecklistSlide ? 220 : 180, height: slide.isChecklistSlide ? 220 : 180)
                 
                 // Confetti for celebration slide
                 if slide.title.contains("motivation") {
@@ -183,7 +153,7 @@ struct OnboardingSlideView2: View {
                         .offset(y: -40)
                 }
             }
-            .frame(height: 200)
+            .frame(height: 240)
             
             Spacer()
                 .frame(height: 24)
