@@ -199,13 +199,23 @@ struct ChatBubble: View {
                 Spacer()
             }
             
-            Text(message.content.isEmpty && message.isStreaming ? "..." : message.content)
-                .font(AclioFont.chatMessage)
-                .foregroundColor(isUser ? .white : colors.textPrimary)
-                .padding(.horizontal, AclioSpacing.space4)
-                .padding(.vertical, AclioSpacing.space3)
-                .background(isUser ? colors.accent : colors.pillBackground)
-                .cornerRadius(AclioRadius.large)
+            Group {
+                if message.content.isEmpty && message.isStreaming {
+                    Text("...")
+                        .font(AclioFont.chatMessage)
+                        .foregroundColor(isUser ? .white : colors.textPrimary)
+                } else if isUser {
+                    Text(message.content)
+                        .font(AclioFont.chatMessage)
+                        .foregroundColor(.white)
+                } else {
+                    LinkableText(text: message.content, textColor: colors.textPrimary)
+                }
+            }
+            .padding(.horizontal, AclioSpacing.space4)
+            .padding(.vertical, AclioSpacing.space3)
+            .background(isUser ? colors.accent : colors.pillBackground)
+            .cornerRadius(AclioRadius.large)
             
             if isUser {
                 // No avatar for user
@@ -213,6 +223,50 @@ struct ChatBubble: View {
                 Spacer()
             }
         }
+    }
+}
+
+// MARK: - Linkable Text
+struct LinkableText: View {
+    let text: String
+    let textColor: Color
+    
+    var body: some View {
+        Text(attributedString)
+            .font(AclioFont.chatMessage)
+            .tint(Color(hex: "3B82F6")) // Blue link color
+    }
+    
+    private var attributedString: AttributedString {
+        var attributedString = AttributedString(text)
+        
+        // Find URLs in the text
+        let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        let nsString = text as NSString
+        let range = NSRange(location: 0, length: nsString.length)
+        
+        guard let matches = detector?.matches(in: text, options: [], range: range) else {
+            // Apply default text color if no links found
+            attributedString.foregroundColor = textColor
+            return attributedString
+        }
+        
+        // Apply default text color first
+        attributedString.foregroundColor = textColor
+        
+        // Then apply link styling to URLs
+        for match in matches {
+            guard let matchRange = Range(match.range, in: text),
+                  let url = match.url else { continue }
+            
+            if let attributedRange = Range(matchRange, in: attributedString) {
+                attributedString[attributedRange].link = url
+                attributedString[attributedRange].foregroundColor = Color(hex: "3B82F6")
+                attributedString[attributedRange].underlineStyle = .single
+            }
+        }
+        
+        return attributedString
     }
 }
 
