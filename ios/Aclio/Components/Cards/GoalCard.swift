@@ -8,7 +8,7 @@ struct GoalCard: View {
     
     @Environment(\.colorScheme) private var colorScheme
     @State private var offset: CGFloat = 0
-    @State private var showDelete = false
+    @State private var showDeleteConfirm = false
     
     init(goal: Goal, onTap: @escaping () -> Void, onDelete: (() -> Void)? = nil) {
         self.goal = goal
@@ -21,27 +21,7 @@ struct GoalCard: View {
     }
     
     var body: some View {
-        ZStack(alignment: .trailing) {
-            // Delete background
-            if onDelete != nil {
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        AclioHaptics.medium()
-                        onDelete?()
-                    }) {
-                        Image(systemName: "trash.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .frame(width: 60)
-                            .frame(maxHeight: .infinity)
-                    }
-                }
-                .background(colors.destructive)
-                .cornerRadius(AclioRadius.card)
-            }
-            
-            // Main card
+        // Main card
             VStack(alignment: .leading, spacing: AclioSpacing.cardGap) {
                 // Header
                 HStack(spacing: AclioSpacing.space3) {
@@ -121,56 +101,58 @@ struct GoalCard: View {
             .background(colors.cardBackground)
             .cornerRadius(AclioRadius.card)
             .aclioCardShadow(isDark: colorScheme == .dark)
-            .offset(x: offset)
             .simultaneousGesture(
                 onDelete != nil ?
-                DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                DragGesture(minimumDistance: 30, coordinateSpace: .local)
                     .onChanged { value in
                         // Only respond to horizontal drags (allow vertical scrolling)
                         let horizontalAmount = abs(value.translation.width)
                         let verticalAmount = abs(value.translation.height)
                         
                         // If dragging more vertically, don't interfere with scroll
-                        if verticalAmount > horizontalAmount {
+                        if verticalAmount > horizontalAmount * 0.8 {
                             return
                         }
                         
-                        // Only allow left swipe
+                        // Visual feedback during swipe (subtle)
                         if value.translation.width < 0 {
-                            offset = max(value.translation.width, -80)
+                            offset = max(value.translation.width * 0.3, -30)
                         }
                     }
                     .onEnded { value in
-                        // Only act if it was a horizontal swipe
+                        // Reset offset
+                        withAnimation(.spring()) {
+                            offset = 0
+                        }
+                        
+                        // Only show delete confirmation if it was a clear horizontal swipe
                         let horizontalAmount = abs(value.translation.width)
                         let verticalAmount = abs(value.translation.height)
                         
-                        if horizontalAmount > verticalAmount && value.translation.width < -50 {
-                            withAnimation(.spring()) {
-                                offset = -80
-                                showDelete = true
-                            }
-                        } else {
-                            withAnimation(.spring()) {
-                                offset = 0
-                                showDelete = false
-                            }
+                        if horizontalAmount > verticalAmount && value.translation.width < -80 {
+                            AclioHaptics.medium()
+                            showDeleteConfirm = true
                         }
                     }
                 : nil
             )
+            .offset(x: offset)
             .onTapGesture {
-                if offset == 0 {
-                    AclioHaptics.light()
-                    onTap()
-                } else {
-                    withAnimation(.spring()) {
-                        offset = 0
-                        showDelete = false
-                    }
-                }
+                AclioHaptics.light()
+                onTap()
             }
-        }
+            .confirmationDialog(
+                "Delete Goal",
+                isPresented: $showDeleteConfirm,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    onDelete?()
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Are you sure you want to delete \"\(goal.name)\"? This action cannot be undone.")
+            }
     }
 }
 
