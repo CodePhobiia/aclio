@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 // MARK: - Analytics Event
 /// Represents an analytics event to be tracked
@@ -8,11 +9,11 @@ struct AnalyticsEvent: Codable {
     let timestamp: Date
     let sessionId: String
     
-    init(name: String, parameters: [String: String] = [:]) {
+    init(name: String, parameters: [String: String] = [:], sessionId: String) {
         self.name = name
         self.parameters = parameters
         self.timestamp = Date()
-        self.sessionId = AnalyticsService.shared.sessionId
+        self.sessionId = sessionId
     }
 }
 
@@ -165,7 +166,7 @@ final class AnalyticsService: ObservableObject {
             allParams[key] = value
         }
         
-        let event = AnalyticsEvent(name: eventName, parameters: allParams)
+        let event = AnalyticsEvent(name: eventName, parameters: allParams, sessionId: sessionId)
         eventQueue.append(event)
         
         // Debug logging
@@ -348,10 +349,12 @@ final class AnalyticsService: ObservableObject {
 
 // MARK: - Analytics Integration Protocol
 /// Protocol for views/services that want to track analytics
+@MainActor
 protocol AnalyticsTrackable {
     var analyticsService: AnalyticsService { get }
 }
 
+@MainActor
 extension AnalyticsTrackable {
     var analyticsService: AnalyticsService {
         AnalyticsService.shared
