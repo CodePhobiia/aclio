@@ -135,59 +135,72 @@ struct OnboardingFeatureData {
 // MARK: - Onboarding Slide View
 struct OnboardingSlideView2: View {
     let slide: OnboardingSlideData
+    @Environment(\.horizontalSizeClass) private var hSizeClass
+    
+    private var isRegularWidth: Bool {
+        hSizeClass == .regular
+    }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Small top spacing
-            Spacer()
-                .frame(height: 8)
-            
-            // Mascot area with illustration
-            ZStack {
-                // Mascot image (images already include their decorations)
-                Image(slide.mascotImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(
-                        width: slide.isChecklistSlide || slide.isTrophySlide ? 180 : 160,
-                        height: slide.isChecklistSlide || slide.isTrophySlide ? 180 : 160
-                    )
-            }
-            
-            // Title
-            Text(slide.title)
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(Color(hex: "0B1C36"))
-                .multilineTextAlignment(.center)
-                .lineSpacing(2)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, 32)
-                .padding(.top, 8)
-            
-            // Subtitle
-            Text(slide.subtitle)
-                .font(.system(size: 14, weight: .regular))
-                .foregroundColor(Color(hex: "6B7280"))
-                .multilineTextAlignment(.center)
-                .lineSpacing(2)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, 40)
-                .padding(.top, 8)
-            
-            // Feature cards
-            VStack(spacing: 8) {
-                ForEach(Array(slide.features.enumerated()), id: \.offset) { _, feature in
-                    OnboardingFeatureCard2(
-                        icon: feature.icon,
-                        iconColor: feature.iconColor,
-                        text: feature.text
-                    )
+        // Scrollable to avoid cropping on iPad and large Dynamic Type
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                // Small top spacing
+                Spacer()
+                    .frame(height: isRegularWidth ? 24 : 8)
+                
+                // Mascot area with illustration
+                ZStack {
+                    // Mascot image (images already include their decorations)
+                    Image(slide.mascotImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(
+                            width: isRegularWidth ? 220 : (slide.isChecklistSlide || slide.isTrophySlide ? 180 : 160),
+                            height: isRegularWidth ? 220 : (slide.isChecklistSlide || slide.isTrophySlide ? 180 : 160)
+                        )
                 }
+                
+                // Title
+                Text(slide.title)
+                    .font(.system(size: isRegularWidth ? 28 : 24, weight: .bold))
+                    .foregroundColor(Color(hex: "0B1C36"))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, isRegularWidth ? 56 : 32)
+                    .padding(.top, 12)
+                
+                // Subtitle
+                Text(slide.subtitle)
+                    .font(.system(size: isRegularWidth ? 16 : 14, weight: .regular))
+                    .foregroundColor(Color(hex: "6B7280"))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, isRegularWidth ? 72 : 40)
+                    .padding(.top, 10)
+                
+                // Feature cards
+                VStack(spacing: 10) {
+                    ForEach(Array(slide.features.enumerated()), id: \.offset) { _, feature in
+                        OnboardingFeatureCard2(
+                            icon: feature.icon,
+                            iconColor: feature.iconColor,
+                            text: feature.text
+                        )
+                    }
+                }
+                .frame(maxWidth: isRegularWidth ? 540 : .infinity)
+                .padding(.horizontal, isRegularWidth ? 48 : 24)
+                .padding(.top, 16)
+                
+                Spacer(minLength: 16)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 12)
-            
-            Spacer()
+            .frame(maxWidth: 720)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, isRegularWidth ? 32 : 0)
+            .padding(.bottom, 24 + ScreenSize.safeBottom)
         }
     }
 }

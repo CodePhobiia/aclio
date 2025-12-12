@@ -77,7 +77,7 @@ struct WelcomeView: View {
                     }
                     
                     // Subtitle
-                    Text("The AI that helps you achieve anything\n— step by step.")
+                    Text("The AI that helps you achieve your goals\n— step by step.")
                         .font(.system(size: 16, weight: .regular))
                         .foregroundColor(Color(hex: "6B7280"))
                         .multilineTextAlignment(.center)

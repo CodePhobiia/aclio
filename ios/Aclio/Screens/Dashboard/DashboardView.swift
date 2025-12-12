@@ -10,9 +10,22 @@ struct DashboardView: View {
     let onNavigateToAnalytics: () -> Void
     
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     private var colors: AclioColors {
         AclioColors(colorScheme)
+    }
+    
+    private var isRegularWidth: Bool {
+        horizontalSizeClass == .regular
+    }
+    
+    private var horizontalPadding: CGFloat {
+        isRegularWidth ? 48 : AclioSpacing.screenHorizontal
+    }
+    
+    private var maxContentWidth: CGFloat {
+        isRegularWidth ? 900 : .infinity
     }
     
     var body: some View {
@@ -40,19 +53,22 @@ struct DashboardView: View {
                             PremiumBannerCard {
                                 viewModel.showPremiumPaywall()
                             }
-                            .padding(.horizontal, AclioSpacing.screenHorizontal)
+                            .padding(.horizontal, horizontalPadding)
+                            .frame(maxWidth: maxContentWidth, alignment: .center)
                         }
                         
                         // Search Bar
                         SearchBar(text: $viewModel.searchQuery, placeholder: "Search goals...")
-                            .padding(.horizontal, AclioSpacing.screenHorizontal)
+                            .padding(.horizontal, horizontalPadding)
+                            .frame(maxWidth: maxContentWidth, alignment: .center)
                         
                         // Today's Focus
                         if !viewModel.todaysTasks.isEmpty && viewModel.searchQuery.isEmpty {
                             FocusCard(tasks: viewModel.todaysTasks) { task in
                                 viewModel.toggleStep(goalId: task.goalId, stepId: task.stepId)
                             }
-                            .padding(.horizontal, AclioSpacing.screenHorizontal)
+                            .padding(.horizontal, horizontalPadding)
+                            .frame(maxWidth: maxContentWidth, alignment: .center)
                         }
                         
                         // Active Goals Section
@@ -151,7 +167,7 @@ struct DashboardView: View {
             }
             .padding(.top, AclioSpacing.space2)
         }
-        .padding(.horizontal, AclioSpacing.screenHorizontal)
+        .padding(.horizontal, horizontalPadding)
         .padding(.bottom, AclioSpacing.space6)
         .padding(.top, ScreenSize.safeTop)
     }
@@ -160,7 +176,8 @@ struct DashboardView: View {
     private var goalsSection: some View {
         VStack(alignment: .leading, spacing: AclioSpacing.space3) {
             SectionHeader("Active Goals")
-                .padding(.horizontal, AclioSpacing.screenHorizontal)
+                .padding(.horizontal, horizontalPadding)
+                .frame(maxWidth: maxContentWidth, alignment: .center)
             
             if viewModel.filteredGoals.isEmpty {
                 emptyState
@@ -178,7 +195,8 @@ struct DashboardView: View {
                         ))
                     }
                 }
-                .padding(.horizontal, AclioSpacing.screenHorizontal)
+                .padding(.horizontal, horizontalPadding)
+                .frame(maxWidth: maxContentWidth, alignment: .center)
             }
         }
     }
@@ -215,19 +233,22 @@ struct DashboardView: View {
                 progress: viewModel.levelProgress,
                 nextLevel: viewModel.nextLevel
             )
-            .padding(.horizontal, AclioSpacing.screenHorizontal)
+            .padding(.horizontal, horizontalPadding)
+            .frame(maxWidth: maxContentWidth, alignment: .center)
             
             // Daily Bonus
             if !viewModel.dailyBonusClaimed {
                 DailyBonusCard(bonusAmount: PointsConfig.dailyBonus) {
                     viewModel.claimDailyBonus()
                 }
-                .padding(.horizontal, AclioSpacing.screenHorizontal)
+                .padding(.horizontal, horizontalPadding)
+                .frame(maxWidth: maxContentWidth, alignment: .center)
             }
             
             // Streak Card
             StreakCard(streak: viewModel.streak)
-                .padding(.horizontal, AclioSpacing.screenHorizontal)
+                .padding(.horizontal, horizontalPadding)
+                .frame(maxWidth: maxContentWidth, alignment: .center)
             
             // Progress Hub
             progressHub
@@ -266,7 +287,8 @@ struct DashboardView: View {
                 .cornerRadius(AclioRadius.full)
             }
         }
-        .padding(.horizontal, AclioSpacing.screenHorizontal)
+        .padding(.horizontal, horizontalPadding)
+        .frame(maxWidth: maxContentWidth, alignment: .center)
     }
     
     // MARK: - Achievement Badges
@@ -275,7 +297,8 @@ struct DashboardView: View {
             AchievementBadge(title: "Goal Setter", icon: "🏆", gradient: AclioGradients.achievementPurple)
             AchievementBadge(title: "Streak Champion", icon: "⚡", gradient: AclioGradients.achievementTeal)
         }
-        .padding(.horizontal, AclioSpacing.screenHorizontal)
+        .padding(.horizontal, horizontalPadding)
+        .frame(maxWidth: maxContentWidth, alignment: .center)
     }
     
     // MARK: - FAB
