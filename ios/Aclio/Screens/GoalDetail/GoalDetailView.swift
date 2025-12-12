@@ -49,7 +49,7 @@ struct GoalDetailView: View {
                             HStack {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .foregroundColor(.orange)
-                                Text(error)
+                                Text(error.errorDescription ?? error.title)
                                     .font(AclioFont.caption)
                                     .foregroundColor(colors.textSecondary)
                             }
