@@ -4,13 +4,27 @@ import RevenueCat
 // MARK: - Paywall View
 struct PaywallView: View {
     @StateObject private var viewModel = PaywallViewModel()
+    @State private var showErrorAlert = false
     
     let onDismiss: () -> Void
     
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     private var colors: AclioColors {
         AclioColors(colorScheme)
+    }
+    
+    private var isRegularWidth: Bool {
+        horizontalSizeClass == .regular
+    }
+    
+    private var horizontalPadding: CGFloat {
+        isRegularWidth ? 48 : AclioSpacing.screenHorizontal
+    }
+    
+    private var maxContentWidth: CGFloat {
+        isRegularWidth ? 820 : .infinity
     }
     
     var body: some View {
@@ -32,7 +46,7 @@ struct PaywallView: View {
                             .clipShape(Circle())
                     }
                 }
-                .padding(.horizontal, AclioSpacing.screenHorizontal)
+                .padding(.horizontal, horizontalPadding)
                 .padding(.top, AclioSpacing.space4)
                 
                 ScrollViewReader { proxy in
@@ -109,23 +123,32 @@ struct PaywallView: View {
                             
                             // Legal Links
                             HStack(spacing: AclioSpacing.space4) {
-                                Link("Privacy Policy", destination: URL(string: "https://thecribbusiness.github.io/aclio/privacy")!)
+                                Link("Privacy Policy", destination: URL(string: "https://thecribbusiness.github.io/aclio/privacy-policy.html")!)
                                     .font(AclioFont.caption)
                                     .foregroundColor(colors.textMuted)
                                 
                                 Text("•")
                                     .foregroundColor(colors.textMuted)
                                 
-                                Link("Terms of Use", destination: URL(string: "https://thecribbusiness.github.io/aclio/terms")!)
+                                Link("Terms of Use", destination: URL(string: "https://thecribbusiness.github.io/aclio/terms-of-service.html")!)
                                     .font(AclioFont.caption)
                                     .foregroundColor(colors.textMuted)
                             }
                         }
-                        .padding(.horizontal, AclioSpacing.screenHorizontal)
+                        .frame(maxWidth: maxContentWidth, alignment: .center)
+                        .padding(.horizontal, horizontalPadding)
                         .padding(.bottom, ScreenSize.safeBottom + AclioSpacing.space8)
                     }
                 }
             }
+        }
+        .onReceive(viewModel.$error.compactMap { $0 }) { _ in
+            showErrorAlert = true
+        }
+        .alert("Purchase Unavailable", isPresented: $showErrorAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(viewModel.error ?? "Please try again. Make sure you’re signed into the App Store and have network access.")
         }
     }
     

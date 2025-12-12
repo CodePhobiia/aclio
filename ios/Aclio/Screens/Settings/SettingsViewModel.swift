@@ -23,6 +23,8 @@ final class SettingsViewModel: NSObject, ObservableObject {
     // MARK: - Premium State (forwarded from service)
     @Published var isPremium: Bool = false
     @Published var showPaywall: Bool = false
+    @Published var isRestoring: Bool = false
+    @Published var restoreMessage: String?
     
     // MARK: - Location Manager
     private var locationManager: CLLocationManager?
@@ -58,6 +60,23 @@ final class SettingsViewModel: NSObject, ObservableObject {
     func dismissPaywall() {
         showPaywall = false
         premium.showPaywall = false
+    }
+    
+    // MARK: - Restore Purchases
+    func restorePurchases() async {
+        isRestoring = true
+        restoreMessage = nil
+        
+        let restored = await premium.restorePurchases()
+        
+        isRestoring = false
+        
+        if restored {
+            restoreMessage = "Purchases restored successfully!"
+            isPremium = true
+        } else {
+            restoreMessage = "No previous purchases found."
+        }
     }
     
     // MARK: - Load Data

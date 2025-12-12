@@ -83,6 +83,19 @@ struct SettingsView: View {
                                     }
                                 }
                             )
+                            
+                            SettingsRow(
+                                icon: "arrow.clockwise",
+                                title: "Restore Purchases",
+                                value: viewModel.isRestoring ? "Restoring..." : nil,
+                                showChevron: !viewModel.isRestoring,
+                                action: {
+                                    Task {
+                                        await viewModel.restorePurchases()
+                                    }
+                                }
+                            )
+                            .disabled(viewModel.isRestoring)
                         }
                         
                         // Data Section
@@ -157,6 +170,16 @@ struct SettingsView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Are you sure you want to sign out? Your data will be preserved.")
+        }
+        .alert("Restore Purchases", isPresented: .init(
+            get: { viewModel.restoreMessage != nil },
+            set: { if !$0 { viewModel.restoreMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) {
+                viewModel.restoreMessage = nil
+            }
+        } message: {
+            Text(viewModel.restoreMessage ?? "")
         }
     }
     

@@ -39,6 +39,7 @@ targets:
       - path: Aclio/AclioApp.swift
       - path: Aclio/Assets.xcassets
       - path: Aclio/StoreKitConfig.storekit
+      - path: Aclio/PrivacyInfo.xcprivacy
     dependencies:
       - package: RevenueCat
         product: RevenueCat

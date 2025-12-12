@@ -80,7 +80,11 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "weekly",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "weekly_trial",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
           "localizations" : [
             {
               "description" : "Unlock all premium features",
@@ -105,7 +109,11 @@
           "familyShareable" : false,
           "groupNumber" : 2,
           "internalID" : "monthly",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "monthly_trial",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
           "localizations" : [
             {
               "description" : "Unlock all premium features",
@@ -130,7 +138,11 @@
           "familyShareable" : false,
           "groupNumber" : 3,
           "internalID" : "yearly",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "yearly_trial",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
           "localizations" : [
             {
               "description" : "Unlock all premium features - Best Value!",
