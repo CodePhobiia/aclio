@@ -215,10 +215,15 @@ final class AppState: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] notification in
-            if let isDark = notification.object as? Bool {
-                self?.isDarkMode = isDark
-            } else {
-                self?.refreshTheme()
+            // Note: NotificationCenter observer closures are treated as @Sendable; hop to MainActor
+            // to mutate MainActor-isolated state safely.
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                if let isDark = notification.object as? Bool {
+                    self.isDarkMode = isDark
+                } else {
+                    self.refreshTheme()
+                }
             }
         }
     }
@@ -228,7 +233,7 @@ final class AppState: ObservableObject {
         profile = storage.loadProfile() ?? UserProfile()
         
         // Determine initial screen
-        Task {
+        Task { @MainActor in
             // Simulate brief loading
             try? await Task.sleep(nanoseconds: 500_000_000)
             

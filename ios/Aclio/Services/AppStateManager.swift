@@ -313,10 +313,5 @@ final class AppStateManager: ObservableObject {
     }
 }
 
-// MARK: - Notification Names
-extension Notification.Name {
-    static let themeChanged = Notification.Name("themeChanged")
-    static let goalsUpdated = Notification.Name("goalsUpdated")
-    static let profileUpdated = Notification.Name("profileUpdated")
-}
+// NOTE: Notification.Name constants live in `Utils/Extensions.swift` to avoid duplicate declarations.
 

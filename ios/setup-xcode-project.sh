@@ -47,11 +47,19 @@ if [ -d "Aclio.xcodeproj" ]; then
     echo "  4. Build and run! (⌘R)"
     echo ""
     
-    # Ask if user wants to open the project
-    read -p "Open Xcode project now? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # Optionally open the project.
+    # - Non-interactive shells (e.g. CI) must NOT block on a prompt.
+    # - You can force opening by setting OPEN_XCODE_PROJECT=1
+    if [[ "${OPEN_XCODE_PROJECT:-}" == "1" ]]; then
         open Aclio.xcodeproj
+    elif [ -t 0 ]; then
+        read -p "Open Xcode project now? (y/n) " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            open Aclio.xcodeproj
+        fi
+    else
+        echo "ℹ️ Non-interactive shell detected; skipping auto-open. (Set OPEN_XCODE_PROJECT=1 to force.)"
     fi
 else
     echo "❌ Failed to create Xcode project"

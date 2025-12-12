@@ -36,6 +36,8 @@ targets:
         group: Components
       - path: Aclio/Screens
         group: Screens
+      - path: Aclio/Resources
+        group: Resources
       - path: Aclio/AclioApp.swift
       - path: Aclio/Assets.xcassets
       - path: Aclio/StoreKitConfig.storekit

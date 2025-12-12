@@ -1,5 +1,33 @@
 # iOS Setup Instructions for Aclio
 
+This repo contains **two different iOS setups**:
+
+- **Native SwiftUI app (recommended)**: `ios/Aclio` (generated via **XcodeGen**)
+- **Capacitor wrapper**: `ios/App` (generated/managed via **Capacitor**)
+
+If you’re seeing build errors referencing `ios/Aclio/AclioApp.swift`, you want the **Native SwiftUI** setup below.
+
+## Native SwiftUI app (ios/Aclio) — XcodeGen
+
+Run these commands in Terminal on your Mac:
+
+```bash
+cd ios
+./setup-xcode-project.sh
+open Aclio.xcodeproj
+```
+
+### Important: regenerate after pulling changes
+
+If you pull new commits that add/move Swift files under `ios/Aclio/`, you must re-run:
+
+```bash
+cd ios
+xcodegen generate --spec project.yml
+```
+
+Otherwise Xcode can fail with “Cannot find ___ in scope” because those files aren’t in the generated project yet.
+
 Run these commands in Terminal on your Mac:
 
 ## Step 1: Install Dependencies

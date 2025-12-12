@@ -274,4 +274,5 @@ extension UIApplication {
 extension Notification.Name {
     static let themeChanged = Notification.Name("themeChanged")
     static let goalsUpdated = Notification.Name("goalsUpdated")
+    static let profileUpdated = Notification.Name("profileUpdated")
 }
