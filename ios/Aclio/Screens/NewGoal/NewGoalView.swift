@@ -88,7 +88,7 @@ struct NewGoalView: View {
                                 
                                 // Error
                                 if let error = viewModel.error {
-                                    errorMessage(error)
+                                    errorMessage(error.errorDescription ?? error.title)
                                 }
                                 
                                 // Extra spacing at bottom for keyboard
