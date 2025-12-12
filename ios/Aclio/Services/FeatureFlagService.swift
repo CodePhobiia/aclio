@@ -1,5 +1,7 @@
 import Foundation
 import Combine
+import UIKit
+import SwiftUI
 
 // MARK: - Feature Flag
 /// Represents a feature that can be toggled on/off
@@ -364,6 +366,7 @@ final class FeatureFlagService: ObservableObject {
 // MARK: - SwiftUI Property Wrapper
 /// Property wrapper for easy feature flag access in views
 @propertyWrapper
+@MainActor
 struct FeatureEnabled: DynamicProperty {
     let flag: FeatureFlag
     @ObservedObject var service = FeatureFlagService.shared
@@ -378,6 +381,7 @@ struct FeatureEnabled: DynamicProperty {
 }
 
 // MARK: - View Modifier for Feature Gating
+@MainActor
 struct FeatureGateModifier: ViewModifier {
     let flag: FeatureFlag
     let fallback: AnyView?
@@ -392,6 +396,7 @@ struct FeatureGateModifier: ViewModifier {
     }
 }
 
+@MainActor
 extension View {
     /// Shows content only if feature flag is enabled
     func featureGated(_ flag: FeatureFlag) -> some View {

@@ -65,9 +65,9 @@ final class DeepLinkService: ObservableObject {
     static let shared = DeepLinkService()
     
     // MARK: - Configuration
-    static let urlScheme = "aclio"
-    static let host = "app"
-    static let universalLinkHost = "aclio.app"
+    nonisolated static let urlScheme = "aclio"
+    nonisolated static let host = "app"
+    nonisolated static let universalLinkHost = "aclio.app"
     
     // MARK: - State
     @Published var pendingRoute: DeepLinkRoute?

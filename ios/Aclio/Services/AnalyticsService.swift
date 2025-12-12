@@ -185,12 +185,6 @@ final class AnalyticsService: ObservableObject {
         saveEvents()
     }
     
-    /// Convenience method to track with typed parameter keys
-    func track(_ eventName: String, parameters: [AnalyticsParamKey.Type: String]) {
-        // This is a placeholder - in practice you'd map the keys properly
-        track(eventName, parameters: [:])
-    }
-    
     // MARK: - Goal Events
     
     func trackGoalCreated(goalId: Int, goalName: String, category: String?) {
