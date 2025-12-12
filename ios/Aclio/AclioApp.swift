@@ -1,21 +1,188 @@
 import SwiftUI
+import UIKit
+
+// MARK: - App Delegate
+class AppDelegate: NSObject, UIApplicationDelegate {
+    
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        // Start analytics session
+        Task { @MainActor in
+            AnalyticsService.shared.track(AnalyticsEventName.appLaunched)
+        }
+        
+        // Add breadcrumb
+        Task { @MainActor in
+            CrashReportingService.shared.addBreadcrumb("App launched")
+        }
+        
+        return true
+    }
+    
+    func application(
+        _ application: UIApplication,
+        configurationForConnecting connectingSceneSession: UISceneSession,
+        options: UIScene.ConnectionOptions
+    ) -> UISceneConfiguration {
+        let config = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        config.delegateClass = SceneDelegate.self
+        return config
+    }
+    
+    // Handle shortcut items
+    func application(
+        _ application: UIApplication,
+        performActionFor shortcutItem: UIApplicationShortcutItem,
+        completionHandler: @escaping (Bool) -> Void
+    ) {
+        Task { @MainActor in
+            let handled = DeepLinkService.shared.handleShortcut(shortcutItem)
+            completionHandler(handled)
+        }
+    }
+}
+
+// MARK: - Scene Delegate
+class SceneDelegate: NSObject, UIWindowSceneDelegate {
+    
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
+        // Handle URL if app was launched via deep link
+        if let url = connectionOptions.urlContexts.first?.url {
+            Task { @MainActor in
+                _ = DeepLinkService.shared.handle(url: url)
+            }
+        }
+        
+        // Handle shortcut if app was launched via quick action
+        if let shortcutItem = connectionOptions.shortcutItem {
+            Task { @MainActor in
+                _ = DeepLinkService.shared.handleShortcut(shortcutItem)
+            }
+        }
+    }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let url = URLContexts.first?.url else { return }
+        Task { @MainActor in
+            _ = DeepLinkService.shared.handle(url: url)
+        }
+    }
+    
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        Task { @MainActor in
+            _ = DeepLinkService.shared.handleUserActivity(userActivity)
+        }
+    }
+    
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        Task { @MainActor in
+            AnalyticsService.shared.track(AnalyticsEventName.appForegrounded)
+            NotificationService.shared.clearBadge()
+        }
+    }
+    
+    func sceneWillResignActive(_ scene: UIScene) {
+        Task { @MainActor in
+            AnalyticsService.shared.track(AnalyticsEventName.appBackgrounded)
+        }
+    }
+}
 
 // MARK: - App Entry Point
 @main
 struct AclioApp: App {
     
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     @StateObject private var appState = AppState()
+    @StateObject private var networkMonitor = NetworkMonitor.shared
+    @StateObject private var featureFlags = FeatureFlagService.shared
     
     init() {
+        // Run data migrations
+        DataMigrationService.shared.runOnAppLaunch()
+        
         // Configure RevenueCat
         PremiumService.shared.configure()
+        
+        // Initialize crash reporting
+        Task { @MainActor in
+            CrashReportingService.shared.addBreadcrumb("App initialized")
+        }
     }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(appState)
+                .environmentObject(networkMonitor)
+                .environmentObject(featureFlags)
                 .preferredColorScheme(appState.isDarkMode ? .dark : .light)
+                .onOpenURL { url in
+                    _ = DeepLinkService.shared.handle(url: url)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .deepLinkNavigation)) { notification in
+                    handleDeepLinkNavigation(notification)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .openGoalFromNotification)) { notification in
+                    handleNotificationNavigation(notification)
+                }
+        }
+    }
+    
+    private func handleDeepLinkNavigation(_ notification: Notification) {
+        guard let route = notification.object as? DeepLinkRoute else { return }
+        
+        Task { @MainActor in
+            // Ensure we're on dashboard first
+            if appState.currentScreen != .dashboard {
+                appState.navigateToRoot(.dashboard)
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+            
+            switch route {
+            case .dashboard:
+                break // Already there
+            case .newGoal:
+                appState.navigate(to: .newGoal)
+            case .goalDetail(let goalId):
+                if let goal = LocalStorageService.shared.loadGoals().first(where: { $0.id == goalId }) {
+                    appState.navigate(to: .goalDetail(goal))
+                }
+            case .chat(let goalId):
+                let goal = goalId.flatMap { id in
+                    LocalStorageService.shared.loadGoals().first { $0.id == id }
+                }
+                appState.navigate(to: .chat(goal))
+            case .settings:
+                appState.navigate(to: .settings)
+            case .premium:
+                PremiumService.shared.showPaywall = true
+            case .profile:
+                appState.navigate(to: .editProfile)
+            }
+            
+            DeepLinkService.shared.clearPendingRoute()
+        }
+    }
+    
+    private func handleNotificationNavigation(_ notification: Notification) {
+        guard let goalId = notification.object as? Int else { return }
+        
+        Task { @MainActor in
+            if let goal = LocalStorageService.shared.loadGoals().first(where: { $0.id == goalId }) {
+                if appState.currentScreen != .dashboard {
+                    appState.navigateToRoot(.dashboard)
+                    try? await Task.sleep(nanoseconds: 100_000_000)
+                }
+                appState.navigate(to: .goalDetail(goal))
+            }
         }
     }
 }
@@ -126,6 +293,8 @@ enum AppScreen: Hashable {
     case settings
     case editProfile
     case analytics
+    case devSettings
+    case notificationSettings
     
     static func == (lhs: AppScreen, rhs: AppScreen) -> Bool {
         switch (lhs, rhs) {
@@ -137,7 +306,9 @@ enum AppScreen: Hashable {
              (.newGoal, .newGoal),
              (.settings, .settings),
              (.editProfile, .editProfile),
-             (.analytics, .analytics):
+             (.analytics, .analytics),
+             (.devSettings, .devSettings),
+             (.notificationSettings, .notificationSettings):
             return true
         case let (.goalDetail(g1), .goalDetail(g2)):
             return g1.id == g2.id
@@ -161,6 +332,8 @@ enum AppScreen: Hashable {
         case .settings: hasher.combine("settings")
         case .editProfile: hasher.combine("editProfile")
         case .analytics: hasher.combine("analytics")
+        case .devSettings: hasher.combine("devSettings")
+        case .notificationSettings: hasher.combine("notificationSettings")
         }
     }
 }
@@ -323,6 +496,12 @@ struct ContentView: View {
                 onNavigateToAnalytics: {
                     appState.navigate(to: .analytics)
                 },
+                onNavigateToNotifications: {
+                    appState.navigate(to: .notificationSettings)
+                },
+                onNavigateToDevSettings: {
+                    appState.navigate(to: .devSettings)
+                },
                 onLogout: {
                     appState.logout()
                 }
@@ -340,6 +519,22 @@ struct ContentView: View {
             
         case .analytics:
             AnalyticsView(
+                onBack: {
+                    appState.navigateBack()
+                }
+            )
+            .navigationBarHidden(true)
+            
+        case .devSettings:
+            DeveloperSettingsView(
+                onBack: {
+                    appState.navigateBack()
+                }
+            )
+            .navigationBarHidden(true)
+            
+        case .notificationSettings:
+            NotificationSettingsView(
                 onBack: {
                     appState.navigateBack()
                 }

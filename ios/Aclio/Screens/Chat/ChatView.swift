@@ -82,6 +82,11 @@ struct ChatView: View {
         .sheet(isPresented: $viewModel.showPaywall) {
             PaywallView(onDismiss: { viewModel.dismissPaywall() })
         }
+        .errorAlert($viewModel.error) {
+            Task {
+                await viewModel.retryLastMessage()
+            }
+        }
     }
     
     // MARK: - Chat Header

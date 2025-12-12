@@ -3,11 +3,30 @@ import SwiftUI
 // MARK: - Settings View
 struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
+    @StateObject private var featureFlags = FeatureFlagService.shared
     
     let onBack: () -> Void
     let onNavigateToEditProfile: () -> Void
     let onNavigateToAnalytics: () -> Void
+    let onNavigateToNotifications: (() -> Void)?
+    let onNavigateToDevSettings: (() -> Void)?
     let onLogout: () -> Void
+    
+    init(
+        onBack: @escaping () -> Void,
+        onNavigateToEditProfile: @escaping () -> Void,
+        onNavigateToAnalytics: @escaping () -> Void,
+        onNavigateToNotifications: (() -> Void)? = nil,
+        onNavigateToDevSettings: (() -> Void)? = nil,
+        onLogout: @escaping () -> Void
+    ) {
+        self.onBack = onBack
+        self.onNavigateToEditProfile = onNavigateToEditProfile
+        self.onNavigateToAnalytics = onNavigateToAnalytics
+        self.onNavigateToNotifications = onNavigateToNotifications
+        self.onNavigateToDevSettings = onNavigateToDevSettings
+        self.onLogout = onLogout
+    }
     
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openURL) private var openURL
@@ -46,12 +65,21 @@ struct SettingsView: View {
                                 onChange: { _ in viewModel.toggleTheme() }
                             )
                             
-                            SettingsToggleRow(
-                                icon: "bell.fill",
-                                title: "Notifications",
-                                isOn: $viewModel.notificationsEnabled,
-                                onChange: { _ in viewModel.toggleNotifications() }
-                            )
+                            if let onNavigateToNotifications = onNavigateToNotifications {
+                                SettingsRow(
+                                    icon: "bell.fill",
+                                    title: "Notifications",
+                                    value: NotificationService.shared.dailyReminderEnabled ? "On" : "Off",
+                                    action: onNavigateToNotifications
+                                )
+                            } else {
+                                SettingsToggleRow(
+                                    icon: "bell.fill",
+                                    title: "Notifications",
+                                    isOn: $viewModel.notificationsEnabled,
+                                    onChange: { _ in viewModel.toggleNotifications() }
+                                )
+                            }
                             
                             SettingsRow(
                                 icon: "location.fill",
@@ -112,7 +140,7 @@ struct SettingsView: View {
                             SettingsRow(
                                 icon: "info.circle.fill",
                                 title: "Version",
-                                value: "2.0.0",
+                                value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.0.0",
                                 showChevron: false
                             )
                             
@@ -133,6 +161,18 @@ struct SettingsView: View {
                                 },
                                 trailingIcon: "arrow.up.forward"
                             )
+                        }
+                        
+                        // Developer Section (only if enabled)
+                        if featureFlags.isEnabled(.devTools), let onNavigateToDevSettings = onNavigateToDevSettings {
+                            settingsSection("Developer") {
+                                SettingsRow(
+                                    icon: "wrench.and.screwdriver.fill",
+                                    iconColor: colors.teal,
+                                    title: "Developer Settings",
+                                    action: onNavigateToDevSettings
+                                )
+                            }
                         }
                         
                         // Logout

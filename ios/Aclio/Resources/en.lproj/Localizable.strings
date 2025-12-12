@@ -1,0 +1,179 @@
+/* 
+  Localizable.strings
+  Aclio
+
+  English (Base) localization
+  
+  Usage in SwiftUI: Text("key".localized)
+  With arguments: String(format: "key".localized, arg1, arg2)
+*/
+
+// MARK: - Common
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.save" = "Save";
+"common.delete" = "Delete";
+"common.edit" = "Edit";
+"common.done" = "Done";
+"common.next" = "Next";
+"common.back" = "Back";
+"common.skip" = "Skip";
+"common.retry" = "Retry";
+"common.loading" = "Loading...";
+"common.error" = "Error";
+"common.success" = "Success";
+
+// MARK: - Onboarding
+"onboarding.welcome.title" = "Welcome to Aclio";
+"onboarding.welcome.subtitle" = "Your AI-powered goal coach";
+"onboarding.welcome.getStarted" = "Get Started";
+"onboarding.feature1.title" = "Set Your Goals";
+"onboarding.feature1.description" = "Tell Aclio what you want to achieve";
+"onboarding.feature2.title" = "Get AI Action Plans";
+"onboarding.feature2.description" = "Receive personalized step-by-step plans";
+"onboarding.feature3.title" = "Track Progress";
+"onboarding.feature3.description" = "Complete steps and watch your progress grow";
+
+// MARK: - Profile Setup
+"profile.setup.title" = "Let's personalize your experience";
+"profile.setup.name.label" = "What's your name?";
+"profile.setup.name.placeholder" = "Enter your name";
+"profile.setup.age.label" = "How old are you?";
+"profile.setup.age.placeholder" = "Your age (optional)";
+"profile.setup.gender.label" = "Gender (optional)";
+"profile.setup.continue" = "Continue";
+
+// MARK: - Dashboard
+"dashboard.greeting.morning" = "Good morning";
+"dashboard.greeting.afternoon" = "Good afternoon";
+"dashboard.greeting.evening" = "Good evening";
+"dashboard.subtitle" = "Let's make progress on your goals today.";
+"dashboard.createGoal" = "Create New Goal";
+"dashboard.newGoal" = "New Goal";
+"dashboard.activeGoals" = "Active Goals";
+"dashboard.searchPlaceholder" = "Search goals...";
+"dashboard.noGoals.title" = "No goals yet";
+"dashboard.noGoals.subtitle" = "Tap \"New Goal\" to set your first goal and let AI create your action plan!";
+"dashboard.noResults.title" = "No goals found";
+"dashboard.noResults.subtitle" = "No goals match \"%@\". Try a different search.";
+
+// MARK: - Goal Creation
+"newGoal.title" = "What do you want to achieve?";
+"newGoal.placeholder" = "Enter your goal...";
+"newGoal.suggestions" = "Suggestions";
+"newGoal.customize" = "Customize";
+"newGoal.icon" = "Icon";
+"newGoal.color" = "Color";
+"newGoal.dueDate" = "Due Date (optional)";
+"newGoal.frequency" = "Plan Frequency";
+"newGoal.frequency.daily" = "Daily";
+"newGoal.frequency.weekly" = "Weekly";
+"newGoal.frequency.monthly" = "Monthly";
+"newGoal.frequency.any" = "AI decides";
+"newGoal.generate" = "Generate Plan";
+"newGoal.generating" = "Creating your plan...";
+
+// MARK: - Goal Detail
+"goalDetail.progress" = "Progress";
+"goalDetail.steps" = "Steps";
+"goalDetail.completed" = "Completed";
+"goalDetail.nextStep" = "Next Step";
+"goalDetail.expand" = "Expand";
+"goalDetail.doItForMe" = "Do it for me";
+"goalDetail.viewExpanded" = "View";
+"goalDetail.extend" = "Add More Steps";
+"goalDetail.delete" = "Delete Goal";
+"goalDetail.deleteConfirm.title" = "Delete Goal";
+"goalDetail.deleteConfirm.message" = "Are you sure you want to delete \"%@\"? This action cannot be undone.";
+"goalDetail.celebrate.title" = "Goal Complete! 🎉";
+"goalDetail.celebrate.message" = "Amazing work! You've completed all steps.";
+
+// MARK: - Chat
+"chat.title" = "Aclio";
+"chat.subtitle" = "Your AI Goal Coach";
+"chat.inputPlaceholder" = "Ask Aclio anything...";
+"chat.quickPrompt.motivation" = "Give me motivation";
+"chat.quickPrompt.focus" = "What should I focus on?";
+"chat.quickPrompt.consistency" = "How do I stay consistent?";
+"chat.quickPrompt.tips" = "Tips for this step";
+
+// MARK: - Settings
+"settings.title" = "Settings";
+"settings.profile" = "Profile";
+"settings.editProfile" = "Edit Profile";
+"settings.appearance" = "Appearance";
+"settings.darkMode" = "Dark Mode";
+"settings.notifications" = "Notifications";
+"settings.premium" = "Premium";
+"settings.restore" = "Restore Purchases";
+"settings.legal" = "Legal";
+"settings.privacy" = "Privacy Policy";
+"settings.terms" = "Terms of Service";
+"settings.about" = "About";
+"settings.version" = "Version";
+"settings.logout" = "Log Out";
+"settings.deleteAccount" = "Delete Account";
+
+// MARK: - Premium
+"premium.title" = "Unlock Premium";
+"premium.subtitle" = "Get unlimited access to all features";
+"premium.feature1" = "Unlimited goals";
+"premium.feature2" = "Unlimited AI expansions";
+"premium.feature3" = "Unlimited \"Do it for me\"";
+"premium.feature4" = "Priority support";
+"premium.weekly" = "Weekly";
+"premium.monthly" = "Monthly";
+"premium.yearly" = "Yearly";
+"premium.bestValue" = "Best Value";
+"premium.freeTrial" = "3-day free trial";
+"premium.subscribe" = "Subscribe";
+"premium.restore" = "Restore Purchases";
+"premium.terms" = "Terms of Service";
+"premium.privacy" = "Privacy Policy";
+
+// MARK: - Gamification
+"gamification.level" = "Level %d";
+"gamification.points" = "%d points";
+"gamification.streak" = "%d-day streak";
+"gamification.dailyBonus" = "Daily Bonus";
+"gamification.claimBonus" = "Claim +%d Points";
+"gamification.levelUp.title" = "Level Up!";
+"gamification.levelUp.message" = "You reached Level %d: %@";
+"gamification.progressHub" = "Progress Hub";
+
+// MARK: - Errors
+"error.network" = "Unable to connect. Please check your internet connection.";
+"error.server" = "Something went wrong. Please try again.";
+"error.timeout" = "Request timed out. Please try again.";
+"error.rateLimited" = "Too many requests. Please wait a moment.";
+"error.validation" = "Please check your input and try again.";
+"error.unknown" = "An unexpected error occurred.";
+
+// MARK: - Accessibility
+"accessibility.goal.progress" = "%@ goal, %d percent complete";
+"accessibility.step.toggle" = "Mark step as %@";
+"accessibility.step.completed" = "completed";
+"accessibility.step.incomplete" = "incomplete";
+"accessibility.button.back" = "Go back";
+"accessibility.button.settings" = "Open settings";
+"accessibility.button.chat" = "Chat with Aclio";
+
+// MARK: - Offline
+"offline.banner" = "You're offline";
+"offline.pending" = "%d pending";
+"offline.syncing" = "Syncing...";
+
+// MARK: - Validation
+"validation.goal.empty" = "Please enter a goal";
+"validation.goal.tooShort" = "Goal must be at least 5 characters";
+"validation.goal.tooLong" = "Goal must be less than 500 characters";
+"validation.goal.inappropriate" = "Please enter a constructive goal";
+"validation.name.empty" = "Please enter your name";
+"validation.name.tooShort" = "Name must be at least 2 characters";
+"validation.name.tooLong" = "Name must be less than 50 characters";
+"validation.name.invalid" = "Name can only contain letters, spaces, hyphens, and apostrophes";
+"validation.age.invalid" = "Please enter a valid age";
+"validation.age.tooYoung" = "You must be at least 13 years old";
+"validation.message.empty" = "Please enter a message";
+"validation.message.tooLong" = "Message must be less than 2000 characters";
+

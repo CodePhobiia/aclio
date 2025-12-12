@@ -32,11 +32,13 @@ final class ChatViewModel: ObservableObject {
     private let apiService = ApiService.shared
     private let premium = PremiumService.shared
     private var cancellables = Set<AnyCancellable>()
+    private var streamingTask: Task<Void, Never>?
     
     // MARK: - Published State
     @Published var messages: [ChatMessage] = []
     @Published var inputText: String = ""
     @Published var isLoading: Bool = false
+    @Published var error: AppError?
     
     // MARK: - Premium State (forwarded from service)
     @Published var isPremium: Bool = false
@@ -76,6 +78,16 @@ final class ChatViewModel: ObservableObject {
         self.goal = goal
         addWelcomeMessage()
         observePremium()
+    }
+    
+    // MARK: - Cleanup
+    deinit {
+        // Cancel any ongoing streaming task
+        streamingTask?.cancel()
+        streamingTask = nil
+        
+        // Clear all subscriptions
+        cancellables.removeAll()
     }
     
     // MARK: - Observe Premium Service
@@ -142,12 +154,21 @@ final class ChatViewModel: ObservableObject {
     func sendMessage() async {
         guard canSend else { return }
         
+        // Validate input
+        let messageText = inputText.trimmingCharacters(in: .whitespaces)
+        let validation = InputValidator.validateChatMessage(messageText)
+        guard validation.isValid else {
+            error = .validationError(validation.errorMessage ?? "Invalid message")
+            return
+        }
+        
         let userMessage = ChatMessage(
             role: .user,
-            content: inputText.trimmingCharacters(in: .whitespaces)
+            content: messageText
         )
         messages.append(userMessage)
         inputText = ""
+        error = nil
         
         isLoading = true
         
@@ -165,31 +186,58 @@ final class ChatViewModel: ObservableObject {
             ["role": message.role.rawValue, "content": message.content]
         }
         
-        do {
-            try await apiService.chatStream(
-                message: userMessage.content,
-                goal: goal,
-                chatHistory: chatHistory,
-                profile: profile
-            ) { [weak self] chunk in
-                guard let self = self else { return }
-                self.messages[assistantIndex].content += chunk
+        // Create cancellable streaming task
+        streamingTask = Task { [weak self] in
+            guard let self = self else { return }
+            
+            do {
+                try await self.apiService.chatStream(
+                    message: userMessage.content,
+                    goal: self.goal,
+                    chatHistory: chatHistory,
+                    profile: self.profile
+                ) { [weak self] chunk in
+                    guard let self = self, !Task.isCancelled else { return }
+                    self.messages[assistantIndex].content += chunk
+                }
+                
+                // Mark streaming complete
+                if !Task.isCancelled {
+                    self.messages[assistantIndex].isStreaming = false
+                    
+                    // Ensure we have content
+                    if self.messages[assistantIndex].content.isEmpty {
+                        self.messages[assistantIndex].content = "I'm here to help! Could you tell me more?"
+                    }
+                }
+                
+            } catch {
+                if !Task.isCancelled {
+                    self.messages[assistantIndex].content = "I'm having trouble connecting right now. Please try again in a moment! 🐰"
+                    self.messages[assistantIndex].isStreaming = false
+                    self.error = AppError.from(error)
+                }
             }
             
-            // Mark streaming complete
-            messages[assistantIndex].isStreaming = false
-            
-            // Ensure we have content
-            if messages[assistantIndex].content.isEmpty {
-                messages[assistantIndex].content = "I'm here to help! Could you tell me more?"
-            }
-            
-        } catch {
-            messages[assistantIndex].content = "I'm having trouble connecting right now. Please try again in a moment! 🐰"
-            messages[assistantIndex].isStreaming = false
+            self.isLoading = false
         }
         
-        isLoading = false
+        await streamingTask?.value
+    }
+    
+    // MARK: - Retry Last Message
+    func retryLastMessage() async {
+        // Remove the failed assistant message
+        if let lastMessage = messages.last, lastMessage.role == .assistant {
+            messages.removeLast()
+        }
+        
+        // Restore the user message to input
+        if let userMessage = messages.last, userMessage.role == .user {
+            messages.removeLast()
+            inputText = userMessage.content
+            await sendMessage()
+        }
     }
 }
 

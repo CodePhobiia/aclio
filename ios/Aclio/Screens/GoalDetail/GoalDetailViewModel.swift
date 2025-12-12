@@ -10,6 +10,8 @@ final class GoalDetailViewModel: ObservableObject {
     private let apiService = ApiService.shared
     private let gamification = GamificationService.shared
     private let premium = PremiumService.shared
+    private let analytics = AnalyticsService.shared
+    private let crashReporting = CrashReportingService.shared
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Published State
@@ -18,7 +20,7 @@ final class GoalDetailViewModel: ObservableObject {
     @Published var expandingStepId: Int?
     @Published var doingItForMeStepId: Int?
     @Published var showCelebration: Bool = false
-    @Published var error: String?
+    @Published var error: AppError?
     
     // MARK: - Result Views State
     @Published var showExpandedResult: Bool = false
@@ -53,6 +55,11 @@ final class GoalDetailViewModel: ObservableObject {
         self.goal = goal
         loadExpandedSteps()
         observePremium()
+    }
+    
+    // MARK: - Cleanup
+    deinit {
+        cancellables.removeAll()
     }
     
     // MARK: - Observe Premium Service
@@ -95,6 +102,12 @@ final class GoalDetailViewModel: ObservableObject {
         goal.toggleStep(stepId)
         saveGoal()
         
+        // Track analytics
+        if !wasCompleted {
+            analytics.trackStepCompleted(goalId: goal.id, stepId: stepId, progress: goal.progress)
+            crashReporting.addBreadcrumb("Step completed: \(stepId) in goal \(goal.id)")
+        }
+        
         // Award points if completing
         if !wasCompleted {
             gamification.awardStepPoints()
@@ -103,6 +116,8 @@ final class GoalDetailViewModel: ObservableObject {
             if goal.isCompleted {
                 showCelebration = true
                 gamification.awardGoalPoints()
+                analytics.trackGoalCompleted(goalId: goal.id, goalName: goal.name)
+                crashReporting.addBreadcrumb("Goal completed: \(goal.name)")
             }
             
             _ = gamification.checkAchievements(goals: storage.loadGoals())
@@ -114,11 +129,13 @@ final class GoalDetailViewModel: ObservableObject {
         // Check premium
         guard premium.usePremiumFeature(.expandStep) else {
             print("⚠️ Expand blocked by premium check")
+            analytics.trackPaywallViewed(source: "expand_step")
             return
         }
         
         expandingStepId = step.id
         error = nil
+        crashReporting.addBreadcrumb("Expanding step: \(step.id)")
         
         do {
             print("📡 Calling expand API for step: \(step.title)")
@@ -129,6 +146,9 @@ final class GoalDetailViewModel: ObservableObject {
             )
             
             print("✅ Expand response received")
+            
+            // Track analytics
+            analytics.trackStepExpanded(goalId: goal.id, stepId: step.id)
             
             // Show the result view with full data
             expandedResultStep = step
@@ -141,7 +161,8 @@ final class GoalDetailViewModel: ObservableObject {
             
         } catch let apiError {
             print("❌ Expand failed: \(apiError)")
-            self.error = "Failed to expand: \(apiError.localizedDescription)"
+            self.error = AppError.from(apiError)
+            crashReporting.recordError(apiError, context: ["action": "expand_step", "goalId": String(goal.id)])
             expandingStepId = nil
         }
     }
@@ -175,11 +196,13 @@ final class GoalDetailViewModel: ObservableObject {
         // Check premium
         guard premium.usePremiumFeature(.doItForMe) else {
             print("⚠️ DoItForMe blocked by premium check")
+            analytics.trackPaywallViewed(source: "do_it_for_me")
             return
         }
         
         doingItForMeStepId = step.id
         error = nil
+        crashReporting.addBreadcrumb("Do it for me: \(step.id)")
         
         do {
             print("📡 Calling doItForMe API for step: \(step.title)")
@@ -191,6 +214,9 @@ final class GoalDetailViewModel: ObservableObject {
             
             print("✅ DoItForMe response: \(response.displayContent.prefix(50))...")
             
+            // Track analytics
+            analytics.trackStepDoItForMe(goalId: goal.id, stepId: step.id)
+            
             // Show the result view (don't mark complete yet - let user do it from result view)
             doItForMeResultStep = step
             doItForMeResultContent = response.displayContent
@@ -199,7 +225,8 @@ final class GoalDetailViewModel: ObservableObject {
             
         } catch let apiError {
             print("❌ DoItForMe failed: \(apiError)")
-            self.error = "Failed: \(apiError.localizedDescription)"
+            self.error = AppError.from(apiError)
+            crashReporting.recordError(apiError, context: ["action": "do_it_for_me", "goalId": String(goal.id)])
             doingItForMeStepId = nil
         }
     }
@@ -267,9 +294,20 @@ final class GoalDetailViewModel: ObservableObject {
             
         } catch let apiError {
             print("❌ Extend goal failed: \(apiError)")
-            self.error = "Failed to extend goal: \(apiError.localizedDescription)"
+            self.error = AppError.from(apiError)
             isExtendingGoal = false
         }
+    }
+    
+    // MARK: - Retry Methods
+    func retryExpandStep(_ step: Step) async {
+        error = nil
+        await expandStep(step)
+    }
+    
+    func retryDoItForMe(_ step: Step) async {
+        error = nil
+        await doItForMe(step)
     }
     
     // MARK: - Delete Goal

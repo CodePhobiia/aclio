@@ -20,6 +20,42 @@ struct GoalCard: View {
         AclioColors(colorScheme)
     }
     
+    // MARK: - Accessibility
+    
+    private var goalAccessibilityLabel: String {
+        var label = goal.name
+        if let category = goal.category {
+            label += ", \(category)"
+        }
+        label += ", \(goal.progress) percent complete"
+        if goal.isCompleted {
+            label += ", completed"
+        }
+        if let status = goal.dueDateStatus {
+            switch status {
+            case .overdue:
+                label += ", overdue"
+            case .today:
+                label += ", due today"
+            case .soon(let days):
+                label += ", \(days) days remaining"
+            case .normal(let days):
+                label += ", \(days) days remaining"
+            }
+        }
+        return label
+    }
+    
+    private var goalAccessibilityHint: String {
+        if goal.isCompleted {
+            return "Double tap to view completed goal details"
+        }
+        if let nextStep = goal.nextStep {
+            return "Next step: \(nextStep.title). Double tap to continue"
+        }
+        return "Double tap to view goal details"
+    }
+    
     var body: some View {
         // Main card
             VStack(alignment: .leading, spacing: AclioSpacing.cardGap) {
@@ -140,6 +176,19 @@ struct GoalCard: View {
             .onTapGesture {
                 AclioHaptics.light()
                 onTap()
+            }
+            // Accessibility
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(goalAccessibilityLabel)
+            .accessibilityHint(goalAccessibilityHint)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction(named: "View Details") {
+                onTap()
+            }
+            .accessibilityAction(named: "Delete Goal") {
+                if onDelete != nil {
+                    showDeleteConfirm = true
+                }
             }
             .confirmationDialog(
                 "Delete Goal",

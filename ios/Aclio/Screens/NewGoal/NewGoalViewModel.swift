@@ -60,6 +60,9 @@ final class NewGoalViewModel: ObservableObject {
     private let storage = LocalStorageService.shared
     private let apiService = ApiService.shared
     private let gamification = GamificationService.shared
+    private let analytics = AnalyticsService.shared
+    private let crashReporting = CrashReportingService.shared
+    private let notifications = NotificationService.shared
     
     // MARK: - Published State
     @Published var goalText: String = ""
@@ -70,7 +73,8 @@ final class NewGoalViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var isQuestionsLoading: Bool = false
-    @Published var error: String?
+    @Published var error: AppError?
+    @Published var validationError: String?
     
     @Published var questions: [GenerateQuestionsResponse.ApiQuestion] = []
     @Published var answers: [String: String] = [:]
@@ -88,7 +92,15 @@ final class NewGoalViewModel: ObservableObject {
     }
     
     var canSubmit: Bool {
-        !goalText.trimmingCharacters(in: .whitespaces).isEmpty && !isLoading
+        let validation = InputValidator.validateGoal(goalText)
+        return validation.isValid && !isLoading
+    }
+    
+    // MARK: - Validation
+    func validateGoalInput() -> Bool {
+        let validation = InputValidator.validateGoal(goalText)
+        validationError = validation.errorMessage
+        return validation.isValid
     }
     
     var progressPercent: Double {
@@ -112,6 +124,12 @@ final class NewGoalViewModel: ObservableObject {
     // MARK: - Timer
     private var stepTimer: Timer?
     
+    // MARK: - Cleanup
+    deinit {
+        stepTimer?.invalidate()
+        stepTimer = nil
+    }
+    
     // MARK: - Actions
     
     func selectSuggestion(_ suggestion: String) {
@@ -119,11 +137,13 @@ final class NewGoalViewModel: ObservableObject {
     }
     
     func generateQuestions() async {
-        guard canSubmit else { return }
+        guard validateGoalInput() else { return }
+        guard !isLoading else { return }
         
         isQuestionsLoading = true
         showQuestions = true
         error = nil
+        validationError = nil
         
         do {
             let response = try await apiService.generateQuestions(goal: goalText, profile: profile)
@@ -131,12 +151,12 @@ final class NewGoalViewModel: ObservableObject {
             
             // If no questions returned, show a message
             if questions.isEmpty {
-                error = "Couldn't generate questions. Try creating your goal directly!"
+                error = .serverError("Couldn't generate questions. Try creating your goal directly!")
                 showQuestions = false
             }
         } catch let apiError {
             print("Failed to generate questions: \(apiError)")
-            error = "Failed to connect: \(apiError.localizedDescription)"
+            error = AppError.from(apiError)
             showQuestions = false
         }
         
@@ -148,10 +168,12 @@ final class NewGoalViewModel: ObservableObject {
     }
     
     func createGoal() async -> Goal? {
-        guard canSubmit else { return nil }
+        guard validateGoalInput() else { return nil }
+        guard !isLoading else { return nil }
         
         isLoading = true
         error = nil
+        validationError = nil
         startStepAnimation()
         
         // Build additional context from answers and frequency preference
@@ -204,6 +226,15 @@ final class NewGoalViewModel: ObservableObject {
             goals.insert(newGoal, at: 0)
             storage.saveGoals(goals)
             
+            // Track analytics
+            analytics.trackGoalCreated(goalId: newGoal.id, goalName: newGoal.name, category: newGoal.category)
+            crashReporting.addBreadcrumb("Goal created: \(newGoal.name)")
+            
+            // Schedule notifications for due date
+            if newGoal.dueDate != nil {
+                notifications.scheduleGoalReminders(for: newGoal)
+            }
+            
             // Award points
             if isFirstGoal {
                 gamification.awardGoalPoints(isFirstGoal: true)
@@ -217,11 +248,19 @@ final class NewGoalViewModel: ObservableObject {
             return newGoal
             
         } catch let apiError {
-            error = apiError.localizedDescription
+            error = AppError.from(apiError)
+            crashReporting.recordError(apiError, context: ["action": "create_goal", "goal": goalText])
+            analytics.trackError(AppError.from(apiError), context: "create_goal")
             stopStepAnimation()
             isLoading = false
             return nil
         }
+    }
+    
+    // MARK: - Retry
+    func retryCreateGoal() async -> Goal? {
+        error = nil
+        return await createGoal()
     }
     
     func reset() {

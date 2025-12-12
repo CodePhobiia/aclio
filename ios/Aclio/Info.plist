@@ -59,6 +59,38 @@
 	<string>Automatic</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.ahmed.aclio</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>aclio</string>
+			</array>
+		</dict>
+	</array>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>plus.circle.fill</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>New Goal</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.aclio.newgoal</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>bubble.left.and.bubble.right.fill</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Chat with Aclio</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.aclio.chat</string>
+		</dict>
+	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

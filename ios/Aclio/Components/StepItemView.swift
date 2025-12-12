@@ -19,6 +19,23 @@ struct StepItemView: View {
         AclioColors(colorScheme)
     }
     
+    // MARK: - Accessibility
+    
+    private var stepAccessibilityLabel: String {
+        var label = "Step \(stepNumber): \(step.title)"
+        if isCompleted {
+            label += ", completed"
+        }
+        if let duration = step.duration {
+            label += ", estimated time \(duration)"
+        }
+        return label
+    }
+    
+    private var checkboxAccessibilityLabel: String {
+        isCompleted ? "Mark step \(stepNumber) as incomplete" : "Mark step \(stepNumber) as complete"
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: AclioSpacing.space3) {
             HStack(alignment: .top, spacing: AclioSpacing.space3) {
@@ -26,6 +43,9 @@ struct StepItemView: View {
                 Button(action: {
                     AclioHaptics.medium()
                     onToggle()
+                    // Accessibility announcement
+                    let announcement = isCompleted ? "Step marked incomplete" : "Step completed"
+                    UIAccessibility.post(notification: .announcement, argument: announcement)
                 }) {
                     ZStack {
                         Circle()
@@ -43,6 +63,8 @@ struct StepItemView: View {
                         }
                     }
                 }
+                .accessibilityLabel(checkboxAccessibilityLabel)
+                .accessibilityHint("Double tap to toggle completion")
                 
                 // Content
                 VStack(alignment: .leading, spacing: AclioSpacing.space2) {
@@ -124,6 +146,9 @@ struct StepItemView: View {
         .background(colors.cardBackground)
         .cornerRadius(AclioRadius.card)
         .opacity(isCompleted ? 0.7 : 1)
+        // Overall accessibility for the step container
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(stepAccessibilityLabel)
     }
 }
 
@@ -202,6 +227,20 @@ struct StepActionButton: View {
             .cornerRadius(AclioRadius.small)
         }
         .disabled(isLoading)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityHint(isLoading ? "Loading" : "Double tap to activate")
+        .accessibilityAddTraits(.isButton)
+    }
+    
+    private var accessibilityLabel: String {
+        switch style {
+        case .saved:
+            return "View saved expansion for this step"
+        case .accent:
+            return "Have AI complete this step for you"
+        case .normal:
+            return "Expand step with more details"
+        }
     }
 }
 

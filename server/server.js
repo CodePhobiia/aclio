@@ -7,9 +7,52 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const isProduction = process.env.NODE_ENV === 'production';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECURITY MIDDLEWARE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Security headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false // Disable CSP for API server
+}));
+
+// Rate limiting - general API limit
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per 15 minutes per IP
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path === '/api/health' // Skip health checks
+});
+
+// Stricter rate limit for AI endpoints (expensive operations)
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 AI requests per minute per IP
+  message: { error: 'Too many AI requests, please slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Apply general rate limiting to all API routes
+app.use('/api/', generalLimiter);
+
+// Apply stricter limits to AI-intensive endpoints
+app.use('/api/generate-steps', aiLimiter);
+app.use('/api/generate-steps-stream', aiLimiter);
+app.use('/api/expand-step', aiLimiter);
+app.use('/api/do-it-for-me', aiLimiter);
+app.use('/api/talk-to-aclio', aiLimiter);
+app.use('/api/talk-to-aclio-stream', aiLimiter);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // REQUEST LOGGING & OBSERVABILITY
@@ -24,7 +67,7 @@ const formatDuration = (ms) => {
   return `${(ms / 1000).toFixed(2)}s`;
 };
 
-// Request logger middleware
+// Request logger middleware (production-aware)
 const requestLogger = (req, res, next) => {
   const opId = generateOpId();
   const startTime = Date.now();
@@ -33,22 +76,24 @@ const requestLogger = (req, res, next) => {
   req.opId = opId;
   req.startTime = startTime;
   
-  // Log request start
-  const logData = {
-    opId,
-    method: req.method,
-    path: req.path,
-    timestamp: new Date().toISOString(),
-  };
-  
-  // Add relevant body info (without sensitive data)
-  if (req.body) {
-    if (req.body.goal) logData.goal = req.body.goal.substring(0, 50);
-    if (req.body.message) logData.message = req.body.message.substring(0, 50);
-    if (req.body.goalName) logData.goalName = req.body.goalName;
+  // In production, only log essential info
+  if (!isProduction) {
+    const logData = {
+      opId,
+      method: req.method,
+      path: req.path,
+      timestamp: new Date().toISOString(),
+    };
+    
+    // Add relevant body info (without sensitive data)
+    if (req.body) {
+      if (req.body.goal) logData.goal = req.body.goal.substring(0, 50);
+      if (req.body.message) logData.message = req.body.message.substring(0, 50);
+      if (req.body.goalName) logData.goalName = req.body.goalName;
+    }
+    
+    console.log(`\n🚀 [${opId}] START ${req.method} ${req.path}`, JSON.stringify(logData));
   }
-  
-  console.log(`\n🚀 [${opId}] START ${req.method} ${req.path}`, JSON.stringify(logData));
   
   // Capture response
   const originalSend = res.send;
@@ -56,19 +101,26 @@ const requestLogger = (req, res, next) => {
     const duration = Date.now() - startTime;
     const status = res.statusCode;
     
-    // Color code based on duration
-    let durationIcon = '⚡';
-    if (duration > 2000) durationIcon = '🐢';
-    else if (duration > 5000) durationIcon = '🔴';
-    else if (duration > 10000) durationIcon = '💀';
-    
-    const statusIcon = status >= 400 ? '❌' : '✅';
-    
-    console.log(`${statusIcon} [${opId}] END ${req.method} ${req.path} | Status: ${status} | ${durationIcon} Duration: ${formatDuration(duration)}`);
-    
-    // Warn on slow requests
-    if (duration > 5000) {
-      console.warn(`⚠️  [${opId}] SLOW REQUEST: ${req.path} took ${formatDuration(duration)}`);
+    if (isProduction) {
+      // Production: Only log errors and slow requests
+      if (status >= 400 || duration > 10000) {
+        console.log(`[${opId}] ${req.method} ${req.path} | ${status} | ${formatDuration(duration)}`);
+      }
+    } else {
+      // Development: Verbose logging
+      let durationIcon = '⚡';
+      if (duration > 2000) durationIcon = '🐢';
+      else if (duration > 5000) durationIcon = '🔴';
+      else if (duration > 10000) durationIcon = '💀';
+      
+      const statusIcon = status >= 400 ? '❌' : '✅';
+      
+      console.log(`${statusIcon} [${opId}] END ${req.method} ${req.path} | Status: ${status} | ${durationIcon} Duration: ${formatDuration(duration)}`);
+      
+      // Warn on slow requests
+      if (duration > 5000) {
+        console.warn(`⚠️  [${opId}] SLOW REQUEST: ${req.path} took ${formatDuration(duration)}`);
+      }
     }
     
     return originalSend.call(this, body);
@@ -79,11 +131,31 @@ const requestLogger = (req, res, next) => {
 
 // Middleware - allow all origins for development
 app.use(cors({
-  origin: true, // Allow all origins (for iOS Capacitor app)
+  origin: true, // Allow all origins (for iOS app)
   methods: ['GET', 'POST'],
   credentials: true
 }));
-app.use(express.json());
+
+// Request body size limits (prevent abuse)
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ limit: '1mb', extended: true }));
+
+// Request timeout middleware
+app.use((req, res, next) => {
+  // Set timeout for all requests (2 minutes for AI, 30s for others)
+  const timeout = req.path.includes('stream') || req.path.includes('generate') || req.path.includes('talk') 
+    ? 120000 // 2 minutes for AI endpoints
+    : 30000; // 30 seconds for other endpoints
+  
+  req.setTimeout(timeout, () => {
+    if (!res.headersSent) {
+      res.status(408).json({ error: 'Request timeout' });
+    }
+  });
+  next();
+});
+
+// Request logging (conditional based on environment)
 app.use(requestLogger);
 
 // API Keys from environment variables
@@ -243,7 +315,7 @@ if (!OPENAI_API_KEY) {
 async function callOpenAI(systemPrompt, userMessage, options = {}, opId = 'N/A') {
   const { model = PRIMARY_MODEL, maxTokens = 4096, temperature = 0.7 } = options;
   
-  console.log(`   📡 [${opId}] Calling OpenAI API (${model})...`);
+  if (!isProduction) console.log(`   📡 [${opId}] Calling OpenAI API (${model})...`);
   const apiStart = Date.now();
   
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -267,13 +339,15 @@ async function callOpenAI(systemPrompt, userMessage, options = {}, opId = 'N/A')
   
   if (!response.ok) {
     const err = await response.json();
-    console.log(`   ❌ [${opId}] OpenAI API ERROR after ${formatDuration(apiDuration)}: ${err.error?.message}`);
+    console.error(`[${opId}] OpenAI API ERROR: ${err.error?.message}`);
     throw new Error(err.error?.message || 'OpenAI API Error');
   }
 
   const data = await response.json();
-  const tokenUsage = data.usage ? `(${data.usage.prompt_tokens}→${data.usage.completion_tokens} tokens)` : '';
-  console.log(`   ✅ [${opId}] OpenAI API responded in ${formatDuration(apiDuration)} ${tokenUsage}`);
+  if (!isProduction) {
+    const tokenUsage = data.usage ? `(${data.usage.prompt_tokens}→${data.usage.completion_tokens} tokens)` : '';
+    console.log(`   ✅ [${opId}] OpenAI API responded in ${formatDuration(apiDuration)} ${tokenUsage}`);
+  }
   
   return data.choices[0].message.content;
 }
@@ -282,7 +356,7 @@ async function callOpenAI(systemPrompt, userMessage, options = {}, opId = 'N/A')
 async function callOpenAIChat(systemPrompt, messages, options = {}, opId = 'N/A') {
   const { model = PRIMARY_MODEL, maxTokens = 4096, temperature = 0.8 } = options;
   
-  console.log(`   📡 [${opId}] Calling OpenAI Chat API (${model})...`);
+  if (!isProduction) console.log(`   📡 [${opId}] Calling OpenAI Chat API (${model})...`);
   const apiStart = Date.now();
   
   // Convert messages to OpenAI format and add system prompt
@@ -309,13 +383,15 @@ async function callOpenAIChat(systemPrompt, messages, options = {}, opId = 'N/A'
   
   if (!response.ok) {
     const err = await response.json();
-    console.log(`   ❌ [${opId}] OpenAI Chat API ERROR after ${formatDuration(apiDuration)}: ${err.error?.message}`);
+    console.error(`[${opId}] OpenAI Chat API ERROR: ${err.error?.message}`);
     throw new Error(err.error?.message || 'OpenAI API Error');
   }
 
   const data = await response.json();
-  const tokenUsage = data.usage ? `(${data.usage.prompt_tokens}→${data.usage.completion_tokens} tokens)` : '';
-  console.log(`   ✅ [${opId}] OpenAI Chat API responded in ${formatDuration(apiDuration)} ${tokenUsage}`);
+  if (!isProduction) {
+    const tokenUsage = data.usage ? `(${data.usage.prompt_tokens}→${data.usage.completion_tokens} tokens)` : '';
+    console.log(`   ✅ [${opId}] OpenAI Chat API responded in ${formatDuration(apiDuration)} ${tokenUsage}`);
+  }
   
   return data.choices[0].message.content;
 }
@@ -484,7 +560,7 @@ ${userContext}${contextFromQuestions}${locationContext}
 Return JSON: {"category":"<${categoriesList}>","steps":[{"id":1,"title":"<action>","description":"<how>","duration":"<time>"},...]}
 8-12 steps. Specific tools/apps. No obvious steps.`;
 
-    console.log(`   📡 [${opId}] Starting streaming plan generation...`);
+    if (!isProduction) console.log(`   📡 [${opId}] Starting streaming plan generation...`);
     const streamStart = Date.now();
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -533,7 +609,7 @@ Return JSON: {"category":"<${categoriesList}>","steps":[{"id":1,"title":"<action
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
               if (firstChunk) {
-                console.log(`   ⚡ [${opId}] First chunk in ${formatDuration(Date.now() - streamStart)}`);
+                if (!isProduction) console.log(`   ⚡ [${opId}] First chunk in ${formatDuration(Date.now() - streamStart)}`);
                 firstChunk = false;
               }
               fullContent += content;
@@ -553,7 +629,7 @@ Return JSON: {"category":"<${categoriesList}>","steps":[{"id":1,"title":"<action
     try {
       const result = JSON.parse(cleanContent);
       res.write(`data: ${JSON.stringify({ done: true, result })}\n\n`);
-      console.log(`   ✅ [${opId}] Stream complete in ${formatDuration(Date.now() - streamStart)}`);
+      if (!isProduction) console.log(`   ✅ [${opId}] Stream complete in ${formatDuration(Date.now() - streamStart)}`);
     } catch (e) {
       res.write(`data: ${JSON.stringify({ done: true, raw: cleanContent })}\n\n`);
     }
@@ -831,7 +907,7 @@ Keep responses focused (2-3 paragraphs). Be conversational and valuable. Don't b
     }
     messages.push({ role: 'user', content: message });
 
-    console.log(`   📡 [${opId}] Starting streaming response (GPT)...`);
+    if (!isProduction) console.log(`   📡 [${opId}] Starting streaming response (GPT)...`);
     const streamStart = Date.now();
 
     // Convert messages to OpenAI format
@@ -886,7 +962,7 @@ Keep responses focused (2-3 paragraphs). Be conversational and valuable. Don't b
             if (content) {
               if (!firstChunkTime) {
                 firstChunkTime = Date.now();
-                console.log(`   ⚡ [${opId}] First chunk in ${formatDuration(firstChunkTime - streamStart)}`);
+                if (!isProduction) console.log(`   ⚡ [${opId}] First chunk in ${formatDuration(firstChunkTime - streamStart)}`);
               }
               fullResponse += content;
               // Send chunk to client
@@ -900,7 +976,7 @@ Keep responses focused (2-3 paragraphs). Be conversational and valuable. Don't b
     }
 
     const streamDuration = Date.now() - streamStart;
-    console.log(`   ✅ [${opId}] Stream complete in ${formatDuration(streamDuration)} (${fullResponse.length} chars)`);
+    if (!isProduction) console.log(`   ✅ [${opId}] Stream complete in ${formatDuration(streamDuration)} (${fullResponse.length} chars)`);
 
     // Send done signal
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`);

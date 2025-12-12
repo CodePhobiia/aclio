@@ -57,7 +57,7 @@ if (!isProduction) {
 
 **Current Code:**
 ```swift
-static let apiKey = "appl_bDbfydrvxEqoWAvaZPwQeWoWCtY"
+static let apiKey = "appl_***REDACTED***"
 ```
 
 **Recommended Fix:**

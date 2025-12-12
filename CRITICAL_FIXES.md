@@ -39,9 +39,9 @@ import Purchases
     @objc public func configure() {
         #if DEBUG
         Purchases.logLevel = .debug
-        Purchases.configure(withAPIKey: "appl_bDbfydrvxEqoWAvaZPwQeWoWCtY")
+        Purchases.configure(withAPIKey: "appl_***REDACTED***")
         #else
-        Purchases.configure(withAPIKey: "appl_bDbfydrvxEqoWAvaZPwQeWoWCtY")
+        Purchases.configure(withAPIKey: "appl_***REDACTED***")
         #endif
     }
 
@@ -253,7 +253,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Initialize RevenueCat
         Purchases.logLevel = .debug
-        Purchases.configure(withAPIKey: "appl_bDbfydrvxEqoWAvaZPwQeWoWCtY")
+        Purchases.configure(withAPIKey: "appl_***REDACTED***")
 
         return true
     }
@@ -285,7 +285,7 @@ export function usePremium() {
       if (Capacitor.isNativePlatform()) {
         // Configure RevenueCat
         await Purchase.configure({
-          apiKey: 'appl_bDbfydrvxEqoWAvaZPwQeWoWCtY'
+          apiKey: 'appl_***REDACTED***'
         });
 
         // Get products
