@@ -18,7 +18,7 @@
 **Files:** `src/App.jsx`, `ios/Aclio/AclioApp.swift`
 **Fix Required:**
 ```bash
-npm install @capacitor/purchase
+npm install @revenuecat/purchases-capacitor
 npx cap sync ios
 ```
 Implement RevenueCat SDK integration in both React and Swift code.

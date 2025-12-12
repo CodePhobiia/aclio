@@ -28,6 +28,8 @@ xcodegen generate --spec project.yml
 
 Otherwise Xcode can fail with “Cannot find ___ in scope” because those files aren’t in the generated project yet.
 
+## Capacitor wrapper (ios/App) — Capacitor
+
 Run these commands in Terminal on your Mac:
 
 ## Step 1: Install Dependencies
@@ -119,7 +121,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Configure RevenueCat
         Purchases.logLevel = .debug
-        Purchases.configure(withAPIKey: "test_SYAgudByWWBeGBviXsVovsUbDMA")
+        // IMPORTANT: Do NOT hardcode API keys in source control.
+        // Use a local-only build setting / .xcconfig (recommended) or a CI secret.
+        //
+        // Example (using an Info.plist value set via build settings):
+        // let apiKey = Bundle.main.object(forInfoDictionaryKey: "REVENUECAT_API_KEY") as? String ?? ""
+        // Purchases.configure(withAPIKey: apiKey)
+        Purchases.configure(withAPIKey: "<YOUR_REVENUECAT_API_KEY>")
         
         return true
     }

@@ -19,7 +19,7 @@ App prominently features premium features but IAP is non-functional. Apple will 
 
 #### Step 1: Install RevenueCat SDK
 ```bash
-npm install @capacitor/purchase
+npm install @revenuecat/purchases-capacitor
 npx cap sync ios
 ```
 
@@ -268,7 +268,7 @@ Modify `src/hooks/usePremium.js`:
 ```javascript
 import { useState, useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { Purchase } from '@capacitor/purchase';
+import { Purchases } from '@revenuecat/purchases-capacitor';
 
 export function usePremium() {
   const [isPremium, setIsPremium] = useState(false);
@@ -284,18 +284,18 @@ export function usePremium() {
     try {
       if (Capacitor.isNativePlatform()) {
         // Configure RevenueCat
-        await Purchase.configure({
+        await Purchases.configure({
           apiKey: 'appl_***REDACTED***'
         });
 
         // Get products
-        const offerings = await Purchase.getOfferings();
+        const offerings = await Purchases.getOfferings();
         if (offerings.current?.availablePackages) {
           setProducts(offerings.current.availablePackages);
         }
 
         // Check existing purchases
-        const customerInfo = await Purchase.getCustomerInfo();
+        const customerInfo = await Purchases.getCustomerInfo();
         const hasPremium = customerInfo.entitlements.active['premium'] !== undefined;
         setIsPremium(hasPremium);
       } else {
@@ -316,7 +316,9 @@ export function usePremium() {
   const purchase = async (productId) => {
     try {
       if (Capacitor.isNativePlatform()) {
-        const result = await Purchase.purchase({ productId });
+        // RevenueCat Capacitor plugin purchases packages (not raw product IDs).
+        // `productId` here should be the RevenueCat package identifier.
+        const result = await Purchases.purchasePackage({ packageIdentifier: productId });
         if (result.customerInfo.entitlements.active['premium']) {
           setIsPremium(true);
           setShowPaywall(false);
@@ -338,7 +340,7 @@ export function usePremium() {
   const restorePurchases = async () => {
     try {
       if (Capacitor.isNativePlatform()) {
-        const result = await Purchase.restorePurchases();
+        const result = await Purchases.restorePurchases();
         const hasPremium = result.customerInfo.entitlements.active['premium'] !== undefined;
         setIsPremium(hasPremium);
         return result;
