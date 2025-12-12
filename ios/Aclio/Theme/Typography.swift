@@ -26,6 +26,8 @@ struct AclioFont {
     static let body = Font.system(size: 15, weight: .regular, design: .default)
     static let bodyMedium = Font.system(size: 15, weight: .medium, design: .default)
     static let bodySemibold = Font.system(size: 15, weight: .semibold, design: .default)
+    // Backwards-compatible alias used in a few UI components.
+    static let bodyBold = Font.system(size: 15, weight: .bold, design: .default)
     
     // MARK: - Captions & Pills
     static let caption = Font.system(size: 12, weight: .regular, design: .default)

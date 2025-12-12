@@ -108,7 +108,8 @@ final class AppStateManager: ObservableObject {
     /// Points needed for next level
     var pointsToNextLevel: Int {
         guard let next = nextLevel else { return 0 }
-        return next.requiredPoints - points
+        // `Level` defines `minPoints` for each level threshold.
+        return max(0, next.minPoints - points)
     }
     
     /// Number of remaining free goals
