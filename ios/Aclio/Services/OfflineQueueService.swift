@@ -256,9 +256,9 @@ extension LocalStorageService {
         }
         saveGoals(goals)
         
-        // Queue for sync if offline
-        if !NetworkMonitor.shared.isConnected {
-            Task { @MainActor in
+        // Queue for sync if offline (NetworkMonitor is @MainActor in Swift 6)
+        Task { @MainActor in
+            if !NetworkMonitor.shared.isConnected {
                 OfflineQueueService.shared.enqueueGoalUpdate(goal)
             }
         }
@@ -270,9 +270,9 @@ extension LocalStorageService {
         goals.removeAll { $0.id == goalId }
         saveGoals(goals)
         
-        // Queue for sync if offline
-        if !NetworkMonitor.shared.isConnected {
-            Task { @MainActor in
+        // Queue for sync if offline (NetworkMonitor is @MainActor in Swift 6)
+        Task { @MainActor in
+            if !NetworkMonitor.shared.isConnected {
                 OfflineQueueService.shared.enqueueGoalDelete(goalId: goalId)
             }
         }
