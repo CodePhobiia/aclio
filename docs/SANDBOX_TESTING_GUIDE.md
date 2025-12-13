@@ -1,8 +1,51 @@
 # 🧪 Aclio Sandbox Testing Guide
 
-## Sandbox Status: ✅ WORKING
+## Sandbox Status: ⚠️ BLOCKED - IAP Products Need Review
+
+**🚨 CRITICAL BLOCKER**: Your in-app purchase products have status `DEVELOPER_ACTION_NEEDED` in App Store Connect. This means the products must be submitted for review and approved before sandbox testing can work.
+
+### Immediate Action Required:
+1. **Submit IAP Products** for review in App Store Connect
+2. **Wait for Approval** (typically 24-48 hours)
+3. **Test Sandbox** purchases on physical device
+
+---
 
 Aclio's sandbox environment is properly configured and ready for testing. RevenueCat automatically detects sandbox mode when using sandbox Apple ID accounts.
+
+---
+
+## 🚨 URGENT: Submit IAP Products for Review
+
+### Why This Is Critical
+Your IAP products show `DEVELOPER_ACTION_NEEDED` status, which means:
+- ❌ Sandbox purchases won't work
+- ❌ App Store review will fail Guideline 2.1 (App Completeness)
+- ❌ Cannot test IAP functionality
+
+### Step-by-Step: Submit IAP Products
+
+1. **Go to App Store Connect**:
+   - Visit [App Store Connect → Your App → In-App Purchases](https://appstoreconnect.apple.com/apps)
+   - Select your app
+
+2. **Review Each Product**:
+   - Click on each subscription product (`aclio_premium_weekly`, `monthly`, `yearly`)
+   - Verify all details are correct (pricing, descriptions, screenshots)
+
+3. **Submit for Review**:
+   - For each product with "Developer Action Needed" status
+   - Click "Submit for Review"
+   - Apple will review within 24-48 hours
+
+4. **Wait for Approval**:
+   - Status will change from "Developer Action Needed" to "Ready to Submit" or "Approved"
+   - Only then can you test sandbox purchases
+
+### Expected Timeline
+- **Submission**: 5 minutes
+- **Apple Review**: 24-48 hours
+- **Status Update**: Email notification when approved
 
 ---
 
