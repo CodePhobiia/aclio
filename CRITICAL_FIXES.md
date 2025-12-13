@@ -613,17 +613,17 @@ App uses HTTPS but declares no encryption, causing review delays and potential r
 
 ### **Required Implementation Steps**
 
-#### Step 1: Update Info.plist Encryption Declaration
-Modify `ios/Aclio/Info.plist`:
+#### Step 1: Verify Info.plist Encryption Declaration is Correct
+The Info.plist should have:
 
 ```xml
-<!-- CHANGE THIS LINE: -->
+<!-- CORRECT: Keep as false for exempt encryption -->
 <key>ITSAppUsesNonExemptEncryption</key>
 <false/>
 
-<!-- TO THIS: -->
-<key>ITSAppUsesNonExemptEncryption</key>
-<true/>
+<!-- Add this for export compliance: -->
+<key>ITSEncryptionExportComplianceCode</key>
+<string>EAR99</string>
 ```
 
 #### Step 2: Verify Encryption Usage
@@ -634,29 +634,15 @@ grep -r "http://" ios/Aclio/ src/ --exclude-dir=node_modules
 
 Should return no results (only https:// URLs should exist).
 
-#### Step 3: Add Encryption Export Documentation
-Create file: `ios/Aclio/encryption-export.txt`
+#### Step 3: Why This is Correct
+Aclio uses **only exempt encryption**:
+- **HTTPS/TLS**: Standard web encryption (exempt)
+- **RevenueCat SDK**: Handles payment encryption (exempt)
+- **No custom algorithms**: Only standard iOS networking APIs
 
-```
-Encryption Export Documentation for Aclio
+Setting `ITSAppUsesNonExemptEncryption` to `true` is **INCORRECT** and would require US government export compliance filings for custom encryption that doesn't exist in this app.
 
-App Name: Aclio
-Bundle ID: com.ahmed.aclio
-
-This app uses encryption for secure communication with backend servers.
-
-Technical Details:
-- Uses HTTPS/TLS for all network communications
-- Implements standard iOS networking APIs
-- No custom encryption algorithms
-- Uses RevenueCat SDK for in-app purchases (which handles its own encryption)
-- Uses Capacitor framework for hybrid app functionality
-
-The encryption is not eligible for exemption as it protects user data and payment information.
-
-Submitted: [Current Date]
-Developer: Ahmed Talme
-```
+**✅ The current Info.plist is already correct with `false`**.
 
 ### **Testing Verification**
 - Build succeeds: `npx cap build ios`
