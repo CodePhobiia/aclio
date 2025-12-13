@@ -7,25 +7,26 @@ import RevenueCat
 final class PaywallViewModel: ObservableObject {
     
     // MARK: - Dependencies
-    private let premium = PremiumService.shared
+    private let premium: PremiumService
     private var cancellables = Set<AnyCancellable>()
-    
+
     // MARK: - Published State
     @Published var selectedPackage: Package?
     @Published var packages: [Package] = []
     @Published var isLoading: Bool = false
     @Published var error: String?
-    
+
     // Fallback to static plans when RevenueCat fails
     @Published var selectedStaticPlan: SubscriptionPlan = .yearly
     @Published var useStaticPlans: Bool = false
-    
+
     // MARK: - Static Features
     let features = PremiumFeature.all
     let staticPlans = SubscriptionPlan.all
-    
+
     // MARK: - Initialization
-    init() {
+    init(premium: PremiumService = .shared) {
+        self.premium = premium
         observePremiumService()
         loadPackages()
     }
