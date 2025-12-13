@@ -344,6 +344,11 @@ export function usePremium() {
         const hasPremium = result.customerInfo.entitlements.active['premium'] !== undefined;
         setIsPremium(hasPremium);
         return result;
+      } else {
+        // Web simulation - check localStorage for premium status
+        const hasPremium = localStorage.getItem('aclio_premium') === 'true';
+        setIsPremium(hasPremium);
+        return { success: true, customerInfo: { entitlements: { active: hasPremium ? { premium: {} } : {} } } };
       }
     } catch (error) {
       console.error('Restore failed:', error);
